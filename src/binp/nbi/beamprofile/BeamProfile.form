@@ -88,8 +88,8 @@
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jTextField3" pref="157" max="32767" attributes="2"/>
-                              <Component id="jTextField1" alignment="1" pref="157" max="32767" attributes="2"/>
+                              <Component id="jTextField3" pref="148" max="32767" attributes="2"/>
+                              <Component id="jTextField1" alignment="1" pref="148" max="32767" attributes="2"/>
                           </Group>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
@@ -98,11 +98,11 @@
                           </Group>
                           <EmptySpace min="-2" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="jTextField2" alignment="0" pref="157" max="32767" attributes="0"/>
-                              <Component id="jTextField4" alignment="0" pref="157" max="32767" attributes="0"/>
+                              <Component id="jTextField2" alignment="0" pref="147" max="32767" attributes="0"/>
+                              <Component id="jTextField4" alignment="0" pref="147" max="32767" attributes="0"/>
                           </Group>
                       </Group>
-                      <Component id="jComboBox1" pref="376" max="32767" attributes="2"/>
+                      <Component id="jComboBox1" pref="357" max="32767" attributes="2"/>
                   </Group>
                   <EmptySpace min="-2" max="-2" attributes="0"/>
               </Group>
@@ -300,6 +300,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Add"/>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jButton1MouseClicked"/>
+          </Events>
         </Component>
         <Component class="javax.swing.JButton" name="jButton2">
           <Properties>

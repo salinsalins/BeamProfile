@@ -19,7 +19,8 @@ import org.jfree.ui.RectangleInsets;
 public class BeamProfile extends javax.swing.JFrame {
     static final Logger logger = Logger.getLogger(BeamProfile.class.getName());
 
-    ChartPanel chartPanel;
+    ChartPanel chartPanel1;
+    ChartPanel chartPanel2;
     
     /**
      * Creates new form BeamProfile
@@ -27,8 +28,8 @@ public class BeamProfile extends javax.swing.JFrame {
     public BeamProfile() {
         initComponents();
 
-        chartPanel = new ChartPanel(ChartFactory.createXYLineChart(
-                "Line Chart ", // chart title
+        chartPanel1 = new ChartPanel(ChartFactory.createXYLineChart(
+                "Line Chart 1", // chart title
                 "Time, ms", // x axis label
                 "Signal, V", // y axis label
                 new XYSeriesCollection(), // data
@@ -37,11 +38,22 @@ public class BeamProfile extends javax.swing.JFrame {
                 false, // tooltips
                 false // urls
             ), true);
-        
-        chartPanel.setPreferredSize(new Dimension(100, 100));
-        //jPanel3.add(new javax.swing.JLabel("Hello"));
-        jScrollPane2.setViewportView(chartPanel);
-        //jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(" E-mail "));
+        chartPanel1.setPreferredSize(new Dimension(100, 100));
+
+        chartPanel2 = new ChartPanel(ChartFactory.createXYLineChart(
+                "Line Chart 2", // chart title
+                "Time, ms", // x axis label
+                "Signal, V", // y axis label
+                new XYSeriesCollection(), // data
+                PlotOrientation.VERTICAL,
+                false, // include legend
+                false, // tooltips
+                false // urls
+            ), true);
+        chartPanel2.setPreferredSize(new Dimension(100, 100));
+
+        jScrollPane2.setViewportView(chartPanel1);
+        //jScrollPane2.setViewportView(chartPanel2);
 
     }
     

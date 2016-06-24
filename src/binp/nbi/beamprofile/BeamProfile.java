@@ -8,7 +8,9 @@ package binp.nbi.beamprofile;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.util.logging.Logger;
+import javax.swing.JPanel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.PlotOrientation;
@@ -19,8 +21,9 @@ import org.jfree.ui.RectangleInsets;
 public class BeamProfile extends javax.swing.JFrame {
     static final Logger logger = Logger.getLogger(BeamProfile.class.getName());
 
-    ChartPanel chartPanel1;
-    ChartPanel chartPanel2;
+    ChartPanel chart1;
+    ChartPanel chart2;
+    JPanel chartPanel;
     
     /**
      * Creates new form BeamProfile
@@ -28,7 +31,7 @@ public class BeamProfile extends javax.swing.JFrame {
     public BeamProfile() {
         initComponents();
 
-        chartPanel1 = new ChartPanel(ChartFactory.createXYLineChart(
+        chart1 = new ChartPanel(ChartFactory.createXYLineChart(
                 "Line Chart 1", // chart title
                 "Time, ms", // x axis label
                 "Signal, V", // y axis label
@@ -38,9 +41,9 @@ public class BeamProfile extends javax.swing.JFrame {
                 false, // tooltips
                 false // urls
             ), true);
-        chartPanel1.setPreferredSize(new Dimension(100, 100));
+        chart1.setPreferredSize(new Dimension(100, 100));
 
-        chartPanel2 = new ChartPanel(ChartFactory.createXYLineChart(
+        chart2 = new ChartPanel(ChartFactory.createXYLineChart(
                 "Line Chart 2", // chart title
                 "Time, ms", // x axis label
                 "Signal, V", // y axis label
@@ -50,9 +53,14 @@ public class BeamProfile extends javax.swing.JFrame {
                 false, // tooltips
                 false // urls
             ), true);
-        chartPanel2.setPreferredSize(new Dimension(100, 100));
+        chart2.setPreferredSize(new Dimension(100, 100));
 
-        jScrollPane2.setViewportView(chartPanel1);
+        chartPanel = new JPanel();
+        chartPanel.setLayout(new GridLayout(0, 1, 5, 5));
+        chartPanel.add(chart1);
+        chartPanel.add(chart2);
+
+        jScrollPane2.setViewportView(chartPanel);
         //jScrollPane2.setViewportView(chartPanel2);
 
     }

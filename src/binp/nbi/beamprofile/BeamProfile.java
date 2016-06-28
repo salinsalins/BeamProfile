@@ -60,8 +60,8 @@ public class BeamProfile extends javax.swing.JFrame {
         chartPanel.add(chart1);
         chartPanel.add(chart2);
 
-        jScrollPane2.setViewportView(chartPanel);
-        //jScrollPane2.setViewportView(chartPanel2);
+        //jScrollPane2.setViewportView(chartPanel);
+        jPanel3.add(chartPanel);
 
     }
     
@@ -290,7 +290,9 @@ public class BeamProfile extends javax.swing.JFrame {
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
+            .add(jPanel3Layout.createSequentialGroup()
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 54, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(0, 137, Short.MAX_VALUE))
         );
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());

@@ -9,11 +9,27 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JPanel;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.PlotOrientation;
@@ -21,12 +37,13 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
-public class BeamProfile extends javax.swing.JFrame {
+public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     static final Logger logger = Logger.getLogger(BeamProfile.class.getName());
 
     ChartPanel chart1;
     ChartPanel chart2;
     JPanel chartPanel;
+    Task task;
     
     /**
      * Creates new form BeamProfile
@@ -64,8 +81,8 @@ public class BeamProfile extends javax.swing.JFrame {
         chartPanel.add(chart2);
 
         jScrollPane2.setViewportView(chartPanel);
-        //jScrollPane2.setViewportView(chartPanel2);
-
+        addWindowListener(this);
+        
     }
     
     /** This method is called from within the constructor to
@@ -374,7 +391,7 @@ public class BeamProfile extends javax.swing.JFrame {
             }
         });
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton1;
@@ -407,8 +424,154 @@ public class BeamProfile extends javax.swing.JFrame {
     private javax.swing.JTextField jTextField5;
     // End of variables declaration//GEN-END:variables
     
-    class Task extends SwingWorker<Void, Void> {
+    private void restoreConfig() {
+//        String logFileName = null;
+//        List<String> columnNames = new LinkedList<>();
+//        try {
+//            ObjectInputStream objIStrm = new ObjectInputStream(new FileInputStream("config.dat"));
+//
+//            Rectangle bounds = (Rectangle) objIStrm.readObject();
+//            frame.setBounds(bounds);
+//
+//            logFileName = (String) objIStrm.readObject();
+//            txtFileName.setText(logFileName);
+//            fileLog = new File(logFileName);
+//
+//            String str = (String) objIStrm.readObject();
+//            folder = str;
+//
+//            str = (String) objIStrm.readObject();
+//            txtarExcludedColumns.setText(str);
+//
+//            str = (String) objIStrm.readObject();
+//            txtarIncludedColumns.setText(str);
+//
+//            boolean sm = (boolean) objIStrm.readObject();
+//            chckbxShowMarkers.setSelected(sm);
+//
+//            boolean sp = (boolean) objIStrm.readObject();
+//            chckbxShowPreviousShot.setSelected(sp);
+//            
+//            columnNames = (List<String>) objIStrm.readObject();
+//
+//            objIStrm.close();
+//
+//            logger.info("Config restored.");
+//        } catch (IOException | ClassNotFoundException e) {
+//            logger.log(Level.WARNING, "Config read error {0}", e);
+//        }
+//        timer.cancel();
+//        timer = new Timer();
+//        timerTask = new DirWatcher(window);
+//        timer.schedule(timerTask, 2000, 1000);
+//
+//        logViewTable.readFile(logFileName);
+//        logViewTable.setColumnNames(columnNames);
+//        columnNames = logViewTable.getColumnNames();
+//        // Add event listener for logview table
+//        ListSelectionModel rowSM = logViewTable.getSelectionModel();
+//        rowSM.addListSelectionListener(new ListSelectionListener() {
+//            @Override
+//            public void valueChanged(ListSelectionEvent event) {
+//                //Ignore extra messages.
+//                if (event.getValueIsAdjusting()) {
+//                    return;
+//                }
+//
+//                ListSelectionModel lsm = (ListSelectionModel) event.getSource();
+//                if (lsm.isSelectionEmpty()) {
+//                    //System.out.println("No rows selected.");
+//                } else {
+//                    int selectedRow = lsm.getMaxSelectionIndex();
+//                    //System.out.println("Row " + selectedRow + " is now selected.");
+//                    //String fileName = folder + "\\" + logViewTable.files.get(selectedRow);
+//                    try {
+//                        File zipFile = logViewTable.files.get(selectedRow);
+//                        readZipFile(zipFile);
+//                        if (timerTask != null && timerTask.timerCount > 0) {
+//                            dimLineColor();
+//                        }
+//                    } catch (Exception e) {
+//                        logger.log(Level.WARNING, "Selection change exception ", e);
+//                        //panel.removeAll();
+//                    }
+//                }
+//            }
+//        });
+//        logViewTable.clearSelection();
+//        logViewTable.changeSelection(logViewTable.getRowCount()-1, 0, false, false);
+   }
 
+    private void saveConfig() {
+//        timer.cancel();
+//
+//        Rectangle bounds = frame.getBounds();
+//        String txt = txtFileName.getText();
+//        txt = fileLog.getAbsolutePath();
+//        String txt1 = txtarExcludedColumns.getText();
+//        String txt2 = txtarIncludedColumns.getText();
+//        boolean sm = chckbxShowMarkers.isSelected();
+//        boolean sp = chckbxShowPreviousShot.isSelected();
+//        List<String> columnNames = logViewTable.getColumnNames();
+//        try {
+//            ObjectOutputStream objOStrm = new ObjectOutputStream(new FileOutputStream("config.dat"));
+//            objOStrm.writeObject(bounds);
+//            objOStrm.writeObject(txt);
+//            objOStrm.writeObject(folder);
+//            objOStrm.writeObject(txt1);
+//            objOStrm.writeObject(txt2);
+//            objOStrm.writeObject(sm);
+//            objOStrm.writeObject(sp);
+//            objOStrm.writeObject(columnNames);
+//            objOStrm.close();
+//            logger.info("Config saved.");
+//        } catch (IOException e) {
+//            logger.log(Level.WARNING, "Config write error ", e);
+//        }
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {
+        saveConfig();
+        //System.exit(0);
+    }
+
+    @Override
+    public void windowOpened(WindowEvent e) {
+        restoreConfig();
+    }
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) {
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+    }
+
+
+
+    class Task extends SwingWorker<Void, Void> {
+        File outputFile;
+        boolean newOutput = false;
+        
+        Task() {
+            outputFile = new File("log.txt");
+            newOutput = true;
+        }
+    
         /**
          * Main task. Executed in background thread.
          */

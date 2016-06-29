@@ -37,6 +37,8 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
+import binp.nbi.tango.util.datafile.DataFile;
+
 public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     static final Logger logger = Logger.getLogger(BeamProfile.class.getName());
 
@@ -82,6 +84,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         jScrollPane2.setViewportView(chartPanel);
         addWindowListener(this);
+        
+        task = new Task();
+        //task.addPropertyChangeListener(this);
+        task.execute();
         
     }
     
@@ -562,13 +568,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }
 
 
-
     class Task extends SwingWorker<Void, Void> {
-        File outputFile;
+
+        DataFile outputFile;
         boolean newOutput = false;
         
         Task() {
-            outputFile = new File("log.txt");
+            outputFile = new DataFile("log.txt");
             newOutput = true;
         }
     

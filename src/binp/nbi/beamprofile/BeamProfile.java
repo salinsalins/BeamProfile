@@ -38,6 +38,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import binp.nbi.tango.util.datafile.DataFile;
+import java.util.Arrays;
 
 public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     static final Logger logger = Logger.getLogger(BeamProfile.class.getName());
@@ -125,9 +126,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jRadioButton2 = new javax.swing.JRadioButton();
         jRadioButton3 = new javax.swing.JRadioButton();
         jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
+        jToggleButton1 = new javax.swing.JToggleButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Calorimeter Beam Profile Plotter");
@@ -304,8 +305,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         jButton5.setText("Cancel");
 
-        jButton6.setText("OK");
-
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Plot"));
 
         org.jdesktop.layout.GroupLayout jPanel3Layout = new org.jdesktop.layout.GroupLayout(jPanel3);
@@ -319,6 +318,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
         );
 
+        jToggleButton1.setText("START");
+
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -330,15 +331,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
                         .add(0, 0, Short.MAX_VALUE)
-                        .add(jButton6)
+                        .add(jToggleButton1)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jButton5))
                     .add(jPanel1, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-
-        layout.linkSize(new java.awt.Component[] {jButton5, jButton6}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
@@ -351,9 +349,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jButton5)
-                    .add(jButton6))
+                    .add(jToggleButton1))
                 .addContainerGap())
         );
+
+        jToggleButton1.getAccessibleContext().setAccessibleDescription("");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -405,7 +405,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -428,6 +427,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
+    private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
     
     private void restoreConfig() {
@@ -572,6 +572,32 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         DataFile outputFile;
         boolean newOutput = false;
+	
+// Data arrays for traces
+        int nx = 2000;
+	int ny = 4*8+1;
+	double[][] data = new double[nx][ny];
+	double[] dmin = new double[ny];
+	double[] dmax = new double[ny];
+
+// Profile arrays and their plot handles
+	int[] p1range = {2,3,4,5,6,7,10,11,12,13,14};    // Channels for vertical profile
+	double[] p1x = {1,3,4,5,6,7,8,9,10,11,13};       // X values for prof1
+	int[] p2range = {16, 7, 15};                     // Channels for horizontal profile
+	int[] p2x = {3, 7, 11};                          // X values for prof2
+	double[] prof1  = new double[p1range.length];    // Vertical profile and handle
+	double prof1h = 0;
+	double[] prof2  = new double[p2range.length];    // Horizontal profile
+	double prof2h = 0;
+	double[] prof1max  = prof1.clone();      // Maximal vertical profile (over the plot)
+        //Arrays.fill(prof1max, 1.0);
+        double prof1maxh = 0;          // Maximal vertical profile handle
+	double[] prof1max1  = prof1max.clone();  // Maximal vertical profile (from the program start)
+	double prof1max1h = 0;         // Handle
+	double[] prof2max  = prof2.clone();      // Maximal horizontal profile (ofer the plot)
+	//Arrays.fill(prof2max, 1.0);
+	double prof2maxh = 0;
+        
         
         Task() {
             outputFile = new DataFile("log.txt");
@@ -584,6 +610,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         @Override
         public Void doInBackground() {
             // Initialize progress property.
+            while(jToggleButton1.isSelected()) {
+                //readData();
+                //plotData();
+            }
             return null;
         }
 

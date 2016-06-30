@@ -466,7 +466,7 @@ while ~flag_stop
 		end
 		
 	%% Read data from ADAMs
-		cr = clock;
+ 		cr = clock;
 		[t3, ai3] = ADAM4118_read(adams(1).port, adams(1).addr);
 		[t4, ai4] = ADAM4118_read(adams(2).port, adams(2).addr);
 		[t2, ai2] = ADAM4118_read(adams(3).port, adams(3).addr);

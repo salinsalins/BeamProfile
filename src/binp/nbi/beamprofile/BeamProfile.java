@@ -45,6 +45,7 @@ import jssc.SerialPort;
 import jssc.SerialPortList;
 import java.net.*;
 import java.io.*;
+import java.util.Date;
 import net.wimpi.modbus.*;
 import net.wimpi.modbus.msg.*;
 import net.wimpi.modbus.io.*;
@@ -374,10 +375,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
-            String url = jTextField5.getText();
-            String answer = readURL(url);
-            jTextArea1.setText(answer);
-            jTextArea2.setText("-OK-");
+            //String url = jTextField5.getText();
+            //String answer = readURL(url);
+            //jTextArea1.setText(answer);
+            //jTextArea2.setText("-OK-");
             
             /* The important instances of the classes mentioned before */
             TCPMasterConnection con = null;         //the connection
@@ -401,20 +402,44 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             //2. Open the connection
             con = new TCPMasterConnection(addr);
             con.setPort(port);
+            mark(1);
             con.connect();
+            mark("connect");
             //3. Prepare the request
             //req = new ReadInputDiscretesRequest(ref, count);
             req = new ReadInputRegistersRequest(ref, count);
             req.setUnitID(unitid);
             //req.setHeadless();
+            System.out.println(req);
+            System.out.println(req.getDataLength());
+            System.out.println(req.getFunctionCode());
+            System.out.println(req.getHexMessage());
+
+            ModbusRequest reqInfo = ModbusRequest.createModbusRequest(70);
+            reqInfo.setDataLength(1);
+            //reqInfo.setDataLength(1);
+            reqInfo.setUnitID(unitid);
+            System.out.println(reqInfo);
+            System.out.println(reqInfo.getDataLength());
+            System.out.println(reqInfo.getFunctionCode());
+            //System.out.println(reqInfo.getHexMessage());
+            
             //4. Prepare the transaction
             trans = new ModbusTCPTransaction(con);
-            trans.setRequest(req);    
-            //5. Execute the transaction repeat times
+            trans.setRequest(reqInfo);    
+            //5. Execute the transaction
+            mark("execute");
             trans.execute();
+            mark();
             //res = (ReadInputDiscretesResponse) trans.getResponse();
             //System.out.println("Digital Inputs Status=" + res.getDiscretes().toString());
             res = (ReadInputRegistersResponse) trans.getResponse();
+            ModbusResponse resInfo = (ModbusResponse) trans.getResponse();
+            mark();
+            System.out.println(resInfo);
+            System.out.println(resInfo.getDataLength());
+            System.out.println(resInfo.getFunctionCode());
+            System.out.println(resInfo.getHexMessage());
             for (int n = 0; n < res.getWordCount(); n++) {
                 System.out.println("Word " + n + "=" + res.getRegisterValue(n));
             }
@@ -423,15 +448,32 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         } catch (IOException ex) {
             jTextArea2.setText("IOException " + ex);
+            logger.severe("IOException " + ex);
         } catch (Exception ex) {
             jTextArea2.setText("Exception " + ex);
-            //Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1MouseClicked
+    
+    private static int count = 0;
+    private static Date lastDate = new Date();
+    public void mark() {
+        Date date = new Date();
+        System.out.printf("%d %tT.%2$tL %d\n", count++, date, date.getTime()-lastDate.getTime());
+        lastDate= date;
+    }
+    public void mark(int c) {
+        count = c;
+        mark();
+    }
+    public void mark(String s) {
+        System.out.printf("%s ", s);
+        mark();
+    }
     
     public static String readURL(String urlName) throws MalformedURLException, IOException {
         String result = "";

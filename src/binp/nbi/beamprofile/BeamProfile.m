@@ -1,4 +1,4 @@
-function BeamProfile_10
+function BeamProfile
 	pause on;
 	clear all;
 	delete(gcf);
@@ -8,15 +8,14 @@ function BeamProfile_10
 	
 	% Programm Name and Version
 	ProgName = 'Calorimeter Beam Profile';
-	ProgNameShort = 'BeamProfile_';
-	ProgVersion = '10';
+	ProgVersion = '9';
 	iniFileName = ['BeamProfile' ProgVersion, '.ini'];
 
 % Output	
 	% Output file
-	outFileName = LogFileName(ProgNameShort, 'txt');
-	outFilePath = 'D:\';
-	outFile = [outFilePath, outFileName];
+	out_file_name = LogFileName();
+	out_file_path = 'D:\';
+	out_file = [out_file_path, out_file_name];
 	out_fid = -1;
 
 % Input
@@ -41,63 +40,62 @@ function BeamProfile_10
 	flag_in = false;
 	
 % Data arrays for traces
-	nx = 2000;    % number of trace points
-	ny = 4*8+1;   % number of registered temperatures + time
+	nx = 10*60*3;    % number of trace points
+	ny = 25;              % number of registered temperatures + time
 	% Preallocate arrays
-	data = zeros(nx, ny);   % traces
-	dmin = zeros(1, ny);    % minimal temperatures
-	dmax = zeros(1, ny);    % maximal temperatures
+	data = zeros(nx, ny);        % traces
+	dmin = zeros(1, ny);         % minimal temperatures
+	dmax = zeros(1, ny);        % maximal temperatures
 	
 % Profile arrays and their plot handles
-	p1range = [2:7, 10:14];    % Channels for vertical profile
-	p1x = [1,3:11,13];         % X values for prof1
-	p2range = [16, 7, 15];     % Channels for horizontal profile
-	p2x = [3, 7, 11];          % X values for prof2
+	p1range = [2:7, 10:14];      % Channels for vertical profile
+	p1x = [1,3:11,13];               % X values for prof1
+	p2range = [16, 7, 15];       % Channels for horizontal profile
+	p2x = [3, 7, 11];                 % X values for prof2
 	prof1  = data(nx, p1range);    % Vertical profile and handle
 	prof1h = 0;
-	prof2  = data(nx, p2range);    % Horizontal profile
+	prof2  = data(nx, p2range);   % Horizontal profile
 	prof2h = 0;
-	prof1max  = prof1;      % Maximal vertical profile (over the plot)
+	prof1max  = prof1;            % Maximal vertical profile (over the plot)
 	prof1max(:)  = 1;
-	prof1maxh = 0;          % Maximal vertical profile handle
-	prof1max1  = prof1max;  % Maximal vertical profile (from the program start)
-	prof1max1h = 0;         % Handle
-	prof2max  = prof2;      % Maximal horizontal profile (ofer the plot)
+	prof1maxh = 0;                 % Maximal vertical profile handle
+	prof1max1  = prof1max;   % Maximal vertical profile (from the program start)
+	prof1max1h = 0;                % Handle
+	prof2max  = prof2;           % Maximal horizontal profile (ofer the plot)
 	prof2max(:)  = 1;
 	prof2maxh = 0;
-
-% Faded profiles
-	fpn = 10;         % Number of faded pofiles
-	fpi(1:fpn) = nx;  % Faded pofiles indexes
-	fph = fpi*0;      % Faded pofile plot handles
-	fpdt = 0.5;       % Faded pofile time inteval [s]
+	% Faded profiles
+	fpn = 10;             % Number of faded pofiles
+	fpi(1:fpn) = nx;   % Faded pofiles indexes
+	fph = fpi*0;         % Faded pofile plot handles
+	fpdt = 0.5;           % Faded pofile time inteval [s]
 
 % Traces to plot
-	trn = [7, 3, 11];     % Channel numbers of traces
+	trn = [7, 3, 11];    % Chaneel numbers of traces
 	trc = ['r';'g';'b'];  % Colors of traces
-	trh = trn*0;          % Handles of traces
+	trh = trn*0;         % Handles of traces
 	
 % Beam current calculations and plot
-	voltage = 80.0;   % keV Particles energy
-	duration = 2;     % s Beam duration
-	flow = 12.5;      % gpm Cooling water flow (gallons per minute) 
-	bctin = 9;        % Input water temperature channel number
-	bctout = 8;       % Output water temperature channel number
+	voltage = 80.0;  % keV Particles energy
+	duration = 2;      % s Beam duration
+	flow = 12.5;        % gpm Cooling water flow (gallons per minute) 
+	bctin = 9;            % Input water temperature channel number
+	bctout = 8;         % Output water temperature channel number
 	% Current[mA] =	folw[gpm]*(OutputTemperature-InputTemperature)*Q/voltage
 	Q = 4.3*0.0639*1000; % Coeff to convert 
-	bch = 0;      % Handle for beam current plot
+	bch = 0;         % Handle for beam current plot
 	bcmax = 0;    % Max beam current on the screen
-	bcmax1 = 0;   % MaxMax beam current
+	bcmax1 = 0;  % MaxMax beam current
 	bcmaxh = 0;   % Handle of max current text
 	bcflowchan = 22;  % Channel number for flowmeter output
-	bcv2flow = 12;    % V/gpm Conversion coefficienf for flowmeter 
+	bcv2flow = 12;       % V/gpm Conversion coefficienf for flowmeter 
 	
 % Acceleration electrode voltage and current
 	agvn = 23;
 	agcn = 24;
 	agn = [agvn, agcn];
-	agc = ['r';'g'];    % Colors of traces
-	agh = agc*0;        % Handles of traces
+	agc = ['r';'g'];      % Colors of traces
+	agh = agc*0;       % Handles of traces
 
 % Targeting plots
 	tpt = 18;
@@ -105,28 +103,25 @@ function BeamProfile_10
 	tpl = 20;
 	tpr = 21;
 	tpn = [tpt, tpb, tpl, tpr];   % Channel numbers of traces
-	tpc = ['r'; 'g'; 'b'; 'm'];   % Colors of traces
-	tph = tpn*0;                  % Handles of traces
-	tph1 = tpn*0;                 % Handles of traces zoom
-	tpw = 30;                     % +- Zoom window halfwidth
+	tpc = ['r'; 'g'; 'b'; 'm'];        % Colors of traces
+	tph = tpn*0;                        % Handles of traces
+	tph1 = tpn*0;                      % Handles of traces zoom
+	tpw = 30;                             % +- Zoom window halfwidth
 	
 % Error logging file
-	logFileName = LogFileName(['D:\', ProgNameShort, ProgVersion], 'log');
-	log_fid = 1;
-	%log_fid = fopen(logFileName, 'at+', 'n', 'windows-1251');
-	if log_fid < 0
-		log_fid = 1;
+	elog_file = 'BeamProfileLog.txt';
+	elog_fid = 1;
+	%elog_fid = fopen(elog_file, 'at+', 'n', 'windows-1251');
+	if elog_fid < 0
+		elog_fid = 1;
 	end
 	
 % Colors
-	cWHITE = [1, 1, 1];
-	cBLACK = [0, 0, 0];
-	cGREY   = [0.3, 0.3, 0.3];
-	cGREEN = [0.1, 0.8, 0.0];
+	WHITE = [1, 1, 1];
 
-	%% Begin of operation
+%% Begin of operation
 
-	printl(log_fid, '%s Version %s Started.\n', ProgName, ProgVersion);
+	printl(elog_fid, '%s Version %s Started.\n', ProgName, ProgVersion);
 	
 	if numel(dir(iniFileName));
 		load(iniFileName, '-mat');
@@ -157,9 +152,11 @@ hBtn5 = uicontrol(hp6, 'Style', 'togglebutton', 'String', 'Targeting', ...
 	'Callback', @cbTargeting);
 
 %% Input select pannel hp1, hLb2, hEd1, hEd4, hEd8, hEd9, hBtn3 
-hpIn = uipanel(hFig, 'Title', 'Input', 'Units', 'pixels', ...
-	'Position', Top(hp6, 40));
-hPm1 = uicontrol(hpIn, 'Style', 'popupmenu', 'String', {'COM6', 'FILE', 'COM1', 'COM2',...
+pp1 = [pp6(1), pp6(2)+pp6(4)+5, pFig(3)-3, 40];
+hp1 = uipanel(hFig, 'Title', 'Input', 'Units', 'pixels', ...
+	'Position', pp1);
+
+hPm1 = uicontrol(hp1, 'Style', 'popupmenu', 'String', {'COM6', 'FILE', 'COM1', 'COM2',...
 	'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'COM10' }, ...
 	'Callback', @cbInputPannel, ...
 	'Position', [5, 1, 60, 25]);
@@ -168,59 +165,60 @@ if in_fid > 0
 	in_fid = -1;
 end
 
-hEd4 = uicontrol(hpIn, 'Style', 'edit', 'String', '03', ...
-	'Position', Right(hPm1, [5, 2, 30, 25]), ...
-	'BackgroundColor', cWHITE, ...
+ped4 = Right(hPm1, [5, 2, 30, 25]);
+hEd4 = uicontrol(hp1, 'Style', 'edit', 'String', '03', ...
+	'Position', ped4, ...
+	'BackgroundColor', WHITE, ...
 	'Callback', @cbInputPannel, ...
 	'HorizontalAlignment', 'center');
-hEd5 = uicontrol(hpIn, 'Style', 'edit', 'String', '04', ...
+hEd5 = uicontrol(hp1, 'Style', 'edit', 'String', '04', ...
 	'Position', Right(hEd4), ...
-	'BackgroundColor', cWHITE, ...
+	'BackgroundColor', WHITE, ...
 	'Callback', @cbInputPannel, ...
 	'HorizontalAlignment', 'center');
-hEd8 = uicontrol(hpIn, 'Style', 'edit', 'String', '02', ...
+hEd8 = uicontrol(hp1, 'Style', 'edit', 'String', '02', ...
 	'Position', Right(hEd5), ...
-	'BackgroundColor', cWHITE, ...
+	'BackgroundColor', WHITE, ...
 	'Callback', @cbInputPannel, ...
 	'HorizontalAlignment', 'center');
-hEd9 = uicontrol(hpIn, 'Style', 'edit', 'String', '05', ...
+hEd9 = uicontrol(hp1, 'Style', 'edit', 'String', '05', ...
 	'Position', Right(hEd8), ...
-	'BackgroundColor', cWHITE, ...
+	'BackgroundColor', WHITE, ...
 	'Callback', @cbInputPannel, ...
 	'HorizontalAlignment', 'center');
 
-hEd1 = uicontrol(hpIn, 'Style', 'text', 'String', in_file_name, ...
+hEd1 = uicontrol(hp1, 'Style', 'text', 'String', in_file_name, ...
 	'Position', [70, 5, pFig(3)-110, 21], ...
-	'BackgroundColor', cWHITE, ...
+	'BackgroundColor', WHITE, ...
 	'HorizontalAlignment', 'center', ...
 	'Callback', @cbInputPannel);
-hBtn3 = uicontrol(hpIn, 'Style', 'pushbutton', 'String', '...', ...
+hBtn3 = uicontrol(hp1, 'Style', 'pushbutton', 'String', '...', ...
 	'Position', [pFig(3)-35, 3, 25, 25], ...
 	'Callback', @cbInSelect);
 
 %% Output select pannel hp2, hCb2, hTxt2, hBtn2
-hpOut = uipanel(hFig, 'Title', 'Output', 'Units', 'pixels', ...
-	'Position', Top(hpIn, 40));
-hCbOut = uicontrol(hpOut, 'Style', 'checkbox', 'String', 'Write', ...
-	'Position', [5, 1, 60, 25], ...
-	'FontSize', 10, ...
-	'HorizontalAlignment', 'right', ...
-	'Callback', @cbCbOut);
-hTxtOut = uicontrol(hpOut, 'Style', 'text',  'String', outFileName, ...
-	'Position', [70, 5, pFig(3)-110, 21], ...
-	'BackgroundColor', cWHITE, ...
-	'FontSize', 10, ...
-	'HorizontalAlignment', 'center');
-hBtnOut = uicontrol(hpOut, 'Style', 'pushbutton', 'String', '...', ...
-	'Position', [pFig(3)-35, 3, 25, 25], ...
-	'Callback', @cbBtnOut);
+pp2 = [pp1(1), pp1(2)+pp1(4)+5, pFig(3)-3, 40];
+hp2 = uipanel(hFig, 'Title', 'Output', 'Units', 'pixels', ...
+	'Position', pp2);
 
+hCb2 = uicontrol(hp2, 'Style', 'checkbox', 'String', 'Write', ...
+	'Position', [5, 1, 60, 25], ...
+	'HorizontalAlignment', 'right', ...
+	'Callback', @cbCb2);
 if out_fid > 0
-	set(hCbOut, 'Value', get(hCbOut, 'Max'));
+	set(hCb2, 'Value', get(hCb2, 'Max'));
 else
-	set(hCbOut, 'Value', get(hCbOut, 'Min'));
+	set(hCb2, 'Value', get(hCb2, 'Min'));
 end
 out_fid = -1;
+
+hTxt2 = uicontrol(hp2, 'Style', 'text',  'String', out_file_name, ...
+	'Position', [70, 5, pFig(3)-110, 21], ...
+	'BackgroundColor', WHITE, ...
+	'HorizontalAlignment', 'center');
+hBtn2 = uicontrol(hp2, 'Style', 'pushbutton', 'String', '...', ...
+	'Position', [pFig(3)-35, 3, 25, 25], ...
+	'Callback', @cbOutSelect);
 
 %% Log pannel hp3, hTxt1
 pp3 = [pp2(1), pp2(2)+pp2(4)+5, pFig(3)-3, 90];
@@ -229,7 +227,7 @@ hp3 = uipanel(hFig, 'Title', 'Log', 'Units', 'pixels', ...
 	'Position', pp3);
 hTxt1 = uicontrol(hp3, 'Style', 'text', 'String', {'1', '2', '3', '4'}, ...
 	'Position', [5, 5, pp3(3)-10, pp3(4)-25], ...
-	'BackgroundColor', cWHITE, ...
+	'BackgroundColor', WHITE, ...
 	'HorizontalAlignment', 'left');
 
 %% Config pannel hpConf, hCbSplitOut, hCbMax1Prof, hTxt6, hTxt7, hTxt8, hTxt9, hEd6, hEd7
@@ -252,7 +250,7 @@ hTxtVoltage = uicontrol(hpConf, 'Style', 'text', 'String', 'Voltage [kV]:', ...
 	'Position', Right(hCbSplitOut, [5, 0, 70, 18]));
 hEdVoltage = uicontrol(hpConf, 'Style', 'edit', 'String', '80', ...
 	'Position', Right(hTxtVoltage, 40), ...
-	'BackgroundColor', cWHITE, ...
+	'BackgroundColor', WHITE, ...
 	'Callback', @cbVoltage, ...
 	'HorizontalAlignment', 'center');
 hCbVoltage = uicontrol(hpConf, 'Style', 'checkbox', 'String', '', ...
@@ -261,12 +259,12 @@ hCbVoltage = uicontrol(hpConf, 'Style', 'checkbox', 'String', '', ...
 setMax(hCbVoltage);
 set(hCbVoltage, 'Enable', 'off');
 
-hTxtFlow = uicontrol(hpConf, 'Style', 'text', 'String', 'Flow: [gpm]', ...
+hTxtFlow = uicontrol(hpConf, 'Style', 'text', 'String', 'Flow: [gmp]', ...
 	'HorizontalAlignment', 'right', ...
 	'Position', Top(hTxtVoltage));
 hEdFlow = uicontrol(hpConf, 'Style', 'edit', 'String', '12.5', ...
 	'Position', Right(hTxtFlow, 40), ...
-	'BackgroundColor', cWHITE, ...
+	'BackgroundColor', WHITE, ...
 	'Callback', @cbFlow, ...
 	'HorizontalAlignment', 'center');
 hCbFlow = uicontrol(hpConf, 'Style', 'checkbox', 'String', '', ...
@@ -279,7 +277,7 @@ hTxtDuration = uicontrol(hpConf, 'Style', 'text', 'String', 'Duration [s]:', ...
 	'Position', Top(hTxtFlow));
 hEdDuration = uicontrol(hpConf, 'Style', 'edit', 'String', '2.0', ...
 	'Position', Right(hTxtDuration, 40), ...
-	'BackgroundColor', cWHITE, ...
+	'BackgroundColor', WHITE, ...
 	'Callback', @cbDuration, ...
 	'HorizontalAlignment', 'center');
 hCbDuration = uicontrol(hpConf, 'Style', 'checkbox', 'String', '', ...
@@ -343,6 +341,8 @@ grid(hAxes6, 'on');
 
 drawnow;
 
+%inspect(hFig);
+
 cbInputPannel;
 cbBtn4(hBtn4);
 
@@ -352,6 +352,8 @@ c1 = c0;
 % Add lines of targeting traces
 for ii = 1:numel(tpn)
 	tph(ii) = line(1:nx, data(:, tpn(ii)), 'Parent', hAxes5, 'Color', tpc(ii));
+end
+for ii = 1:numel(tpn)
 	tph1(ii) = line(1:2*tpw+1, data(1:2*tpw+1, tpn(ii)), 'Parent', hAxes4, 'Color', tpc(ii));
 end
 
@@ -389,59 +391,146 @@ prof1max1h = line(p1x, prof1max1, 'Parent', hAxes1, 'Color', [0.5 0.5 1], 'Linew
 prof2maxh = line(p2x, prof2max, 'Parent', hAxes1, 'Color', [0 1 1], 'Linewidth', 2, 'Marker', '.');
 
 % Create max beam current annotation
-bcmaxh = text(0.75, 0.9, sprintf('%5.1f mA', bcmax), ...
+%bcmaxh = annotation('textbox', [0.7,0.8,0.05,0.05], 'String', sprintf('%3.0f',bcmax));
+bcmaxh = text(0.75, 0.9, sprintf('%5.1f mA',bcmax), ...
 	'Parent', hAxes3, 'Units', 'normalized');
-bcch = text(0.75, 0.8, sprintf('%5.1f mA', bcmax), ...
+bcch = text(0.75, 0.8, sprintf('%5.1f mA',bcmax), ...
 	'Parent', hAxes3, 'Units', 'normalized');
 
-% Create Marker
-mw = 100;
-mc = 'r';
-mi = nx - mw;
-mi1 = max(mi - mw, 1);
-mi2 = min(mi + mw, nx);
-% Marker trace
-mh = line(mi1:mi2, (mi1:mi2)*0, 'Parent', hAxes3, 'Color', mc, 'LineWidth', 2);
-
-% Create ADAMs
-adams(1:4) = ADAM; 
+% Marker
+mw = 50;
+mi = nx;
+mi1 = mi-mw;
+if mi1 < 1
+	mi1 = 1;
+end
+mi2 = mi+mw;
+if mi2 > nx
+	mi2 = nx;
+end
+mh = line(mi1:mi2, (mi1:mi2)*0, 'Parent', hAxes3, 'Color', 'r', 'LineWidth', 2);
 
 %% Main loop
 
 while ~flag_stop
 	% If input was changed
 	if flag_in
-		% Reset flag
 		flag_in = false;
+
+		% Close input file if if was opened
+		if in_fid > 0
+			status = fclose(in_fid);
+			if status
+				printl('Input file close error\n');
+			else
+				printl('Input file has been closed\n');
+			end
+			in_fid = -1;
+		end
 		
-		% Close input file
-		in_fid = CloseFile(in_fid);
+		% Close input COM port if if was opened
+		if cp_open
+			try
+				fclose(cp_obj);
+				printl('Input port has been closed\n');
+			catch
+				printl('Input port close error\n');
+			end
+			try
+				delete(cp_obj);
+				%clear cp_obj
+			catch
+				printl('Input port delete error\n');
+			end
+			cp_open = false;
+		end
 		
-		% Delete ADAMs
-		DeleteADAMs;
-		
-		% Create ADAMs
-		adams = CreateADAMs;
+		% Open input
+		val = get(hPm1, 'Value');
+		s1 = get(hPm1, 'String');
+		if ~strcmp(s1(val), 'FILE')
+			% Open COM port
+			cpname = char(s1(val));
+			try
+				cp_obj = serial(cpname);
+				set(cp_obj, 'BaudRate', 38400, 'DataBits', 8, 'StopBits', 1);
+				set(cp_obj, 'Terminator', 'CR');
+				set(cp_obj, 'Timeout', 1);
+				fopen(cp_obj);
+				if strcmp(cp_obj.status, 'open')
+					addr1 = sscanf(get(hEd4, 'String'),'%d');
+					addr2 = sscanf(get(hEd5, 'String'),'%d');
+					addr3 = sscanf(get(hEd8, 'String'),'%d');
+					addr4 = sscanf(get(hEd9, 'String'),'%d');
+					printl('Input port %s has been opened\n', cpname);
+					cp_open = true;
+				else
+					printl('Input port %s open error\n', cpname);
+					cp_open = false;
+					% Find FILE in combo box list
+					for val = 1:numel(s1)
+						if strcmp(s1(val), 'FILE')
+							set(hPm1,'Value', val);
+							disp(val);
+						end
+					end
+					cbInputPannel(hPm1);
+					% Swith to stop state
+					set(hBtn1, 'Value', get(hBtn1, 'Min'));
+					cbStart(hBtn1);
+				end
+			catch ME
+				printl('Input port %s open error\n', cpname);
+				cp_open = false;
+				% Find FILE in combo box list
+				for val = 1:numel(s1)
+					if strcmp(s1(val), 'FILE')
+						set(hPm1,'Value', val);
+					end
+				end
+				cbInputPannel(hPm1);
+				set(hBtn1, 'Value', get(hBtn1, 'Min'));
+				cbStart(hBtn1);
+			end
+		else
+			% Open input file
+			in_file = [in_file_path, in_file_name];
+			in_fid = fopen(in_file);
+			if in_fid > 2
+				set(hEd1, 'String', in_file_name);
+				printl('Input file %s has been opened\n', in_file);
+			else
+				in_fid = -1;
+				printl('Input file open error\n');
+				set(hBtn1, 'Value', get(hBtn1, 'Min'));
+				cbStart(hBtn1);
+			end
+		end
 	end
 	
 	% If output was changed
 	if flag_out
 		flag_out = false;
-		% If writing to output is enabled
-		if get(hCbOut,'Value') == get(hCbOut,'Max')
-			out_fid = CloseFile(out_fid);
-	
+		% If writing to output ia enabled
+		if get(hCb2,'Value') == get(hCb2,'Max')
+			% Close output file
+			if out_fid >= 0
+				status = fclose(out_fid);
+				out_fid = -1;
+				printl('Output file has been closed\n');
+			end
+			
 			% Open new output file
-			outFileName = LogFileName(ProgNameShort, 'txt');
-			outFile = [outFilePath, outFileName];
-			out_fid = fopen(outFile, 'at+', 'n', 'windows-1251');
+			out_file_name = LogFileName();
+			out_file = [out_file_path, out_file_name];
+			out_fid = fopen(out_file, 'at+', 'n', 'windows-1251');
 			if out_fid < 0
-				printl('Output file %s open error\n', outFileName);
+				printl('Output file %s open error\n', out_file_name);
 				% Disable output writing
-				set(hCbOut,'Value', get(hCbOut,'Min'));
+				set(hCb2,'Value', get(hCb2,'Min'));
 			else
-				set(hTxtOut,  'String', outFileName);
-				printl('Output file %s has been opened\n', outFile);
+				set(hTxt2,  'String', out_file_name);
+				printl('Output file %s has been opened\n', out_file);
 			end
 		end
 	end
@@ -456,7 +545,7 @@ while ~flag_stop
 			flag_out = true;
 		end
 			
-		% Faded profiles - refresh every fpdt seconds
+		% Faded profiles: refresh every fpdt seconds
 		if abs(c(6) - c1(6)) < fpdt
 			fpi = fpi - 1;
 		else
@@ -465,13 +554,54 @@ while ~flag_stop
 			c1 = c;
 		end
 		
-	%% Read data from ADAMs
- 		cr = clock;
-		[t3, ai3] = ADAM4118_read(adams(1).port, adams(1).addr);
-		[t4, ai4] = ADAM4118_read(adams(2).port, adams(2).addr);
-		[t2, ai2] = ADAM4118_read(adams(3).port, adams(3).addr);
+		% Read data from ADAMs
+		cr = clock;
+		[t3, ai3] = ADAM4118_read(cp_obj, addr1);
+		[t4, ai4] = ADAM4118_read(cp_obj, addr2);
+		[t2, ai2] = ADAM4118_read(cp_obj, addr3);
 		
+		% Log text red from ADAMs
+		scroll_log(hTxt1, ai3);
+		scroll_log(hTxt1, ai4);
+		scroll_log(hTxt1, ai2);
+			
+		% Save line with data to output file If log writing is enabled
+		if get(hCb2, 'Value') == get(hCb2, 'Max') && out_fid > 0
+			% Separator is "; "
+			sep = '; ';
+			% Write time HH:MM:SS.SS
+			fprintf(out_fid, ['%02.0f:%02.0f:%05.2f' sep], cr(4), cr(5), cr(6));
+			% Data output format
+			fmt = '%+09.4f';
+			% Write first ADAM data array t3(1:8)
+			fprintf(out_fid, [fmt sep], t3(1:8));
+			% Write ADAM data array t4(1:8)
+			fprintf(out_fid, [fmt sep], t4(1:8));
+			% Write first 7 values of last ADAM data array t2(1:7)
+			fprintf(out_fid, [fmt sep], t2(1:7));
+			% Write last value t2(8) with NL instead of sepearator
+			fprintf(out_fid, [fmt '\n'], t2(8));
+		end
+		
+		% Shift data array and markers
+		data(1:nx-1, :) = data(2:nx, :);
+		mi = mi - 1;
+		if mi < 1
+			%mi = findPeak(data);
+			[~, mi] = max(current);
+		end
+		mi1 = mi-mw;
+		if mi1 < 1
+			mi1 = 1;
+		end
+		mi2 = mi+mw;
+		if mi2 > nx
+			mi2 = nx;
+		end
+		
+		% Fill last data point
 		temp = data(nx, :);
+		%temp(1) = now;
 		temp(1) = datenum(cr);
 		temp(2:9) = t3(1:8);
 		temp(10:17) = t4(1:8);
@@ -480,34 +610,10 @@ while ~flag_stop
 		% If temperature readings == 0 then use previous value
 		ind = find(temp(1:17) == 0);
 		temp(ind) = data(nx, ind);
-
-		%% Save line with data to output file If log writing is enabled
-		if get(hCbOut, 'Value') == get(hCbOut, 'Max') && out_fid > 0
-			% Separator is "; "
-			sep = '; ';
-			% Write time HH:MM:SS.SS
-			fprintf(out_fid, ['%02.0f:%02.0f:%05.2f' sep], c2(4), c2(5), c2(6));
-			% Data output format
-			fmt = '%+09.4f';
-			% Write data array
-			fprintf(out_fid, [fmt sep], temp(2:end-1));
-			% Write last value with NL instead of sepearator
-			fprintf(out_fid, [fmt '\n'], temp(end));
-		end
-		
-	%% Shift data array
-		data(1:nx-1, :) = data(2:nx, :);
-		% Fill last data point
+		% Copy last reading
 		data(nx, :) = temp;
-	%% Shift marker
-		mi = mi - 1;
-		if mi < 1
-			[~, mi] = max(current);
-		end
-		mi1 = max(mi - mw, 1);
-		mi2 = min(mi + mw, nx);
 
-	%% Calculate minimum values
+		% Calculate minimum values
 		if max(dmin) <= 0
 			% First reading, fill arrays with defaults
 			dmin = data(nx, :);
@@ -516,27 +622,32 @@ while ~flag_stop
 			end
 		else
 			% Calculate minimum
+			for ii =2:numel(dmin)
+				if temp(ii) < dmin(ii)
+					dmin(ii) = temp(ii);
+				end
+			end
 			dmin = min(data);
 		end
 		
-	%% Update data traces for trn(:) channels
+		% Plot data traces for trn(:) channels
 		for ii = 1:numel(trn)
 			set(trh(ii), 'Ydata', data(:, trn(ii)));
 		end
 		
-	%% Determine index for targeting traces
+		% Determine index for targeting traces
 		[v1, v2] = max(data(mi1:mi2, tpn));
 		[~, v3] = max(v1);
-		tpnm = v2(v3) + mi1;
+		tpnm = v2(v3)+mi1;
 		tpn2 = tpnm + tpw;
 		if tpn2 > nx
 			tpn2 = nx;
-			tpn1 = nx - 2*tpw - 1;
+			tpn1 = nx-2*tpw-1;
 		else
 			tpn1 = tpnm - tpw;
 			if tpn1 < 1
 				tpn1 = 1;
-				tpn2 = 2*tpw + 2;
+				tpn2 = 2*tpw+1;
 			end
 		end
 		
@@ -545,19 +656,19 @@ while ~flag_stop
 			[v1, v2] = max(data(tpn1:tpn2, tpn));
 			[d1, v3] = max(v1);
 			d2 = min(data(tpn1:tpn2, tpn(v3)));
-			d3 = d2+(d1-d2)*0.5;
+			d3 = d2+(d1-d2)*0.10;
 			d4 = find(data(tpn1:tpn2, tpn(v3)) > d3) + tpn1;
 			if numel(d4) > 1
 				cdt = etime(datevec(data(d4(end), 1)), datevec(data(d4(1), 1)));
 				if ~isMax(hCbDuration)
-					% Replase with calculated value 
+					% Replase with calculated valuevalue 
 					set(hEdDuration, 'String', sprintf('%4.2f', cdt));
 					duration = cdt;
 				end
 			end
 		end
 		
-		% Update targeting traces
+		% Plot targeting traces
 		for ii = 1:numel(tpn)
 			set(tph(ii), 'Ydata', data(:, tpn(ii))-dmin(tpn(ii)));
 			set(hAxes4, 'XLimMode', 'manual', 'XLim', [tpn1, tpn2]);
@@ -565,7 +676,7 @@ while ~flag_stop
 			set(tph1(ii), 'Ydata', data(tpn1:tpn2, tpn(ii))-dmin(tpn(ii)));
 		end
 
-		% Update acceleration grid traces
+		% Plot acceleration grid traces
 		for ii = 1:numel(agn)
 			set(agh(ii), 'Ydata', smooth(data(:, agn(ii)), 20)-dmin(agn(ii)));
 		end
@@ -588,7 +699,7 @@ while ~flag_stop
 		
 		% Calculate current by intergal 
 		[bcmax, ind] = max(current);
-		bcw = mw;   % Intergation window is 2*bcw+1 points
+		bcw = 100;   % Intergation window is 2*bcw+1 points
 		ind = mi;
 		i2 = ind + bcw;
 		if i2 > nx
@@ -604,8 +715,10 @@ while ~flag_stop
 		if (i1 > 1) && (i2 < nx)
 			ctotal = sum(current(i1:i2));
 			cdt = etime(datevec(data(i2, 1)), datevec(data(i1, 1)));
+			%ctotal = ctotal - (current(i1)+current(i2))/2*cdt;
 			ctotal = ctotal - (current(i1)+current(i2))/2*(2*bcw);
 			cdt1 = cdt/(2*bcw);
+			%cbd = 2;   % sec Beam duration
 			cbd = duration;   % sec Beam duration
 			cti = ctotal*cdt1/cbd;
 			set(hTxtCurrent, 'String', sprintf('Current %5.1f mA', cti));
@@ -664,23 +777,31 @@ end
  
 %% Quit procedures
 
-save(iniFileName, 'outFileName', 'outFilePath', 'out_fid', ...
-	'in_file_name', 'in_file_path', 'in_fid', ...
-	'voltage', 'duration', 'flow');
+saveSettings;
 
 delete(hFig);
 
 status = fclose('all');
-
-DeleteADAMs;
-
-%closecom;
+%status = fclose(out_fid);
+%status = fclose(in_fid);
+%status = fclose('all');
+if cp_open
+	try
+		fclose(cp_obj);
+	catch
+	end
+	try
+		delete(cp_obj);
+		%clear cp_obj
+	catch
+	end
+end
 
 printl('%s Version %s Stopped.\n', ProgName, ProgVersion);
 
 %% Callback functions
 
-	function bdAxes3(~, ~)
+	function bdAxes3(h, ~)
 		cpoint = get(hAxes3, 'CurrentPoint');
 		mi = fix(cpoint(1,1));
 		mi1 = mi-mw;
@@ -695,13 +816,13 @@ printl('%s Version %s Stopped.\n', ProgName, ProgVersion);
 		mi = mi + mi1;
 	end
 	
-	function cbBtnOut(~, ~)
-		[file_name, file_path] = uiputfile([outFilePath LogFileName()], 'Save Log to File');
+	function cbOutSelect(~, ~)
+		[file_name, file_path] = uiputfile([out_file_path LogFileName()], 'Save Log to File');
 		if ~isequal(file_name, 0)
-			outFilePath = file_path;
-            outFileName = file_name;
-			outFile = [outFilePath, outFileName];
-			set(hTxtOut,  'String', outFileName);
+			out_file_path = file_path;
+            out_file_name = file_name;
+			out_file = [out_file_path, out_file_name];
+			set(hTxt2,  'String', out_file_name);
 			flag_out = true;
 		end
 	end
@@ -754,7 +875,7 @@ printl('%s Version %s Stopped.\n', ProgName, ProgVersion);
 		end
 	end
 
-	function cbCbOut(~, ~)
+	function cbCb2(~, ~)
 		flag_out = true;
 	end
  
@@ -829,107 +950,14 @@ printl('%s Version %s Stopped.\n', ProgName, ProgVersion);
 	end
 	
 	%% Local functions
-
-	function DeleteADAMs
-            try
-                n = numel(adams);
-                if n > 0
-                    for ida=1:n
-                        try
-                            delete(adams(ida));
-                        catch
-                        end
-                    end
-                end
-            catch
-            end
+	function loadSettings
+		load(iniFileName, '-mat');
 	end
-
-	function result = CreateADAMs
-            % Create ADAM objects
-            si = get(hPm1, 'Value');
-            st = get(hPm1, 'String');
-            portname = char(st(si));
-            addr(1) = sscanf(get(hEd4, 'String'),'%d');
-            addr(2) = sscanf(get(hEd5, 'String'),'%d');
-            addr(3) = sscanf(get(hEd8, 'String'),'%d');
-            addr(4) = sscanf(get(hEd9, 'String'),'%d');
-
-            result(1:numel(addr)) = ADAM;
-            %  Attach to com ports
-            for ica=1:numel(addr)
-                if strncmpi(portname, 'COM', 3)
-                    try
-                        ports = findopencom(portname);
-                        % If COM port does not exist
-                        if isempty(ports)
-                            % Create new COM port
-                            cp = serial(portname);
-                            set(cp, 'BaudRate', 38400, 'DataBits', 8, 'StopBits', 1);
-                            set(cp, 'Terminator', 'CR');
-                            set(cp, 'Timeout', 1);
-                        else
-                            cp = ports(1);
-                            if get(cp, 'BaudRate') ~= 38400 || get(cp, 'DataBits') ~= 8 || get(cp, 'StopBits') ~= 1 
-                                error('COM port incompatible configuration');
-                            end
-                        end
-                        % Open COM port
-                        if ~strcmpi(cp.status, 'open')
-                            fopen(cp);
-                        end
-                        % If open is sucessfull, create and attach ADAM
-                        if strcmp(cp.status, 'open')
-                            result(ica) = ADAM(cp, addr(ica));
-                            result(ica).valid;
-                            printl('ADAM has been created %s addr %i\n', portname, addr(ica));
-                            cp_open = true;
-                        else
-                            cp_open = false;
-                            % Find FILE in combo box list
-                            for si = 1:numel(st)
-                                if strncmpi(st(val), 'FILE', 4)
-                                    set(hPm1,'Value', si);
-                                end
-                            end
-                            cbInputPannel(hPm1);
-                            % Swith to stop state
-                            set(hBtn1, 'Value', get(hBtn1, 'Min'));
-                            cbStart(hBtn1);
-
-                        error('ADAM creation error %s addr %i', portname, addr(ica));
-                    end
-                    catch ME
-                        printl('%s\n', ME.message);
-                    end
-                end
-                    if strncmpi(portname, 'FILE', 4)
-                            % Open input file
-                            in_file = [in_file_path, in_file_name];
-                            in_fid = fopen(in_file);
-                            if in_fid > 2
-                                    set(hEd1, 'String', in_file_name);
-                                    printl('Input file %s has been opened\n', in_file);
-                                    break
-                            else
-                                    in_fid = -1;
-                                    printl('Input file open error\n');
-                                    set(hBtn1, 'Value', get(hBtn1, 'Min'));
-                                    cbStart(hBtn1);
-                            end
-                    end
-            end
-	end
-
-	function fidout = CloseFile(fidin)
-		% Close file if if was opened
-		if fidin > 0
-			status = fclose(fidin);
-			if status == 0
-				printl('File %d has been closed.\n', fopen(fidin));
-			end
-			fidout = -1;
-		end
+	
+	function saveSettings
+		save(iniFileName, 'out_file_name', 'out_file_path', 'out_fid', ...
+		         'in_file_name', 'in_file_path', 'in_fid', ...
+				 'voltage', 'duration', 'flow');
 	end
 	
 	function [t, ai] = ADAM4118_read(cp_obj, adr)

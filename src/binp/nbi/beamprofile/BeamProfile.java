@@ -9,11 +9,27 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JPanel;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingWorker;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.PlotOrientation;
@@ -21,18 +37,41 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
-public class BeamProfile extends javax.swing.JFrame {
+import binp.nbi.tango.util.datafile.DataFile;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.Arrays;
+import jssc.SerialPort;
+import jssc.SerialPortList;
+import java.net.*;
+import java.io.*;
+import net.wimpi.modbus.*;
+import net.wimpi.modbus.msg.*;
+import net.wimpi.modbus.io.*;
+import net.wimpi.modbus.net.*;
+import net.wimpi.modbus.util.*;
+ 
+
+public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     static final Logger logger = Logger.getLogger(BeamProfile.class.getName());
 
     ChartPanel chart1;
     ChartPanel chart2;
     JPanel chartPanel;
+    Task task;
+
+    private SerialPort serialPort;
     
     /**
      * Creates new form BeamProfile
      */
     public BeamProfile() {
         initComponents();
+        
+        String[] ports = SerialPortList.getPortNames();
+        for(String port : ports){
+            jComboBox1.addItem(port);
+        }
 
         chart1 = new ChartPanel(ChartFactory.createXYLineChart(
                 "Line Chart 1", // chart title
@@ -63,9 +102,13 @@ public class BeamProfile extends javax.swing.JFrame {
         chartPanel.add(chart1);
         chartPanel.add(chart2);
 
-        //jScrollPane2.setViewportView(chartPanel);
-        jPanel3.add(chartPanel);
-
+        jScrollPane2.setViewportView(chartPanel);
+        addWindowListener(this);
+        
+        task = new Task();
+        //task.addPropertyChangeListener(this);
+        task.execute();
+        
     }
     
     /** This method is called from within the constructor to
@@ -78,9 +121,7 @@ public class BeamProfile extends javax.swing.JFrame {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         jPanel1 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
         jTextField2 = new javax.swing.JTextField();
         jLabel3 = new javax.swing.JLabel();
         jTextField3 = new javax.swing.JTextField();
@@ -91,31 +132,28 @@ public class BeamProfile extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         jLabel6 = new javax.swing.JLabel();
         jTextField5 = new javax.swing.JTextField();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jList1 = new javax.swing.JList();
         jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jLabel7 = new javax.swing.JLabel();
-        jRadioButton1 = new javax.swing.JRadioButton();
-        jRadioButton2 = new javax.swing.JRadioButton();
-        jRadioButton3 = new javax.swing.JRadioButton();
-        jButton5 = new javax.swing.JButton();
-        jButton6 = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jSpinner1 = new javax.swing.JSpinner();
+        jPanel4 = new javax.swing.JPanel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTextArea1 = new javax.swing.JTextArea();
+        jPanel5 = new javax.swing.JPanel();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTextArea2 = new javax.swing.JTextArea();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
+        jToggleButton1 = new javax.swing.JToggleButton();
+        jButton5 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Calorimeter Beam Profile Plotter");
+        setPreferredSize(new java.awt.Dimension(488, 800));
+        setSize(new java.awt.Dimension(0, 0));
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(" Name "));
 
-        jLabel1.setText("First Name:");
-
         jLabel2.setText("Last Name:");
-
-        jTextField1.setText("John");
 
         jTextField2.setText("Guy");
 
@@ -129,7 +167,7 @@ public class BeamProfile extends javax.swing.JFrame {
 
         jLabel5.setText("Display Format:");
 
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "[Nickname]  First_Name + Last_Name" }));
+        jComboBox1.setToolTipText("");
 
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -139,32 +177,27 @@ public class BeamProfile extends javax.swing.JFrame {
                 .addContainerGap()
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                     .add(jLabel5)
-                    .add(jLabel3)
-                    .add(jLabel1))
+                    .add(jLabel3))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel1Layout.createSequentialGroup()
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jTextField3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE)
-                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jTextField1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 148, Short.MAX_VALUE))
+                        .add(jTextField3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 153, Short.MAX_VALUE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
                             .add(jLabel2)
                             .add(jLabel4))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jTextField2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)
-                            .add(jTextField4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 147, Short.MAX_VALUE)))
-                    .add(jComboBox1, 0, 357, Short.MAX_VALUE))
+                            .add(jTextField2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)
+                            .add(jTextField4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE)))
+                    .add(jComboBox1, 0, 369, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel1Layout.createSequentialGroup()
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel1)
                     .add(jTextField2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jTextField1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel2))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
@@ -175,85 +208,95 @@ public class BeamProfile extends javax.swing.JFrame {
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jLabel5)
-                    .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
         );
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(" E-mail "));
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Read URL"));
 
-        jLabel6.setText("E-mail Address:");
+        jLabel6.setText("URL:");
 
-        jList1.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "john.guy@xxxxxx.yyy", "gui@yyyyyy.xxx" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
-        jScrollPane1.setViewportView(jList1);
+        jTextField5.setText("http://magicbox:9091/");
 
-        jButton1.setText("Add");
+        jButton1.setText("Read");
         jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jButton1MouseClicked(evt);
             }
         });
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
-        jButton2.setText("Edit");
+        jLabel1.setText("Port:");
 
-        jButton3.setText("Remove");
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Responce"));
 
-        jButton4.setText("Default");
+        jTextArea1.setColumns(20);
+        jTextArea1.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
+        jTextArea1.setRows(5);
+        jScrollPane3.setViewportView(jTextArea1);
 
-        jLabel7.setText("Mail Format:");
+        org.jdesktop.layout.GroupLayout jPanel4Layout = new org.jdesktop.layout.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 0, Short.MAX_VALUE)
+            .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE))
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 223, Short.MAX_VALUE)
+            .add(jPanel4Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 223, Short.MAX_VALUE))
+        );
 
-        buttonGroup1.add(jRadioButton1);
-        jRadioButton1.setSelected(true);
-        jRadioButton1.setText("HTML");
-        jRadioButton1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jRadioButton1.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Errors"));
 
-        buttonGroup1.add(jRadioButton2);
-        jRadioButton2.setText("Plain Text");
-        jRadioButton2.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jRadioButton2.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        jTextArea2.setColumns(20);
+        jTextArea2.setFont(new java.awt.Font("Courier New", 0, 12)); // NOI18N
+        jTextArea2.setRows(5);
+        jScrollPane4.setViewportView(jTextArea2);
 
-        buttonGroup1.add(jRadioButton3);
-        jRadioButton3.setText("Custom");
-        jRadioButton3.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-        jRadioButton3.setMargin(new java.awt.Insets(0, 0, 0, 0));
+        org.jdesktop.layout.GroupLayout jPanel5Layout = new org.jdesktop.layout.GroupLayout(jPanel5);
+        jPanel5.setLayout(jPanel5Layout);
+        jPanel5Layout.setHorizontalGroup(
+            jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 0, Short.MAX_VALUE)
+            .add(jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 434, Short.MAX_VALUE))
+        );
+        jPanel5Layout.setVerticalGroup(
+            jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 117, Short.MAX_VALUE)
+            .add(jPanel5Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 117, Short.MAX_VALUE))
+        );
 
         org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel2Layout.createSequentialGroup()
+                .add(24, 24, 24)
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel2Layout.createSequentialGroup()
-                        .add(12, 12, 12)
-                        .add(jRadioButton1)
+                        .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jRadioButton2)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jRadioButton3))
+                        .add(jTextField5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 324, Short.MAX_VALUE))
                     .add(jPanel2Layout.createSequentialGroup()
-                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jPanel2Layout.createSequentialGroup()
-                                .add(jLabel6)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jTextField5))
-                            .add(jScrollPane1))
+                        .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jButton2)
-                            .add(jButton1)
-                            .add(jButton3)
-                            .add(jButton4)))
-                    .add(jLabel7))
+                        .add(jSpinner1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(0, 0, Short.MAX_VALUE)))
+                .add(18, 18, 18)
+                .add(jButton1)
                 .addContainerGap())
+            .add(jPanel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .add(jPanel5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
-
-        jPanel2Layout.linkSize(new java.awt.Component[] {jButton1, jButton2, jButton3, jButton4}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel2Layout.createSequentialGroup()
@@ -262,26 +305,15 @@ public class BeamProfile extends javax.swing.JFrame {
                     .add(jTextField5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jButton1))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel2Layout.createSequentialGroup()
-                        .add(jButton2)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButton3)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButton4))
-                    .add(jScrollPane1, 0, 0, Short.MAX_VALUE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jLabel7)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jRadioButton1)
-                    .add(jRadioButton2)
-                    .add(jRadioButton3)))
+                    .add(jLabel1)
+                    .add(jSpinner1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(jPanel4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(34, 34, 34))
         );
-
-        jButton5.setText("Cancel");
-
-        jButton6.setText("OK");
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Plot"));
 
@@ -289,56 +321,147 @@ public class BeamProfile extends javax.swing.JFrame {
         jPanel3.setLayout(jPanel3Layout);
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, jScrollPane2)
+            .add(jScrollPane2)
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 267, Short.MAX_VALUE)
+            .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 42, Short.MAX_VALUE)
         );
+
+        jToggleButton1.setText("START");
+
+        jButton5.setText("Cancel");
 
         org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .add(jToggleButton1)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jButton5)
+                .add(15, 15, 15))
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(0, 0, Short.MAX_VALUE)
-                        .add(jButton6)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jButton5))
-                    .add(jPanel1, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
         );
-
-        layout.linkSize(new java.awt.Component[] {jButton5, jButton6}, org.jdesktop.layout.GroupLayout.HORIZONTAL);
-
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
                 .addContainerGap()
-                .add(jPanel3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                .add(jPanel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 478, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jButton5)
-                    .add(jButton6))
+                    .add(jToggleButton1)
+                    .add(jButton5))
                 .addContainerGap())
         );
 
+        jToggleButton1.getAccessibleContext().setAccessibleDescription("");
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        try {
+            String url = jTextField5.getText();
+            String answer = readURL(url);
+            jTextArea1.setText(answer);
+            jTextArea2.setText("-OK-");
+            
+            /* The important instances of the classes mentioned before */
+            TCPMasterConnection con = null; //the connection
+            ModbusTCPTransaction trans = null; //the transaction
+            //ReadInputDiscretesRequest req = null; //the request
+            //ReadInputDiscretesResponse res = null; //the response
+            ReadInputRegistersRequest req = null; //the request
+            ReadInputRegistersResponse res = null; //the response
+
+            /* Variables for storing the parameters */
+            InetAddress addr = null; //the slave's address
+            int port = Modbus.DEFAULT_PORT;
+            int unitid = 1; //the unit identifier we will be talking to
+            int ref = 0;    //the reference; offset where to start reading from
+            int count = 1;  //the number of DI's or AI's to read
+            int repeat = 1; //a loop for repeating the transaction
+            
+            //1. Setup the parameters
+            port = 502;
+            addr = InetAddress.getByName("192.168.1.202");
+            unitid = 1;
+            ref = 0;
+            count = 7;
+            repeat = 1;
+
+            //2. Open the connection
+            con = new TCPMasterConnection(addr);
+            con.setPort(port);
+            con.connect();
+
+            //3. Prepare the request
+            //req = new ReadInputDiscretesRequest(ref, count);
+            req = new ReadInputRegistersRequest(ref, count);
+            req.setUnitID(unitid);
+            //req.setHeadless();
+
+            //4. Prepare the transaction
+            trans = new ModbusTCPTransaction(con);
+            trans.setRequest(req);    
+
+            //5. Execute the transaction repeat times
+            int k = 0;
+            do {
+                trans.execute();
+                //res = (ReadInputDiscretesResponse) trans.getResponse();
+                //System.out.println("Digital Inputs Status=" + res.getDiscretes().toString());
+                res = (ReadInputRegistersResponse) trans.getResponse();
+                for (int n = 0; n < res.getWordCount(); n++) {
+                    System.out.println("Word " + n + "=" + res.getRegisterValue(n));
+                }
+                k++;
+            } while (k < repeat);
+
+            //6. Close the connection
+            con.close();        
+
+        } catch (IOException ex) {
+            jTextArea2.setText("IOException " + ex);
+        } catch (Exception ex) {
+            jTextArea2.setText("Exception " + ex);
+            //Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton1MouseClicked
     
+    public static String readURL(String urlName) throws MalformedURLException, IOException {
+        String result = "";
+        // Create a URL 
+        URL urlToRead = new URL(urlName);
+        // Read and the URL characterwise
+        // Open the streams
+        InputStream inputStream = urlToRead.openStream();
+        int c = inputStream.read();
+        while (c != -1) {
+            //System.out.print((char) c);
+            result += (char) c;
+            c = inputStream.read();
+        }
+        inputStream.close();
+        return result;
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -374,15 +497,11 @@ public class BeamProfile extends javax.swing.JFrame {
             }
         });
     }
-    
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
-    private javax.swing.JButton jButton6;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -390,31 +509,208 @@ public class BeamProfile extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JList jList1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JRadioButton jRadioButton1;
-    private javax.swing.JRadioButton jRadioButton2;
-    private javax.swing.JRadioButton jRadioButton3;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JSpinner jSpinner1;
+    private javax.swing.JTextArea jTextArea1;
+    private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTextField jTextField2;
     private javax.swing.JTextField jTextField3;
     private javax.swing.JTextField jTextField4;
     private javax.swing.JTextField jTextField5;
+    private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
     
+    private void restoreConfig() {
+//        String logFileName = null;
+//        List<String> columnNames = new LinkedList<>();
+//        try {
+//            ObjectInputStream objIStrm = new ObjectInputStream(new FileInputStream("config.dat"));
+//
+//            Rectangle bounds = (Rectangle) objIStrm.readObject();
+//            frame.setBounds(bounds);
+//
+//            logFileName = (String) objIStrm.readObject();
+//            txtFileName.setText(logFileName);
+//            fileLog = new File(logFileName);
+//
+//            String str = (String) objIStrm.readObject();
+//            folder = str;
+//
+//            str = (String) objIStrm.readObject();
+//            txtarExcludedColumns.setText(str);
+//
+//            str = (String) objIStrm.readObject();
+//            txtarIncludedColumns.setText(str);
+//
+//            boolean sm = (boolean) objIStrm.readObject();
+//            chckbxShowMarkers.setSelected(sm);
+//
+//            boolean sp = (boolean) objIStrm.readObject();
+//            chckbxShowPreviousShot.setSelected(sp);
+//            
+//            columnNames = (List<String>) objIStrm.readObject();
+//
+//            objIStrm.close();
+//
+//            logger.info("Config restored.");
+//        } catch (IOException | ClassNotFoundException e) {
+//            logger.log(Level.WARNING, "Config read error {0}", e);
+//        }
+//        timer.cancel();
+//        timer = new Timer();
+//        timerTask = new DirWatcher(window);
+//        timer.schedule(timerTask, 2000, 1000);
+//
+//        logViewTable.readFile(logFileName);
+//        logViewTable.setColumnNames(columnNames);
+//        columnNames = logViewTable.getColumnNames();
+//        // Add event listener for logview table
+//        ListSelectionModel rowSM = logViewTable.getSelectionModel();
+//        rowSM.addListSelectionListener(new ListSelectionListener() {
+//            @Override
+//            public void valueChanged(ListSelectionEvent event) {
+//                //Ignore extra messages.
+//                if (event.getValueIsAdjusting()) {
+//                    return;
+//                }
+//
+//                ListSelectionModel lsm = (ListSelectionModel) event.getSource();
+//                if (lsm.isSelectionEmpty()) {
+//                    //System.out.println("No rows selected.");
+//                } else {
+//                    int selectedRow = lsm.getMaxSelectionIndex();
+//                    //System.out.println("Row " + selectedRow + " is now selected.");
+//                    //String fileName = folder + "\\" + logViewTable.files.get(selectedRow);
+//                    try {
+//                        File zipFile = logViewTable.files.get(selectedRow);
+//                        readZipFile(zipFile);
+//                        if (timerTask != null && timerTask.timerCount > 0) {
+//                            dimLineColor();
+//                        }
+//                    } catch (Exception e) {
+//                        logger.log(Level.WARNING, "Selection change exception ", e);
+//                        //panel.removeAll();
+//                    }
+//                }
+//            }
+//        });
+//        logViewTable.clearSelection();
+//        logViewTable.changeSelection(logViewTable.getRowCount()-1, 0, false, false);
+   }
+
+    private void saveConfig() {
+//        timer.cancel();
+//
+//        Rectangle bounds = frame.getBounds();
+//        String txt = txtFileName.getText();
+//        txt = fileLog.getAbsolutePath();
+//        String txt1 = txtarExcludedColumns.getText();
+//        String txt2 = txtarIncludedColumns.getText();
+//        boolean sm = chckbxShowMarkers.isSelected();
+//        boolean sp = chckbxShowPreviousShot.isSelected();
+//        List<String> columnNames = logViewTable.getColumnNames();
+//        try {
+//            ObjectOutputStream objOStrm = new ObjectOutputStream(new FileOutputStream("config.dat"));
+//            objOStrm.writeObject(bounds);
+//            objOStrm.writeObject(txt);
+//            objOStrm.writeObject(folder);
+//            objOStrm.writeObject(txt1);
+//            objOStrm.writeObject(txt2);
+//            objOStrm.writeObject(sm);
+//            objOStrm.writeObject(sp);
+//            objOStrm.writeObject(columnNames);
+//            objOStrm.close();
+//            logger.info("Config saved.");
+//        } catch (IOException e) {
+//            logger.log(Level.WARNING, "Config write error ", e);
+//        }
+    }
+
+    @Override
+    public void windowClosed(WindowEvent e) {
+        saveConfig();
+        //System.exit(0);
+    }
+
+    @Override
+    public void windowOpened(WindowEvent e) {
+        restoreConfig();
+    }
+
+    @Override
+    public void windowClosing(WindowEvent e) {
+    }
+
+    @Override
+    public void windowIconified(WindowEvent e) {
+    }
+
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+    }
+
+    @Override
+    public void windowActivated(WindowEvent e) {
+    }
+
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+    }
+
+
     class Task extends SwingWorker<Void, Void> {
 
+        DataFile outputFile;
+        boolean newOutput = false;
+	
+// Data arrays for traces
+        int nx = 2000;
+	int ny = 4*8+1;
+	double[][] data = new double[nx][ny];
+	double[] dmin = new double[ny];
+	double[] dmax = new double[ny];
+
+// Profile arrays and their plot handles
+	int[] p1range = {2,3,4,5,6,7,10,11,12,13,14};    // Channels for vertical profile
+	double[] p1x = {1,3,4,5,6,7,8,9,10,11,13};       // X values for prof1
+	int[] p2range = {16, 7, 15};                     // Channels for horizontal profile
+	int[] p2x = {3, 7, 11};                          // X values for prof2
+	double[] prof1  = new double[p1range.length];    // Vertical profile and handle
+	double prof1h = 0;
+	double[] prof2  = new double[p2range.length];    // Horizontal profile
+	double prof2h = 0;
+	double[] prof1max  = prof1.clone();      // Maximal vertical profile (over the plot)
+        //Arrays.fill(prof1max, 1.0);
+        double prof1maxh = 0;          // Maximal vertical profile handle
+	double[] prof1max1  = prof1max.clone();  // Maximal vertical profile (from the program start)
+	double prof1max1h = 0;         // Handle
+	double[] prof2max  = prof2.clone();      // Maximal horizontal profile (ofer the plot)
+	//Arrays.fill(prof2max, 1.0);
+	double prof2maxh = 0;
+        
+        
+        Task() {
+            //outputFile = new DataFile("log.txt");
+            newOutput = true;
+        }
+    
         /**
          * Main task. Executed in background thread.
          */
         @Override
         public Void doInBackground() {
             // Initialize progress property.
+            while(jToggleButton1.isSelected()) {
+                //readData();
+                //plotData();
+            }
             return null;
         }
 

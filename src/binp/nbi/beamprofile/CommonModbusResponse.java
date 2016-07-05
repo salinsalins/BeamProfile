@@ -22,9 +22,6 @@ import net.wimpi.modbus.msg.ModbusResponse;
 
 /**
  * Class implementing a <tt>CommonModbusResponse</tt>.
- * The implementation directly correlates with the class 0
- * function <i>read multiple registers (FC 4)</i>. It
- * encapsulates the corresponding response message.
  *
  * @author 
  * @version @version@ (@date@)
@@ -32,8 +29,6 @@ import net.wimpi.modbus.msg.ModbusResponse;
 public final class CommonModbusResponse
     extends ModbusResponse {
 
-  private int m_ByteCount;
-  private InputRegister[] m_Registers;
   byte[] data;
 
   /**

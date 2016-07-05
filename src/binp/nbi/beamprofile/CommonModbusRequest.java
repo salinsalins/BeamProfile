@@ -30,9 +30,6 @@ import net.wimpi.modbus.procimg.ProcessImage;
 public final class CommonModbusRequest
         extends ModbusRequest {
 
-    //instance attributes
-    private int m_Reference;
-    private int m_WordCount;
     private byte[] data;
 
     /**
@@ -45,7 +42,7 @@ public final class CommonModbusRequest
         setFunctionCode(Modbus.READ_INPUT_REGISTERS);
         //4 bytes (unit id and function code is excluded)
         setDataLength(4);
-        data = new byte[4]; //{0, 1, 0, 1}
+        data = new byte[4]; //{0, 1, 0, 1};
     }//constructor
 
     /**

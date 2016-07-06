@@ -20,7 +20,7 @@ import net.wimpi.modbus.net.TCPMasterConnection;
  * @author sanin
  */
 public class PET7015 {
-    static final String[] typeName = {
+    static final String[] typeNames = {
 "0x20: Platinum 100, α=0.00385, -100°C ~ 100°C",
 "0x21: Platinum 100, α=0.00385, 0°C ~ 100°C",
 "0x22: Platinum 100, α=0.00385, 0°C ~ 200°C",
@@ -41,7 +41,7 @@ public class PET7015 {
 "0x81: Platinum 100, α=0. 003916, -200°C ~ 600°C",
 "0x82: Cu 50 @ 0°C, -50°C ~ 150°C",
 "0x83: Nickel 100, -60°C ~ 180°C"};
-    static final int[] type = { 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 
+    static final int[] types = { 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 
         0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x80, 0x81,
         0x82, 0x83};
     static final double[] p0 = { 0.20, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 
@@ -62,7 +62,8 @@ public class PET7015 {
     int count = 1;  //the number of DI's or AI's to read
     
     int moduleName = 0;
-    int[] chanType = null;
+    int[] channels = null;
+    int[] cti = null;
     
     PET7015(String strAddr, int port) throws UnknownHostException, Exception {
         setInetAddress(strAddr);
@@ -70,21 +71,26 @@ public class PET7015 {
         con = new TCPMasterConnection(addr);
         openConnection();
         moduleName = readMultipleRegisters(40559, 1)[0];
-        System.out.printf("Module name: 0x%H", moduleName);
+        System.out.printf("Module name: 0x%H\n", moduleName);
         if(moduleName != 0x7015) {
-            System.out.printf("Incorrect module name: 0x%H", moduleName);
+            System.out.printf("Incorrect module name: 0x%H\n", moduleName);
         } else {
-            chanType = readMultipleRegisters(40427, 7);
-            for (int n: chanType) {
-                int i = -1;
-                for (int t: type) {
-                    if(type[t] == chanType[n]) i = t; 
+            channels = readMultipleRegisters(40427, 7);
+            cti = new int[channels.length];
+            for (int i=0; i < channels.length; i++) {
+                int n = -1;
+                for (int j=0; j < types.length; j++) {
+                    if(types[j] == channels[i]) {
+                        n = j;
+                        break;
+                    } 
                 }
-                System.out.printf("Channel %d ", n);
-                if(i >= 0) 
-                    System.out.printf(" %s\n", typeName[i]);
+                cti[i] = n;
+                System.out.printf("Channel %d", i);
+                if(n >= 0) 
+                    System.out.printf(" %s\n", typeNames[n]);
                 else
-                   System.out.printf(" Unknown type %d\n", n);
+                   System.out.printf(" Unknown type 0x%H\n", channels[i]);
             }
         }
     }

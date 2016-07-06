@@ -386,7 +386,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             //ReadInputDiscretesRequest req = null; //the request
             //ReadInputDiscretesResponse res = null; //the response
             ReadInputRegistersRequest req = null;   //the request
-            ReadInputRegistersResponse res = null;  //the response
+            CommonIPResponse res = null;  //the response
             /* Variables for storing the parameters */
             InetAddress addr = null; //the slave's address
             int port = Modbus.DEFAULT_PORT;
@@ -402,9 +402,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             //2. Open the connection
             con = new TCPMasterConnection(addr);
             con.setPort(port);
-            mark(1);
-            con.connect();
             mark("connect");
+            con.connect();
+            mark("connected");
             //3. Prepare the request
             //req = new ReadInputDiscretesRequest(ref, count);
             req = new ReadInputRegistersRequest(ref, count);
@@ -415,14 +415,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             System.out.println(req.getFunctionCode());
             System.out.println(req.getHexMessage());
 
-            ModbusRequest reqInfo = ModbusRequest.createModbusRequest(70);
-            reqInfo.setDataLength(1);
-            //reqInfo.setDataLength(1);
+            byte[] requestData = {32};
+            //requestData[1]=(byte)0x80;
+            CommonIPRequest reqInfo = new CommonIPRequest(0x46, requestData);
             reqInfo.setUnitID(unitid);
             System.out.println(reqInfo);
             System.out.println(reqInfo.getDataLength());
             System.out.println(reqInfo.getFunctionCode());
-            //System.out.println(reqInfo.getHexMessage());
+            System.out.println(reqInfo.getHexMessage());
             
             //4. Prepare the transaction
             trans = new ModbusTCPTransaction(con);
@@ -430,19 +430,20 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             //5. Execute the transaction
             mark("execute");
             trans.execute();
-            mark();
+            mark("executed");
             //res = (ReadInputDiscretesResponse) trans.getResponse();
             //System.out.println("Digital Inputs Status=" + res.getDiscretes().toString());
-            res = (ReadInputRegistersResponse) trans.getResponse();
-            ModbusResponse resInfo = (ModbusResponse) trans.getResponse();
+            //res = (CommonIPResponse) trans.getResponse();
+            //ModbusResponse resInfo = (CommonIPResponse) trans.getResponse();
+            ModbusResponse resInfo = trans.getResponse();
             mark();
             System.out.println(resInfo);
             System.out.println(resInfo.getDataLength());
             System.out.println(resInfo.getFunctionCode());
             System.out.println(resInfo.getHexMessage());
-            for (int n = 0; n < res.getWordCount(); n++) {
-                System.out.println("Word " + n + "=" + res.getRegisterValue(n));
-            }
+            //for (int n = 0; n < res.getWordCount(); n++) {
+            //    System.out.println("Word " + n + "=" + res.getRegisterValue(n));
+            //}
             //6. Close the connection
             con.close();        
 
@@ -451,7 +452,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             logger.severe("IOException " + ex);
         } catch (Exception ex) {
             jTextArea2.setText("Exception " + ex);
-            Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, "Exception", ex);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 

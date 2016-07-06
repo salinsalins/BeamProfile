@@ -11,6 +11,10 @@ import net.wimpi.modbus.Modbus;
 import net.wimpi.modbus.ModbusException;
 import net.wimpi.modbus.ModbusSlaveException;
 import net.wimpi.modbus.io.ModbusTCPTransaction;
+import net.wimpi.modbus.msg.ReadCoilsRequest;
+import net.wimpi.modbus.msg.ReadCoilsResponse;
+import net.wimpi.modbus.msg.ReadInputRegistersRequest;
+import net.wimpi.modbus.msg.ReadInputRegistersResponse;
 import net.wimpi.modbus.msg.ReadMultipleRegistersRequest;
 import net.wimpi.modbus.msg.ReadMultipleRegistersResponse;
 import net.wimpi.modbus.net.TCPMasterConnection;
@@ -70,12 +74,12 @@ public class PET7015 {
         setPort(port);
         con = new TCPMasterConnection(addr);
         openConnection();
-        moduleName = readMultipleRegisters(40559, 1)[0];
+        moduleName = readRegisters(40559, 1)[0];
         System.out.printf("Module name: 0x%H\n", moduleName);
         if(moduleName != 0x7015) {
             System.out.printf("Incorrect module name: 0x%H\n", moduleName);
         } else {
-            channels = readMultipleRegisters(40427, 7);
+            channels = readRegisters(40427, 7);
             cti = new int[channels.length];
             for (int i=0; i < channels.length; i++) {
                 int n = -1;
@@ -134,4 +138,47 @@ public class PET7015 {
         return result;
     }
 
+    int[] readInputRegisters(int ref, int count) throws ModbusSlaveException, ModbusException {
+        //3. Prepare the request
+        ReadInputRegistersRequest req = new ReadInputRegistersRequest(ref, count);
+        req.setUnitID(unitID);
+        //req.setHeadless();
+        //4. Prepare the transaction
+        trans  = new ModbusTCPTransaction(con);
+        trans.setRequest(req);
+        //5. Execute the transaction
+        trans.execute();
+        ReadInputRegistersResponse res = (ReadInputRegistersResponse) trans.getResponse();
+        int[] result = new int[res.getWordCount()];
+        for (int n = 0; n < res.getWordCount(); n++) {
+            result[n] = res.getRegisterValue(n);
+        }
+        return result;
+    }
+
+    int[] readCoils(int ref, int count) throws ModbusSlaveException, ModbusException {
+        //3. Prepare the request
+        ReadCoilsRequest req = new ReadCoilsRequest(ref, count);
+        req.setUnitID(unitID);
+        //req.setHeadless();
+        //4. Prepare the transaction
+        trans  = new ModbusTCPTransaction(con);
+        trans.setRequest(req);
+        //5. Execute the transaction
+        trans.execute();
+        ReadCoilsResponse res = (ReadCoilsResponse) trans.getResponse();
+        int[] result = new int[res.getBitCount()];
+        for (int n = 0; n < res.getBitCount(); n++) {
+            result[n] = res.getCoilStatus(n) ? 1 : 0;
+        }
+        return result;
+    }
+
+    int[] readRegisters(int ref, int count) throws ModbusSlaveException, ModbusException {
+        if(ref >= 40000) return readInputRegisters(ref-40000, count);
+        if(ref >= 30000) return readMultipleRegisters(ref-30000, count);
+        //if(ref >= 20000) return readInputDiscretes(ref-20000, count);
+        if(ref >= 10000) return readCoils(ref-10000, count);
+        return readCoils(ref, count);
+    }
 }

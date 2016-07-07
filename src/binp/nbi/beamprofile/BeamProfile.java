@@ -134,7 +134,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jLabel4 = new javax.swing.JLabel();
         jSpinner3 = new javax.swing.JSpinner();
         jLabel5 = new javax.swing.JLabel();
-        jSpinner4 = new javax.swing.JSpinner();
         jSpinner5 = new javax.swing.JSpinner();
         jPanel2 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
@@ -143,6 +142,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jPanel5 = new javax.swing.JPanel();
         jScrollPane4 = new javax.swing.JScrollPane();
         jTextArea2 = new javax.swing.JTextArea();
+        jLabel7 = new javax.swing.JLabel();
+        jSpinner6 = new javax.swing.JSpinner();
+        jSpinner4 = new javax.swing.JSpinner();
         jPanel3 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jToggleButton1 = new javax.swing.JToggleButton();
@@ -188,8 +190,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jSpinner3.setModel(new javax.swing.SpinnerNumberModel(1, 0, 255, 1));
 
         jLabel5.setText("Count:");
-
-        jSpinner4.setModel(new javax.swing.SpinnerNumberModel(1, 0, 255, 1));
 
         jSpinner5.setModel(new javax.swing.SpinnerListModel(new String[] {"192.168.1.202", "http://magicbox:9091/", "Item 2", "Item 3"}));
 
@@ -244,12 +244,18 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jPanel2Layout.setVerticalGroup(
             jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel2Layout.createSequentialGroup()
-                .addContainerGap()
+                .add(49, 49, 49)
                 .add(jPanel4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
+
+        jLabel7.setText("Ref:");
+
+        jSpinner6.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
+
+        jSpinner4.setModel(new javax.swing.SpinnerNumberModel(1, 0, 255, 1));
 
         org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -258,31 +264,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             .add(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel1Layout.createSequentialGroup()
-                        .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jTextField5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 251, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(18, 18, 18)
-                        .add(jButton1)
-                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jPanel1Layout.createSequentialGroup()
                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jPanel1Layout.createSequentialGroup()
-                                .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jSpinner5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 249, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                    .add(jPanel1Layout.createSequentialGroup()
-                                        .add(jSpinner1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                        .add(jLabel4)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                        .add(jSpinner3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                        .add(jLabel5)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jSpinner4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                             .add(jPanel1Layout.createSequentialGroup()
                                 .add(jLabel2)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -290,8 +274,39 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 .add(18, 18, 18)
                                 .add(jLabel3)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jSpinner2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                        .add(0, 0, Short.MAX_VALUE))))
+                                .add(jSpinner2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(jPanel1Layout.createSequentialGroup()
+                                .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(jPanel1Layout.createSequentialGroup()
+                                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                            .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                                .add(jSpinner1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                .add(jTextField5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 251, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                            .add(jPanel1Layout.createSequentialGroup()
+                                                .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
+                                                    .add(jPanel1Layout.createSequentialGroup()
+                                                        .add(jLabel7)
+                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                        .add(jSpinner6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 81, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                                        .add(jLabel5)
+                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                        .add(jSpinner4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                                    .add(jPanel1Layout.createSequentialGroup()
+                                                        .add(jSpinner5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 157, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                                        .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 30, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                                        .add(64, 64, 64)
+                                                        .add(jLabel4)))
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jSpinner3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                        .add(0, 0, Short.MAX_VALUE))
+                                    .add(jPanel1Layout.createSequentialGroup()
+                                        .add(0, 0, Short.MAX_VALUE)
+                                        .add(jButton1)))))
+                        .addContainerGap())))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -302,21 +317,23 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     .add(jLabel3)
                     .add(jSpinner2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(jTextField5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                    .add(jSpinner5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel6)
-                    .add(jTextField5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jButton1))
+                    .add(jLabel1)
+                    .add(jSpinner1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jLabel4)
+                    .add(jSpinner3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jSpinner1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel1)
-                    .add(jLabel4)
-                    .add(jSpinner3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(jLabel5)
-                    .add(jSpinner4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jSpinner5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(18, 18, 18)
+                    .add(jLabel7)
+                    .add(jSpinner6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jSpinner4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jButton1))
+                .add(16, 16, 16)
                 .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -348,7 +365,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap())
             .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(225, Short.MAX_VALUE)
+                .addContainerGap(266, Short.MAX_VALUE)
                 .add(jToggleButton1)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(jButton5)
@@ -385,29 +402,29 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             ModbusTCPTransaction trans = null;      //the transaction
             //ReadInputDiscretesRequest req = null; //the request
             //ReadInputDiscretesResponse res = null; //the response
-            ReadInputRegistersRequest req = null;   //the request
-            CommonIPResponse res = null;  //the response
             /* Variables for storing the parameters */
             InetAddress addr = null; //the slave's address
             int port = Modbus.DEFAULT_PORT;
             int unitid = 1; //the unit identifier we will be talking to
             int ref = 0;    //the reference; offset where to start reading from
             int count = 1;  //the number of DI's or AI's to read
+
             //1. Setup the parameters
             port = (int) jSpinner1.getValue();
-            addr = InetAddress.getByName("192.168.1.202");
-            unitid =  (int) jSpinner3.getValue();;
-            ref = 0;
+            //addr = InetAddress.getByName("192.168.1.202");
+            addr = InetAddress.getByName((String) jSpinner5.getValue());
+            unitid =  (int) jSpinner3.getValue();
+            ref = (int) jSpinner6.getValue();
             count =  (int) jSpinner4.getValue();;
+
             //2. Open the connection
             con = new TCPMasterConnection(addr);
             con.setPort(port);
-            mark("connect");
             con.connect();
-            mark("connected");
+
             //3. Prepare the request
             //req = new ReadInputDiscretesRequest(ref, count);
-            req = new ReadInputRegistersRequest(ref, count);
+            ReadInputRegistersRequest req = new ReadInputRegistersRequest(ref, count);
             req.setUnitID(unitid);
             //req.setHeadless();
             System.out.println(req);
@@ -415,44 +432,44 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             System.out.println(req.getFunctionCode());
             System.out.println(req.getHexMessage());
 
-            byte[] requestData = {32};
+            //byte[] requestData = {32};
             //requestData[1]=(byte)0x80;
-            CommonIPRequest reqInfo = new CommonIPRequest(0x46, requestData);
-            reqInfo.setUnitID(unitid);
-            System.out.println(reqInfo);
-            System.out.println(reqInfo.getDataLength());
-            System.out.println(reqInfo.getFunctionCode());
-            System.out.println(reqInfo.getHexMessage());
+            //CommonIPRequest reqInfo = new CommonIPRequest(0x46, requestData);
+            //reqInfo.setUnitID(unitid);
+            //System.out.println(reqInfo);
+            //System.out.println(reqInfo.getDataLength());
+            //System.out.println(reqInfo.getFunctionCode());
+            //System.out.println(reqInfo.getHexMessage());
             
             //4. Prepare the transaction
             trans = new ModbusTCPTransaction(con);
-            trans.setRequest(reqInfo);    
+            trans.setRequest(req);    
+
             //5. Execute the transaction
-            mark("execute");
             trans.execute();
-            mark("executed");
-            //res = (ReadInputDiscretesResponse) trans.getResponse();
-            //System.out.println("Digital Inputs Status=" + res.getDiscretes().toString());
-            //res = (CommonIPResponse) trans.getResponse();
-            //ModbusResponse resInfo = (CommonIPResponse) trans.getResponse();
-            ModbusResponse resInfo = trans.getResponse();
-            mark();
-            System.out.println(resInfo);
-            System.out.println(resInfo.getDataLength());
-            System.out.println(resInfo.getFunctionCode());
-            System.out.println(resInfo.getHexMessage());
-            //for (int n = 0; n < res.getWordCount(); n++) {
-            //    System.out.println("Word " + n + "=" + res.getRegisterValue(n));
-            //}
+            ReadInputRegistersResponse res = (ReadInputRegistersResponse) trans.getResponse();
+            System.out.println(res);
+            System.out.println(res.getDataLength());
+            System.out.println(res.getFunctionCode());
+            System.out.println(res.getHexMessage());
+            jTextArea1.setText("");
+            for (int n = 0; n < res.getWordCount(); n++) {
+                System.out.printf("%2d - %2$d %2$H\n", n, res.getRegisterValue(n));
+                jTextArea1.append(Integer.toHexString(res.getRegisterValue(n)) + "\n");
+
+            }
+
             //6. Close the connection
-            con.close();        
+            con.close();
+
+            PET7015 pet = new PET7015("192.168.1.202"); 
 
         } catch (IOException ex) {
             jTextArea2.setText("IOException " + ex);
             logger.severe("IOException " + ex);
         } catch (Exception ex) {
             jTextArea2.setText("Exception " + ex);
-            Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, "Exception", ex);
+            logger.log(Level.SEVERE, "Exception", ex);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -540,6 +557,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
@@ -553,6 +571,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JSpinner jSpinner3;
     private javax.swing.JSpinner jSpinner4;
     private javax.swing.JSpinner jSpinner5;
+    private javax.swing.JSpinner jSpinner6;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTextField jTextField5;

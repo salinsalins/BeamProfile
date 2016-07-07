@@ -49,7 +49,7 @@ public class PET7015 {
         0x27, 0x28, 0x29, 0x2A, 0x2B, 0x2C, 0x2D, 0x2E, 0x2F, 0x80, 0x81,
         0x82, 0x83};
     static final double[] p0 = { 0.20, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 
-        0.27, 0.28, 0.29, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.80, 0.81,
+        0.27, 0.28, 0.29, 0.20, 0.20, 0.20, 0.20, 0.20 , 0.20, 0.80, 0.81,
         0.82, 0.83};
     static final double[] p1 = { 0.20, 0.21, 0.22, 0.23, 0.24, 0.25, 0.26, 
         0.27, 0.28, 0.29, 0.20, 0.20, 0.20, 0.20, 0.20, 0.20, 0.80, 0.81,
@@ -175,10 +175,10 @@ public class PET7015 {
     }
 
     int[] readRegisters(int ref, int count) throws ModbusSlaveException, ModbusException {
-        if(ref >= 40000) return readInputRegisters(ref-40000, count);
-        if(ref >= 30000) return readMultipleRegisters(ref-30000, count);
+        if(ref > 40001) return readInputRegisters(ref-40000, count);
+        if(ref > 30001) return readMultipleRegisters(ref-30000, count);
         //if(ref >= 20000) return readInputDiscretes(ref-20000, count);
-        if(ref >= 10000) return readCoils(ref-10000, count);
+        if(ref > 10001) return readCoils(ref-10000, count);
         return readCoils(ref, count);
     }
 }

@@ -26,9 +26,7 @@ import net.wimpi.modbus.msg.ReadMultipleRegistersRequest;
 import net.wimpi.modbus.msg.ReadMultipleRegistersResponse;
 import net.wimpi.modbus.msg.WriteCoilRequest;
 import net.wimpi.modbus.msg.WriteMultipleCoilsRequest;
-import net.wimpi.modbus.msg.WriteMultipleCoilsResponse;
 import net.wimpi.modbus.msg.WriteMultipleRegistersRequest;
-import net.wimpi.modbus.msg.WriteMultipleRegistersResponse;
 import net.wimpi.modbus.msg.WriteSingleRegisterRequest;
 import net.wimpi.modbus.net.TCPMasterConnection;
 import net.wimpi.modbus.procimg.Register;
@@ -113,42 +111,44 @@ public class PET7015 {
             }
         }
     }
-    
+
+/*    
     public PET7015(String strAddr) throws UnknownHostException, Exception {
         this(strAddr, Modbus.DEFAULT_PORT);
     }
+*/
 
-    void setInetAddress(String strAddr) throws UnknownHostException, Exception {
+    public void setInetAddress(String strAddr) throws UnknownHostException, Exception {
         addr  = InetAddress.getByName(strAddr);
         closeConnection();
         openConnection();
     }
     
-    void setPort(int newPort) throws Exception {
+    public void setPort(int newPort) throws Exception {
         port  = newPort;
         closeConnection();
         openConnection();
     }
     
-    void openConnection() throws Exception {
+    public void openConnection() throws Exception {
         con = new TCPMasterConnection(addr);
         con.setPort(port);
         con.connect();
     }
 
-    void closeConnection() {
+    public void closeConnection() {
         con.close();
     }
     
-    boolean isConnected() {
+    public boolean isConnected() {
         return con.isConnected();
     }
 
-    ModbusResponse getResponse() {
+    public ModbusResponse getResponse() {
         return trans.getResponse();
     }
     
-    public int[] readMultipleRegisters(int ref, int count) throws ModbusSlaveException, ModbusException {
+    public final int[] readMultipleRegisters(int ref, int count) throws ModbusSlaveException, ModbusException {
         ReadMultipleRegistersRequest req = new ReadMultipleRegistersRequest(ref, count);
         req.setUnitID(unitID);
         trans  = new ModbusTCPTransaction(con);

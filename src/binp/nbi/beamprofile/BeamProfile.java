@@ -5,6 +5,7 @@
 
 package binp.nbi.beamprofile;
 
+import binp.nbi.PET7000.PET7015;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;

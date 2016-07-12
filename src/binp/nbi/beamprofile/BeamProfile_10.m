@@ -1,353 +1,52 @@
 function BeamProfile_10
-	pause on;
 	clear all;
 	delete(gcf);
 	closecom;
 	
 %% Variables
-	
-	% Programm Name and Version
-	ProgName = 'Calorimeter Beam Profile';
-	ProgNameShort = 'BeamProfile_';
-	ProgVersion = '10';
-	iniFileName = ['BeamProfile' ProgVersion, '.ini'];
 
-% Output	
-	% Output file
-	outFileName = LogFileName(ProgNameShort, 'txt');
-	outFilePath = 'D:\';
-	outFile = [outFilePath, outFileName];
-	out_fid = -1;
-
-% Input
-	% COM Port
-	cp_obj = -1;
-	cp_open = false;
-	% Adresses of ADAMs
-	addr1 = 3;
-	addr2 = 4;
-	addr3 = 2;
-	addr4 = 5;
-	% Input file
-	in_file_name = 'ADAMTempLog_2014-12-30-13-00-00.txt';
-	in_file_path = '.\2014-12-30\';
-	in_file = [in_file_path, in_file_name];
-	in_fid = -1;
-	
-% Logical flags
-	flag_stop = false;
-	flag_hour = true;
-	flag_out = true;
-	flag_in = false;
-	
-% Data arrays for traces
-	nx = 2000;    % number of trace points
-	ny = 4*8+1;   % number of registered temperatures + time
-	% Preallocate arrays
-	data = zeros(nx, ny);   % traces
-	dmin = zeros(1, ny);    % minimal temperatures
-	dmax = zeros(1, ny);    % maximal temperatures
-	
-% Profile arrays and their plot handles
-	p1range = [2:7, 10:14];    % Channels for vertical profile
-	p1x = [1,3:11,13];         % X values for prof1
-	p2range = [16, 7, 15];     % Channels for horizontal profile
-	p2x = [3, 7, 11];          % X values for prof2
-	prof1  = data(nx, p1range);    % Vertical profile and handle
-	prof1h = 0;
-	prof2  = data(nx, p2range);    % Horizontal profile
-	prof2h = 0;
-	prof1max  = prof1;      % Maximal vertical profile (over the plot)
-	prof1max(:)  = 1;
-	prof1maxh = 0;          % Maximal vertical profile handle
-	prof1max1  = prof1max;  % Maximal vertical profile (from the program start)
-	prof1max1h = 0;         % Handle
-	prof2max  = prof2;      % Maximal horizontal profile (ofer the plot)
-	prof2max(:)  = 1;
-	prof2maxh = 0;
-
-% Faded profiles
-	fpn = 10;         % Number of faded pofiles
-	fpi(1:fpn) = nx;  % Faded pofiles indexes
-	fph = fpi*0;      % Faded pofile plot handles
-	fpdt = 0.5;       % Faded pofile time inteval [s]
-
-% Traces to plot
-	trn = [7, 3, 11];     % Channel numbers of traces
-	trc = ['r';'g';'b'];  % Colors of traces
-	trh = trn*0;          % Handles of traces
-	
-% Beam current calculations and plot
-	voltage = 80.0;   % keV Particles energy
-	duration = 2;     % s Beam duration
-	flow = 12.5;      % gpm Cooling water flow (gallons per minute) 
-	bctin = 9;        % Input water temperature channel number
-	bctout = 8;       % Output water temperature channel number
-	% Current[mA] =	folw[gpm]*(OutputTemperature-InputTemperature)*Q/voltage
-	Q = 4.3*0.0639*1000; % Coeff to convert 
-	bch = 0;      % Handle for beam current plot
-	bcmax = 0;    % Max beam current on the screen
-	bcmax1 = 0;   % MaxMax beam current
-	bcmaxh = 0;   % Handle of max current text
-	bcflowchan = 22;  % Channel number for flowmeter output
-	bcv2flow = 12;    % V/gpm Conversion coefficienf for flowmeter 
-	
-% Acceleration electrode voltage and current
-	agvn = 23;
-	agcn = 24;
-	agn = [agvn, agcn];
-	agc = ['r';'g'];    % Colors of traces
-	agh = agc*0;        % Handles of traces
-
-% Targeting plots
-	tpt = 18;
-	tpb = 19;
-	tpl = 20;
-	tpr = 21;
-	tpn = [tpt, tpb, tpl, tpr];   % Channel numbers of traces
-	tpc = ['r'; 'g'; 'b'; 'm'];   % Colors of traces
-	tph = tpn*0;                  % Handles of traces
-	tph1 = tpn*0;                 % Handles of traces zoom
-	tpw = 30;                     % +- Zoom window halfwidth
-	
-% Error logging file
-	logFileName = LogFileName(['D:\', ProgNameShort, ProgVersion], 'log');
-	log_fid = 1;
-	%log_fid = fopen(logFileName, 'at+', 'n', 'windows-1251');
-	if log_fid < 0
-		log_fid = 1;
-	end
-	
-% Colors
-	cWHITE = [1, 1, 1];
-	cBLACK = [0, 0, 0];
-	cGREY   = [0.3, 0.3, 0.3];
-	cGREEN = [0.1, 0.8, 0.0];
-
-	%% Begin of operation
-
-	printl(log_fid, '%s Version %s Started.\n', ProgName, ProgVersion);
-	
-	if numel(dir(iniFileName));
-		load(iniFileName, '-mat');
-	end
+%% Begin of operation
+    printl(log_fid, '%s Version %s Started.\n', ProgName, ProgVersion);
+    if numel(dir(iniFileName));
+        load(iniFileName, '-mat');
+    end
 	
 %% Create GUI
 
 %% Main Figure hFig
-pFig = [50, 50, 400, 600];
-hFig = figure('Position', pFig);
-set(hFig, 'Color', get(0,'defaultUicontrolBackgroundColor'), 'DockControls', 'off');
-set(hFig, 'Name' , 'Calorimeter Profile', 'NumberTitle', 'off', 'MenuBar', 'none');
-set(hFig, 'Resize' , 'off', 'CloseRequestFcn', @FigCloseFun);
-
 %% Start/Stop, Config and other buttons hp6, nBtn1, hBtn4, hBtn5
-pp6 = [3, 2, pFig(3)-3, 31];
-hp6 = uipanel(hFig, 'Title', '', 'Units', 'pixels', ...
-	'Position', pp6);
-hBtn1 = uicontrol(hp6, 'Style', 'togglebutton', 'String', 'Start', ...
-	'Position', [10, 2, 150, 25], ...
-	'Callback', @cbStart);
-hBtn4 = uicontrol(hp6, 'Style', 'togglebutton', 'String', 'Config', ...
-	'Position', [170, 2, 100, 25], ...
-	'Callback', @cbBtn4);
-set(hBtn4,'Value', get(hBtn4,'Max'));
-hBtn5 = uicontrol(hp6, 'Style', 'togglebutton', 'String', 'Targeting', ...
-	'Position', Right(hBtn4, 100), ...
-	'Callback', @cbTargeting);
-
 %% Input select pannel hp1, hLb2, hEd1, hEd4, hEd8, hEd9, hBtn3 
-hpIn = uipanel(hFig, 'Title', 'Input', 'Units', 'pixels', ...
-	'Position', Top(hp6, 40));
-hPm1 = uicontrol(hpIn, 'Style', 'popupmenu', 'String', {'COM6', 'FILE', 'COM1', 'COM2',...
-	'COM3', 'COM4', 'COM5', 'COM6', 'COM7', 'COM8', 'COM9', 'COM10' }, ...
-	'Callback', @cbInputPannel, ...
-	'Position', [5, 1, 60, 25]);
-if in_fid > 0
-	set(hPm1, 'Value', 2);
-	in_fid = -1;
-end
-
-hEd4 = uicontrol(hpIn, 'Style', 'edit', 'String', '03', ...
-	'Position', Right(hPm1, [5, 2, 30, 25]), ...
-	'BackgroundColor', cWHITE, ...
-	'Callback', @cbInputPannel, ...
-	'HorizontalAlignment', 'center');
-hEd5 = uicontrol(hpIn, 'Style', 'edit', 'String', '04', ...
-	'Position', Right(hEd4), ...
-	'BackgroundColor', cWHITE, ...
-	'Callback', @cbInputPannel, ...
-	'HorizontalAlignment', 'center');
-hEd8 = uicontrol(hpIn, 'Style', 'edit', 'String', '02', ...
-	'Position', Right(hEd5), ...
-	'BackgroundColor', cWHITE, ...
-	'Callback', @cbInputPannel, ...
-	'HorizontalAlignment', 'center');
-hEd9 = uicontrol(hpIn, 'Style', 'edit', 'String', '05', ...
-	'Position', Right(hEd8), ...
-	'BackgroundColor', cWHITE, ...
-	'Callback', @cbInputPannel, ...
-	'HorizontalAlignment', 'center');
-
-hEd1 = uicontrol(hpIn, 'Style', 'text', 'String', in_file_name, ...
-	'Position', [70, 5, pFig(3)-110, 21], ...
-	'BackgroundColor', cWHITE, ...
-	'HorizontalAlignment', 'center', ...
-	'Callback', @cbInputPannel);
-hBtn3 = uicontrol(hpIn, 'Style', 'pushbutton', 'String', '...', ...
-	'Position', [pFig(3)-35, 3, 25, 25], ...
-	'Callback', @cbInSelect);
-
-%% Output select pannel hp2, hCb2, hTxt2, hBtn2
-hpOut = uipanel(hFig, 'Title', 'Output', 'Units', 'pixels', ...
-	'Position', Top(hpIn, 40));
-hCbOut = uicontrol(hpOut, 'Style', 'checkbox', 'String', 'Write', ...
-	'Position', [5, 1, 60, 25], ...
-	'FontSize', 10, ...
-	'HorizontalAlignment', 'right', ...
-	'Callback', @cbCbOut);
-hTxtOut = uicontrol(hpOut, 'Style', 'text',  'String', outFileName, ...
-	'Position', [70, 5, pFig(3)-110, 21], ...
-	'BackgroundColor', cWHITE, ...
-	'FontSize', 10, ...
-	'HorizontalAlignment', 'center');
-hBtnOut = uicontrol(hpOut, 'Style', 'pushbutton', 'String', '...', ...
-	'Position', [pFig(3)-35, 3, 25, 25], ...
-	'Callback', @cbBtnOut);
-
 if out_fid > 0
-	set(hCbOut, 'Value', get(hCbOut, 'Max'));
+    set(hCbOut, 'Value', get(hCbOut, 'Max'));
 else
-	set(hCbOut, 'Value', get(hCbOut, 'Min'));
+    set(hCbOut, 'Value', get(hCbOut, 'Min'));
 end
 out_fid = -1;
-
 %% Log pannel hp3, hTxt1
-pp3 = [pp2(1), pp2(2)+pp2(4)+5, pFig(3)-3, 90];
-hp3 = uipanel(hFig, 'Title', 'Log', 'Units', 'pixels', ...
-	'Visible', 'off', ...
-	'Position', pp3);
-hTxt1 = uicontrol(hp3, 'Style', 'text', 'String', {'1', '2', '3', '4'}, ...
-	'Position', [5, 5, pp3(3)-10, pp3(4)-25], ...
-	'BackgroundColor', cWHITE, ...
-	'HorizontalAlignment', 'left');
-
 %% Config pannel hpConf, hCbSplitOut, hCbMax1Prof, hTxt6, hTxt7, hTxt8, hTxt9, hEd6, hEd7
-hpConf = uipanel(hFig, 'Title', 'Config', 'Units', 'pixels', ...
-	'Visible', 'on', ...
-	'Position', pp3);
-hCbSplitOut = uicontrol(hpConf, 'Style', 'checkbox', 'String', 'Split Output', ...
-	'Position', [5, 2, 80, 25], ...
-	'Callback', @cbSplitOut, ...
-	'HorizontalAlignment', 'left');
 set(hCbSplitOut,'Value', get(hCbSplitOut,'Max'));
-hCbMax1Prof = uicontrol(hpConf, 'Style', 'checkbox', 'String', 'Max Prof', ...
-	'Position', Top(hCbSplitOut), ...
-	'Callback', @cbMax1Prof, ...
-	'HorizontalAlignment', 'left');
 set(hCbMax1Prof,'Value', get(hCbMax1Prof,'Max'));
-
-hTxtVoltage = uicontrol(hpConf, 'Style', 'text', 'String', 'Voltage [kV]:', ...
-	'HorizontalAlignment', 'right', ...
-	'Position', Right(hCbSplitOut, [5, 0, 70, 18]));
-hEdVoltage = uicontrol(hpConf, 'Style', 'edit', 'String', '80', ...
-	'Position', Right(hTxtVoltage, 40), ...
-	'BackgroundColor', cWHITE, ...
-	'Callback', @cbVoltage, ...
-	'HorizontalAlignment', 'center');
-hCbVoltage = uicontrol(hpConf, 'Style', 'checkbox', 'String', '', ...
-	'HorizontalAlignment', 'right', ...
-	'Position', Right(hEdVoltage, [5, 0, 40, 18]));
 setMax(hCbVoltage);
 set(hCbVoltage, 'Enable', 'off');
-
-hTxtFlow = uicontrol(hpConf, 'Style', 'text', 'String', 'Flow: [gpm]', ...
-	'HorizontalAlignment', 'right', ...
-	'Position', Top(hTxtVoltage));
-hEdFlow = uicontrol(hpConf, 'Style', 'edit', 'String', '12.5', ...
-	'Position', Right(hTxtFlow, 40), ...
-	'BackgroundColor', cWHITE, ...
-	'Callback', @cbFlow, ...
-	'HorizontalAlignment', 'center');
-hCbFlow = uicontrol(hpConf, 'Style', 'checkbox', 'String', '', ...
-	'HorizontalAlignment', 'right', ...
-	'Position', Right(hEdFlow));
 setMax(hCbFlow);
-
-hTxtDuration = uicontrol(hpConf, 'Style', 'text', 'String', 'Duration [s]:', ...
-	'HorizontalAlignment', 'right', ...
-	'Position', Top(hTxtFlow));
-hEdDuration = uicontrol(hpConf, 'Style', 'edit', 'String', '2.0', ...
-	'Position', Right(hTxtDuration, 40), ...
-	'BackgroundColor', cWHITE, ...
-	'Callback', @cbDuration, ...
-	'HorizontalAlignment', 'center');
-hCbDuration = uicontrol(hpConf, 'Style', 'checkbox', 'String', '', ...
-	'HorizontalAlignment', 'right', ...
-	'Position', Right(hEdDuration));
-setMax(hCbDuration);
 set(hCbDuration, 'Enable', 'off');
-
-hTxtCurrent = uicontrol(hpConf, 'Style', 'text', 'String', 'Current:    N/A ', ...
-	'HorizontalAlignment', 'left', ...
-	'Position', Right(hCbVoltage, 100));
 
 %% Calorimeter plot pannel hp4, hAxes1, hAxes2, hAxes3
 pp4 = [pp3(1), pp3(2)+pp3(4)+5, pFig(3)-3, pFig(4)-pp3(2)-pp3(4)-10];
-hp4 = uipanel(hFig, 'Title', 'Temperatures', 'Units', 'pixels', ...
-	'Position', pp4);
-pAxes1 = [50, 25, pp4(3)-95, (pp4(4)-75)/2];
-hAxes1 = axes('Parent', hp4, 'Unit', 'pixels', ...
-	'Position', pAxes1);
 ylabel(hAxes1, 'Temperature, C');
-grid(hAxes1, 'on');
-pAxes2 = [pAxes1(1), pAxes1(2)+pAxes1(4)+25, pAxes1(3), pAxes1(4)];
-hAxes2 = axes('Parent', hp4, 'Unit', 'pixels', ...
-	'YAxisLocation','left', ...
-	'Position', pAxes2);
 ylabel(hAxes2, 'Temperature, C');
-hAxes3 = axes('Parent', hp4, 'Unit', 'pixels', ...
-	'Position', pAxes2, ...
-	'YAxisLocation', 'right', ...
-	'ButtonDownFcn', @bdAxes3, ...
-	'GridLineStyle', ':', ...
-     'Color','none');
-grid(hAxes3, 'on');
 ylabel(hAxes3, 'Beam Current, mA');
-
 %% Targeting plot pannel hp6, hAxes4, hAxes5, hAxes6
-pp6 = [pp3(1), pp3(2)+pp3(4)+5, pFig(3)-3, pFig(4)-pp3(2)-pp3(4)-10];
-hp6 = uipanel(hFig, 'Title', 'Targeting', 'Units', 'pixels', ...
-	'Visible', 'off', ...
-	'Position', pp6);
-pAxes4 = [50, 25, pp4(3)-95, (pp4(4)-75)/2];
-hAxes4 = axes('Parent', hp6, 'Unit', 'pixels', ...
-	'Position', pAxes4, ...
-	'YGrid', 'on', ...
-	'XGrid', 'off');
 ylabel(hAxes4, 'Voltage, V');
-pAxes5 = [pAxes4(1), pAxes4(2)+pAxes4(4)+25, pAxes4(3), pAxes4(4)];
-hAxes5 = axes('Parent', hp6, 'Unit', 'pixels', ...
-	'YAxisLocation','left', ...
-	'Position', pAxes5);
 ylabel(hAxes5, 'Voltage, V');
-hAxes6 = axes('Parent', hp6, 'Unit', 'pixels', ...
-	'Position', pAxes5, ...
-	'YAxisLocation','right', ...
-	'ButtonDownFcn', @bdAxes3, ...
-	'Color','none');
 ylabel(hAxes6, 'Voltage, V');
 grid(hAxes6, 'on');
- 		  
+
+
 %%  Initialization before main loop
-
 drawnow;
-
 cbInputPannel;
 cbBtn4(hBtn4);
-
-c0 = clock;
-c1 = c0;
 
 % Add lines of targeting traces
 for ii = 1:numel(tpn)
@@ -357,12 +56,12 @@ end
 
 % Add lines of acceleration grid traces
 for ii = 1:numel(agn)
-	agh(ii) = line(1:nx, data(:, agn(ii)), 'Parent', hAxes6, 'Color', agc(ii));
+    agh(ii) = line(1:nx, data(:, agn(ii)), 'Parent', hAxes6, 'Color', agc(ii));
 end
 
 % Add lines of temperature traces
 for ii = 1:numel(trn)
-	trh(ii) = line(1:nx, data(:, trn(ii)), 'Parent', hAxes2, 'Color', trc(ii));
+    trh(ii) = line(1:nx, data(:, trn(ii)), 'Parent', hAxes2, 'Color', trc(ii));
 end
 
 % Add line for beam current
@@ -403,265 +102,9 @@ mi2 = min(mi + mw, nx);
 % Marker trace
 mh = line(mi1:mi2, (mi1:mi2)*0, 'Parent', hAxes3, 'Color', mc, 'LineWidth', 2);
 
-% Create ADAMs
-adams(1:4) = ADAM; 
 
 %% Main loop
 
-while ~flag_stop
-	% If input was changed
-	if flag_in
-		% Reset flag
-		flag_in = false;
-		
-		% Close input file
-		in_fid = CloseFile(in_fid);
-		
-		% Delete ADAMs
-		DeleteADAMs;
-		
-		% Create ADAMs
-		adams = CreateADAMs;
-	end
-	
-	% If output was changed
-	if flag_out
-		flag_out = false;
-		% If writing to output is enabled
-		if get(hCbOut,'Value') == get(hCbOut,'Max')
-			out_fid = CloseFile(out_fid);
-	
-			% Open new output file
-			outFileName = LogFileName(ProgNameShort, 'txt');
-			outFile = [outFilePath, outFileName];
-			out_fid = fopen(outFile, 'at+', 'n', 'windows-1251');
-			if out_fid < 0
-				printl('Output file %s open error\n', outFileName);
-				% Disable output writing
-				set(hCbOut,'Value', get(hCbOut,'Min'));
-			else
-				set(hTxtOut,  'String', outFileName);
-				printl('Output file %s has been opened\n', outFile);
-			end
-		end
-	end
-	
-	% If Start was pressed
-	if get(hBtn1, 'Value') == get(hBtn1, 'Max')
-		c = clock;
-
-		% Change output file every hour
-		if flag_hour && c(4) ~= c0(4)
-			c0 = c;
-			flag_out = true;
-		end
-			
-		% Faded profiles - refresh every fpdt seconds
-		if abs(c(6) - c1(6)) < fpdt
-			fpi = fpi - 1;
-		else
-			fpi(1:end-1) = fpi(2:end);
-			fpi(end) = nx;
-			c1 = c;
-		end
-		
-	%% Read data from ADAMs
- 		cr = clock;
-		[t3, ai3] = ADAM4118_read(adams(1).port, adams(1).addr);
-		[t4, ai4] = ADAM4118_read(adams(2).port, adams(2).addr);
-		[t2, ai2] = ADAM4118_read(adams(3).port, adams(3).addr);
-		
-		temp = data(nx, :);
-		temp(1) = datenum(cr);
-		temp(2:9) = t3(1:8);
-		temp(10:17) = t4(1:8);
-		temp(18:25) = t2(1:8);
-		
-		% If temperature readings == 0 then use previous value
-		ind = find(temp(1:17) == 0);
-		temp(ind) = data(nx, ind);
-
-		%% Save line with data to output file If log writing is enabled
-		if get(hCbOut, 'Value') == get(hCbOut, 'Max') && out_fid > 0
-			% Separator is "; "
-			sep = '; ';
-			% Write time HH:MM:SS.SS
-			fprintf(out_fid, ['%02.0f:%02.0f:%05.2f' sep], c2(4), c2(5), c2(6));
-			% Data output format
-			fmt = '%+09.4f';
-			% Write data array
-			fprintf(out_fid, [fmt sep], temp(2:end-1));
-			% Write last value with NL instead of sepearator
-			fprintf(out_fid, [fmt '\n'], temp(end));
-		end
-		
-	%% Shift data array
-		data(1:nx-1, :) = data(2:nx, :);
-		% Fill last data point
-		data(nx, :) = temp;
-	%% Shift marker
-		mi = mi - 1;
-		if mi < 1
-			[~, mi] = max(current);
-		end
-		mi1 = max(mi - mw, 1);
-		mi2 = min(mi + mw, nx);
-
-	%% Calculate minimum values
-		if max(dmin) <= 0
-			% First reading, fill arrays with defaults
-			dmin = data(nx, :);
-			for ii = 1:nx-1
-				data(ii, :) = data(nx, :);
-			end
-		else
-			% Calculate minimum
-			dmin = min(data);
-		end
-		
-	%% Update data traces for trn(:) channels
-		for ii = 1:numel(trn)
-			set(trh(ii), 'Ydata', data(:, trn(ii)));
-		end
-		
-	%% Determine index for targeting traces
-		[v1, v2] = max(data(mi1:mi2, tpn));
-		[~, v3] = max(v1);
-		tpnm = v2(v3) + mi1;
-		tpn2 = tpnm + tpw;
-		if tpn2 > nx
-			tpn2 = nx;
-			tpn1 = nx - 2*tpw - 1;
-		else
-			tpn1 = tpnm - tpw;
-			if tpn1 < 1
-				tpn1 = 1;
-				tpn2 = 2*tpw + 2;
-			end
-		end
-		
-		% Determine beam durationi from targeting traces
-		if (tpn1 > 1) && (tpn2 < nx)
-			[v1, v2] = max(data(tpn1:tpn2, tpn));
-			[d1, v3] = max(v1);
-			d2 = min(data(tpn1:tpn2, tpn(v3)));
-			d3 = d2+(d1-d2)*0.5;
-			d4 = find(data(tpn1:tpn2, tpn(v3)) > d3) + tpn1;
-			if numel(d4) > 1
-				cdt = etime(datevec(data(d4(end), 1)), datevec(data(d4(1), 1)));
-				if ~isMax(hCbDuration)
-					% Replase with calculated value 
-					set(hEdDuration, 'String', sprintf('%4.2f', cdt));
-					duration = cdt;
-				end
-			end
-		end
-		
-		% Update targeting traces
-		for ii = 1:numel(tpn)
-			set(tph(ii), 'Ydata', data(:, tpn(ii))-dmin(tpn(ii)));
-			set(hAxes4, 'XLimMode', 'manual', 'XLim', [tpn1, tpn2]);
-			set(tph1(ii), 'Xdata', tpn1:tpn2);
-			set(tph1(ii), 'Ydata', data(tpn1:tpn2, tpn(ii))-dmin(tpn(ii)));
-		end
-
-		% Update acceleration grid traces
-		for ii = 1:numel(agn)
-			set(agh(ii), 'Ydata', smooth(data(:, agn(ii)), 20)-dmin(agn(ii)));
-		end
-		
-		% Calculate and plot equivalent current
-		% Calculate Delta T
-		deltat = data(:, bctout)-data(:, bctin)-dmin(bctout)+dmin(bctin);  % C
-		deltat = smooth(deltat,30);
-		% Calculate measured flow
-		cflow = data(:, bcflowchan);
-		cflow(cflow <= 0.001) = 0.001;
-		cflow = smooth(cflow,30);
-		cflow = cflow*bcv2flow;
-		if isMax(hCbFlow)
-			cflow(:) = flow;
-		else
-			set(hEdFlow, 'String', sprintf('%5.2f', cflow(end)));
-		end
-		current = deltat.*cflow*Q/voltage;  %mA
-		
-		% Calculate current by intergal 
-		[bcmax, ind] = max(current);
-		bcw = mw;   % Intergation window is 2*bcw+1 points
-		ind = mi;
-		i2 = ind + bcw;
-		if i2 > nx
-			 i2 = nx;
-			 i1 = nx -2*bcw-1;
-		else
-			i1 = ind - bcw;
-			if i1 < 1
-				i1 = 1;
-				i2 = 2*bcw+1;
-			end
-		end
-		if (i1 > 1) && (i2 < nx)
-			ctotal = sum(current(i1:i2));
-			cdt = etime(datevec(data(i2, 1)), datevec(data(i1, 1)));
-			ctotal = ctotal - (current(i1)+current(i2))/2*(2*bcw);
-			cdt1 = cdt/(2*bcw);
-			cbd = duration;   % sec Beam duration
-			cti = ctotal*cdt1/cbd;
-			set(hTxtCurrent, 'String', sprintf('Current %5.1f mA', cti));
-		end
-
-		set(bcmaxh, 'String', sprintf('%5.1f mA', bcmax));
-		set(bcch, 'String', sprintf('%5.1f mA', current(end)));
-		set(bch, 'Ydata', current - min(current));
-		set(mh, 'Xdata', i1:i2);
-		set(mh, 'Ydata', current(i1:i2) - min(current));
-		
-		% Calculate profiles prof1 - vertical and prof2 - horizontal
-		prof1 = data(nx, p1range) - dmin(p1range);
-		prof2 = data(nx, p2range) - dmin(p2range);
-		% Calculate maximal profile
-		[dmax, imax] = max(data(:, p1range));
-		[~, immax] = max(dmax);
-		prof1max  = data(imax(immax), p1range) - dmin(p1range);
-		prof2max  = data(imax(immax), p2range) - dmin(p2range);
-		if max(prof1max) < 1
-			prof1max(:)  = 1;
-		end
-		if max(prof1max) > max(prof1max1)
-			prof1max1  = prof1max;
-		end
-		
-		% Plot profiles
-		% Plot current vertical profile
-		set(prof1h, 'Ydata',  prof1);
-		
-		% Plot current horizontal profile
-		set(prof2h, 'Ydata',  prof2);
-		
-		% Plot faded profiles
-		for ii = 1:numel(fpi)
-			prof1  = data(fpi(ii), p1range) - dmin(p1range);
-			set(fph(ii), 'Ydata',  prof1);
-		end
-			
-		% Plot max1 profile
-		if get(hCbMax1Prof, 'Value') == get(hCbMax1Prof, 'Max')
-			set(prof1max1h, 'Ydata',  prof1max1);
-		end
-			
-		% Plot max profile
-		set(prof1maxh, 'Ydata',  prof1max);
-		set(prof2maxh, 'Ydata',  prof2max);
-		
-		% Refresh Figure
-		drawnow
-	else
-		% Refresh Figure
-		drawnow
-	end
-end
- 
 %% Quit procedures
 
 save(iniFileName, 'outFileName', 'outFilePath', 'out_fid', ...

@@ -46,6 +46,7 @@ import jssc.SerialPort;
 import jssc.SerialPortList;
 import java.net.*;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import net.wimpi.modbus.*;
 import net.wimpi.modbus.msg.*;
@@ -64,10 +65,140 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     private SerialPort serialPort;
     
+    String progName = "Calorimeter Beam Profile";
+    String progNameShort = "BeamProfile_";
+    String progVersion = "10";
+    String iniFileName = "BeamProfile" + progVersion + ".ini";
+
+    // Output file
+    String outFileName = LogFileName(progNameShort, "txt");
+    String outFilePath = "D:\\";
+    String outFile = outFilePath + outFileName;
+    int out_fid = -1;
+
+    // COM Port
+    SerialPort	cp_obj;
+    boolean cp_open = false;
+    // Adresses of ADAMs
+    int	addr1 = 3;
+    int	addr2 = 4;
+    int	addr3 = 2;
+    int	addr4 = 5;
+    // Input file
+    String in_file_name = "ADAMTempLog_2014-12-30-13-00-00.txt";
+    String in_file_path = ".\\2014-12-30\\";
+    String in_file = in_file_path + in_file_name;
+    int	in_fid = -1;
+
+    // Logical flags
+    boolean flag_stop = false;
+    boolean flag_hour = true;
+    boolean flag_out = true;
+    boolean flag_in = false;
+	
+    // Data arrays for traces
+    int nx = 2000;    // number of trace points
+    int ny = 4*8+1;   // number of registered temperatures + time
+    // Preallocate arrays
+    double[][] data = new double[nx][ny];   // traces
+    double[][] dmin = new double[1][ny];    // minimal temperatures
+    double[][] dmax = new double[1][ny];    // maximal temperatures
+	
+    // Profile arrays and their plot handles
+    int[] p1range = {1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13}; // Channels for vertical profile
+    int[] p1x = {0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12};       // X values for prof1
+    int[] p2range = {15, 6, 14};     // Channels for horizontal profile
+    int[] p2x = {2, 6, 10};          // X values for prof2
+    double[] prof1  = new double[p1range.length];  // Vertical profile
+    int prof1h = 0;     //Handle
+    double[] prof2  = new double[p2range.length];  // Vertical profile
+    int	prof2h = 0;         // handle
+    double[] prof1max  = new double[prof1.length];      // Maximal vertical profile (over the plot)
+    int	prof1maxh = 0;          // Maximal vertical profile handle
+    double[] prof1max1  = new double[prof1max.length];      // Maximal vertical profile from the program start
+    int prof1max1h = 0;         // Handle
+    double[] prof2max  = new double[prof2.length];      // Maximal vertical profile (over the plot)
+    int prof2maxh = 0;
+
+    // Faded profiles
+    int fpn = 10;         // Number of faded pofiles
+    int[] fpi = new int[fpn]; // Faded pofiles indexes
+    int[] fph = new int[fpn];      // Faded pofile plot handles
+    double fpdt = 0.5;       // Faded pofile time inteval [s]
+
+    // Traces to plot
+    int[] trn = {6, 2, 10};     // Channel numbers of traces
+    Color[] trc = {Color.RED, Color.GREEN, Color.BLUE};  // Colors of traces
+    int[] trh = new int[trn.length];          // Handles of traces
+	
+    // Beam current calculations and plot
+    double voltage = 80.0;   // keV Particles energy
+    double duration = 2.0;     // s Beam duration
+    double flow = 12.5;      // gpm Cooling water flow (gallons per minute) 
+    int bctin = 9;        // Input water temperature channel number
+    int bctout = 8;       // Output water temperature channel number
+    // Current[mA] =	folw[gpm]*(OutputTemperature-InputTemperature)*Q/voltage
+    double Q = 4.3*0.0639*1000; // Coeff to convert 
+    int bch = 0;      // Handle for beam current plot
+    double bcmax = 0.0;    // Max beam current on the screen
+    double bcmax1 = 0.0;   // MaxMax beam current
+    int bcmaxh = 0;   // Handle of max current text
+    int bcflowchan = 22;  // Channel number for flowmeter output
+    double bcv2flow = 12.0;    // V/gpm Conversion coefficienf for flowmeter 
+
+    // Acceleration electrode voltage and current
+    int agvn = 23;
+    int agcn = 24;
+    int[] agn = {agvn, agcn};
+    Color[] agc = {Color.RED, Color.GREEN};  // Colors of traces
+    int[] agh = new int[agc.length];        // Handles of traces
+
+    // Targeting plots
+    int tpt = 18;
+    int tpb = 19;
+    int tpl = 20;
+    int tpr = 21;
+    int[] tpn = {tpt, tpb, tpl, tpr};   // Channel numbers of traces
+    Color[] tpc = {Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA};  // Colors of traces
+    int[] tph = new int[tpn.length];    // Handles of traces
+    int[] tph1 = new int[tpn.length];    // Handles of traces zoom
+    double tpw = 30.0;                     // +- Zoom window halfwidth
+	
+    // Error logging file
+    String logFileName = LogFileName("D:\\" + progNameShort + progVersion, "log");
+    int	log_fid = 0;
+	
+    // Colors
+    Color cWHITE = new Color(1.0f, 1.0f, 1.0f);
+    Color cBLACK = new Color(0.0f, 0.0f, 0.0f);
+    Color cGREY  = new Color(0.3f, 0.3f, 0.3f);
+    Color cGREEN = new Color(0.1f, 0.8f, 0.0f);
+
+    Date c0 = new Date();
+    Date c1 = new Date();
+
+    // ADAMs
+//    ADAM[] adams = new ADAM[4]; 
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Creates new form BeamProfile
      */
     public BeamProfile() {
+        addWindowListener(this);
         initComponents();
         
         String[] ports = SerialPortList.getPortNames();
@@ -105,9 +236,34 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         chartPanel.add(chart2);
 
         jScrollPane2.setViewportView(chartPanel);
-        addWindowListener(this);
-        
-        task = new Task();
+//-----------------------------------------------
+        for (int i = 0; i < p1range.length; i++) {
+            prof1[i] = data[0][p1range[i]];
+            prof1max[i] = 1.0;
+            prof1max1[i] = 1.0;
+        }
+        for (int i = 0; i < p2range.length; i++) {
+            prof2[i] = data[0][p2range[i]];
+            prof2max[i] = 1.0;
+        }
+        for (int i = 0; i < fpi.length; i++) {
+            fpi[i] = nx;
+        }
+//    log_fid = fopen(logFileName, 'at+', 'n', 'windows-1251');
+//	if log_fid < 0
+//		log_fid = 1;
+//	end
+
+        // Create ADAMs
+//        for(int i = 0; i < adams.length; i++) {
+//            adams[i] = new ADAM();
+//        }
+
+        c0 = new Date();
+        c1 = new Date();
+
+//-----------------------------------------------
+        task = new Task(this);
         //task.addPropertyChangeListener(this);
         task.execute();
         
@@ -716,41 +872,51 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     public void windowDeactivated(WindowEvent e) {
     }
 
+//=================================================
+    static String prefix, ext;
+    public static String LogFileName(String arg, String... strs) {
+	if (prefix==null || "".equals(prefix)) {
+            prefix = "LogFile_";
+        }
+	if (ext==null || "".equals(ext)) {
+		ext = "txt";
+        }
+	if (strs.length >= 1) {
+            prefix = strs[0];
+        }
+	if (strs.length >= 2) {
+            ext = strs[1];
+        }
+        //SimpleDateFormat ydf = new SimpleDateFormat("yyyy");
+        //SimpleDateFormat mdf = new SimpleDateFormat("yyyy-MM");
+        //SimpleDateFormat ddf = new SimpleDateFormat("yyyy-MM-dd");
+        Date now = new Date();
+        //File dir = new File(new File(ydf.format(now), mdf.format(now)), ddf.format(now));
+        //if(make) dir.mkdirs();
+        //return dir;
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
+	String timeStr = fmt.format(now);
+	return prefix + timeStr + "." + ext;
+    }
 
+//************************
+}
+
+    
+    
+    
+    
+    
+    
+    
+    
+//================================================    
     class Task extends SwingWorker<Void, Void> {
 
-        DataFile outputFile;
-        boolean newOutput = false;
-	
-// Data arrays for traces
-        int nx = 2000;
-	int ny = 4*8+1;
-	double[][] data = new double[nx][ny];
-	double[] dmin = new double[ny];
-	double[] dmax = new double[ny];
-
-// Profile arrays and their plot handles
-	int[] p1range = {2,3,4,5,6,7,10,11,12,13,14};    // Channels for vertical profile
-	double[] p1x = {1,3,4,5,6,7,8,9,10,11,13};       // X values for prof1
-	int[] p2range = {16, 7, 15};                     // Channels for horizontal profile
-	int[] p2x = {3, 7, 11};                          // X values for prof2
-	double[] prof1  = new double[p1range.length];    // Vertical profile and handle
-	double prof1h = 0;
-	double[] prof2  = new double[p2range.length];    // Horizontal profile
-	double prof2h = 0;
-	double[] prof1max  = prof1.clone();      // Maximal vertical profile (over the plot)
-        //Arrays.fill(prof1max, 1.0);
-        double prof1maxh = 0;          // Maximal vertical profile handle
-	double[] prof1max1  = prof1max.clone();  // Maximal vertical profile (from the program start)
-	double prof1max1h = 0;         // Handle
-	double[] prof2max  = prof2.clone();      // Maximal horizontal profile (ofer the plot)
-	//Arrays.fill(prof2max, 1.0);
-	double prof2maxh = 0;
+        BeamProfile beamProfile;
         
-        
-        Task() {
-            //outputFile = new DataFile("log.txt");
-            newOutput = true;
+        Task(BeamProfile bp) {
+            beamProfile = bp;
         }
     
         /**
@@ -758,10 +924,262 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
          */
         @Override
         public Void doInBackground() {
-            // Initialize progress property.
-            while(jToggleButton1.isSelected()) {
-                //readData();
-                //plotData();
+            while(!beamProfile.flag_stop) {
+                // If input was changed
+                if(beamProfile.flag_in) {
+                    // Reset flag
+                    beamProfile.flag_in = false;
+                /*
+                    // Close input file
+                    in_fid = CloseFile(in_fid);
+                    // Delete ADAMs
+                    DeleteADAMs;
+                    // Create ADAMs
+                    adams = CreateADAMs;
+                */    
+                }
+                
+                // If output was changed
+                if(beamProfile.flag_out) {
+                    // Reset flag
+                    beamProfile.flag_out = false;
+                /*
+                    // If writing to output is enabled
+                    if get(hCbOut,'Value') == get(hCbOut,'Max')
+			out_fid = CloseFile(out_fid);
+	
+			// Open new output file
+			outFileName = LogFileName(ProgNameShort, 'txt');
+			outFile = [outFilePath, outFileName];
+			out_fid = fopen(outFile, 'at+', 'n', 'windows-1251');
+			if out_fid < 0
+				printl('Output file %s open error\n', outFileName);
+				% Disable output writing
+				set(hCbOut,'Value', get(hCbOut,'Min'));
+			else
+				set(hTxtOut,  'String', outFileName);
+				printl('Output file %s has been opened\n', outFile);
+			end
+                    end
+                */
+                }
+                
+                /*
+	% If Start was pressed
+	if get(hBtn1, 'Value') == get(hBtn1, 'Max')
+		c = clock;
+
+		% Change output file every hour
+		if flag_hour && c(4) ~= c0(4)
+			c0 = c;
+			flag_out = true;
+		end
+			
+		% Faded profiles - refresh every fpdt seconds
+		if abs(c(6) - c1(6)) < fpdt
+			fpi = fpi - 1;
+		else
+			fpi(1:end-1) = fpi(2:end);
+			fpi(end) = nx;
+			c1 = c;
+		end
+		
+	%% Read data from ADAMs
+ 		cr = clock;
+		[t3, ai3] = ADAM4118_read(adams(1).port, adams(1).addr);
+		[t4, ai4] = ADAM4118_read(adams(2).port, adams(2).addr);
+		[t2, ai2] = ADAM4118_read(adams(3).port, adams(3).addr);
+		
+		temp = data(nx, :);
+		temp(1) = datenum(cr);
+		temp(2:9) = t3(1:8);
+		temp(10:17) = t4(1:8);
+		temp(18:25) = t2(1:8);
+		
+		% If temperature readings == 0 then use previous value
+		ind = find(temp(1:17) == 0);
+		temp(ind) = data(nx, ind);
+
+		%% Save line with data to output file If log writing is enabled
+		if get(hCbOut, 'Value') == get(hCbOut, 'Max') && out_fid > 0
+			% Separator is "; "
+			sep = '; ';
+			% Write time HH:MM:SS.SS
+			fprintf(out_fid, ['%02.0f:%02.0f:%05.2f' sep], c2(4), c2(5), c2(6));
+			% Data output format
+			fmt = '%+09.4f';
+			% Write data array
+			fprintf(out_fid, [fmt sep], temp(2:end-1));
+			% Write last value with NL instead of sepearator
+			fprintf(out_fid, [fmt '\n'], temp(end));
+		end
+		
+	%% Shift data array
+		data(1:nx-1, :) = data(2:nx, :);
+		% Fill last data point
+		data(nx, :) = temp;
+	%% Shift marker
+		mi = mi - 1;
+		if mi < 1
+			[~, mi] = max(current);
+		end
+		mi1 = max(mi - mw, 1);
+		mi2 = min(mi + mw, nx);
+
+	%% Calculate minimum values
+		if max(dmin) <= 0
+			% First reading, fill arrays with defaults
+			dmin = data(nx, :);
+			for ii = 1:nx-1
+				data(ii, :) = data(nx, :);
+			end
+		else
+			% Calculate minimum
+			dmin = min(data);
+		end
+		
+	%% Update data traces for trn(:) channels
+		for ii = 1:numel(trn)
+			set(trh(ii), 'Ydata', data(:, trn(ii)));
+		end
+		
+	%% Determine index for targeting traces
+		[v1, v2] = max(data(mi1:mi2, tpn));
+		[~, v3] = max(v1);
+		tpnm = v2(v3) + mi1;
+		tpn2 = tpnm + tpw;
+		if tpn2 > nx
+			tpn2 = nx;
+			tpn1 = nx - 2*tpw - 1;
+		else
+			tpn1 = tpnm - tpw;
+			if tpn1 < 1
+				tpn1 = 1;
+				tpn2 = 2*tpw + 2;
+			end
+		end
+		
+		% Determine beam durationi from targeting traces
+		if (tpn1 > 1) && (tpn2 < nx)
+			[v1, v2] = max(data(tpn1:tpn2, tpn));
+			[d1, v3] = max(v1);
+			d2 = min(data(tpn1:tpn2, tpn(v3)));
+			d3 = d2+(d1-d2)*0.5;
+			d4 = find(data(tpn1:tpn2, tpn(v3)) > d3) + tpn1;
+			if numel(d4) > 1
+				cdt = etime(datevec(data(d4(end), 1)), datevec(data(d4(1), 1)));
+				if ~isMax(hCbDuration)
+					% Replase with calculated value 
+					set(hEdDuration, 'String', sprintf('%4.2f', cdt));
+					duration = cdt;
+				end
+			end
+		end
+		
+		% Update targeting traces
+		for ii = 1:numel(tpn)
+			set(tph(ii), 'Ydata', data(:, tpn(ii))-dmin(tpn(ii)));
+			set(hAxes4, 'XLimMode', 'manual', 'XLim', [tpn1, tpn2]);
+			set(tph1(ii), 'Xdata', tpn1:tpn2);
+			set(tph1(ii), 'Ydata', data(tpn1:tpn2, tpn(ii))-dmin(tpn(ii)));
+		end
+
+		% Update acceleration grid traces
+		for ii = 1:numel(agn)
+			set(agh(ii), 'Ydata', smooth(data(:, agn(ii)), 20)-dmin(agn(ii)));
+		end
+		
+		% Calculate and plot equivalent current
+		% Calculate Delta T
+		deltat = data(:, bctout)-data(:, bctin)-dmin(bctout)+dmin(bctin);  % C
+		deltat = smooth(deltat,30);
+		% Calculate measured flow
+		cflow = data(:, bcflowchan);
+		cflow(cflow <= 0.001) = 0.001;
+		cflow = smooth(cflow,30);
+		cflow = cflow*bcv2flow;
+		if isMax(hCbFlow)
+			cflow(:) = flow;
+		else
+			set(hEdFlow, 'String', sprintf('%5.2f', cflow(end)));
+		end
+		current = deltat.*cflow*Q/voltage;  %mA
+		
+		% Calculate current by intergal 
+		[bcmax, ind] = max(current);
+		bcw = mw;   % Intergation window is 2*bcw+1 points
+		ind = mi;
+		i2 = ind + bcw;
+		if i2 > nx
+			 i2 = nx;
+			 i1 = nx -2*bcw-1;
+		else
+			i1 = ind - bcw;
+			if i1 < 1
+				i1 = 1;
+				i2 = 2*bcw+1;
+			end
+		end
+		if (i1 > 1) && (i2 < nx)
+			ctotal = sum(current(i1:i2));
+			cdt = etime(datevec(data(i2, 1)), datevec(data(i1, 1)));
+			ctotal = ctotal - (current(i1)+current(i2))/2*(2*bcw);
+			cdt1 = cdt/(2*bcw);
+			cbd = duration;   % sec Beam duration
+			cti = ctotal*cdt1/cbd;
+			set(hTxtCurrent, 'String', sprintf('Current %5.1f mA', cti));
+		end
+
+		set(bcmaxh, 'String', sprintf('%5.1f mA', bcmax));
+		set(bcch, 'String', sprintf('%5.1f mA', current(end)));
+		set(bch, 'Ydata', current - min(current));
+		set(mh, 'Xdata', i1:i2);
+		set(mh, 'Ydata', current(i1:i2) - min(current));
+		
+		% Calculate profiles prof1 - vertical and prof2 - horizontal
+		prof1 = data(nx, p1range) - dmin(p1range);
+		prof2 = data(nx, p2range) - dmin(p2range);
+		% Calculate maximal profile
+		[dmax, imax] = max(data(:, p1range));
+		[~, immax] = max(dmax);
+		prof1max  = data(imax(immax), p1range) - dmin(p1range);
+		prof2max  = data(imax(immax), p2range) - dmin(p2range);
+		if max(prof1max) < 1
+			prof1max(:)  = 1;
+		end
+		if max(prof1max) > max(prof1max1)
+			prof1max1  = prof1max;
+		end
+		
+		% Plot profiles
+		% Plot current vertical profile
+		set(prof1h, 'Ydata',  prof1);
+		
+		% Plot current horizontal profile
+		set(prof2h, 'Ydata',  prof2);
+		
+		% Plot faded profiles
+		for ii = 1:numel(fpi)
+			prof1  = data(fpi(ii), p1range) - dmin(p1range);
+			set(fph(ii), 'Ydata',  prof1);
+		end
+			
+		% Plot max1 profile
+		if get(hCbMax1Prof, 'Value') == get(hCbMax1Prof, 'Max')
+			set(prof1max1h, 'Ydata',  prof1max1);
+		end
+			
+		% Plot max profile
+		set(prof1maxh, 'Ydata',  prof1max);
+		set(prof2maxh, 'Ydata',  prof2max);
+		
+		% Refresh Figure
+		drawnow
+	else
+		% Refresh Figure
+		drawnow
+	end
+                */
             }
             return null;
         }

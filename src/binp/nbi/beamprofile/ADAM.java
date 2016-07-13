@@ -10,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import jssc.SerialPort;
 import jssc.SerialPortException;
+import jssc.SerialPortTimeoutException;
 
 /**
  *
@@ -27,12 +28,12 @@ public class ADAM {
     boolean to_ctrl = true;
     double to_r = 0.0;
     long to_w = 0;
-    double to_min = 0.5;
-    double to_max = 2.0;
+    long to_min = 500;
+    long to_max = 2000;
     double to_fp = 2;
     double to_fm = 3;
-    Date to_tic = new Date();
-    int to_toc = 20;
+    long to_tic = 0;
+    long to_toc = 10000;
     int to_count = 0;
     int to_countmax = 2;
     boolean to_susp = false;
@@ -187,7 +188,7 @@ public class ADAM {
 
     boolean reconnect() {
         long now = new Date().getTime();
-        if ((now.getTime()- to_tic.getTime()) > to_toc) {
+        if ((now - to_tic) > to_toc) {
             try {
                 String oldname = name;
                 to_tic = now;
@@ -196,7 +197,7 @@ public class ADAM {
                     to_count = 0;
                     return true;
                 } else {
-                    System.out.println("Module name mismatch.");
+                    System.out.println("Module name mismatch during reconnect.");
                     return false;
                 }
             }
@@ -205,22 +206,109 @@ public class ADAM {
                 to_tic = now;
             }
         }
+        return false;
     }
 
     boolean send_command(String command) throws SerialPortException {
-        boolean status = false;
         // Send command to ADAM module
-        reconnect();
+        boolean status = false;
+//        reconnect();
         last_command = command;
         // Clear com port buffer;
-        while (port.readString() != null);
+        if (port.getInputBufferBytesCount() > 0)
+            port.readBytes();
         long now = (new Date()).getTime();
-        status = port.writeString(command);
+        status = port.writeString(command + "\n");
         to_w = (new Date()).getTime() - now;
         if (log) {
-            System.out.println("COMMAND: //s\n" + command);
+            System.out.println("COMMAND: " + command);
         }
         return status;
+    }
+
+    boolean read_response() {
+        // Read response form GENESIS module
+        String resp = "";
+        boolean status = false;
+        msg.clear();
+
+        // Perform n reties to read response
+        int n = retries;
+        while (n-- >= 0) {
+            to_r = -1;
+            read_fgetl();
+            boolean read_error = !last_msg.equals("");
+            if (!read_error) {
+                resp = last_response;
+                status = true;
+                break;
+            }
+            if (read_rest) {
+                read_fgetl();
+            }
+        }
+        
+        // Correct timeout
+        correct_timeout();
+
+        if (read_error && nargout < 2) {
+            System.out.println("ADAM read error.");
+        }
+        return status;
+    }
+
+    boolean read_fgetl() throws SerialPortException {
+        if (!to_susp) {
+            to_tic = new Date().getTime();
+            String resp = port.readString(); 
+            if (log) {
+                System.out.println("RESPONSE: " + resp);
+            }
+            to_r = (new Date()).getTime() - to_tic;
+            last_response = resp;
+//            last_count = count;
+            last_msg = "";
+            if (timeout) {
+                to_count++;
+                if (to_count > to_countmax) {
+//                    to_tic = tic;
+                    to_susp = true;
+                }
+                else
+                    to_count = 0;
+                    to_susp = false;
+                }
+            }
+        else {
+            last_msg = "Suspended";
+            if (log) {
+                System.out.println(last_msg);
+            }
+        }
+        return true;
+    }
+
+
+
+    private void waitReadBytes(SerialPort port, int timeout, int deltat) 
+            throws SerialPortException, SerialPortTimeoutException {
+//        checkPortOpened("waitBytesWithTimeout()");
+        boolean timeIsOut = true;
+        long startTime = System.currentTimeMillis();
+        int oldByteCount = port.getInputBufferBytesCount();
+        int newByteCount = oldByteCount;
+        try {
+            Thread.sleep(0, timeout);
+        }
+        catch (InterruptedException ex) {
+        }
+        newByteCount = port.getInputBufferBytesCount();
+        if(newByteCount <= oldByteCount) {
+            break;
+        }
+        if(timeIsOut){
+            throw new SerialPortTimeoutException(portName, methodName, timeout);
+        }
     }
 
 /*
@@ -239,70 +327,7 @@ classdef ADAM < handle
 	fopen(cp);
 	//}
     methods
-		function [resp, status] = read_response(obj)
-			// Read response form GENESIS module
-			resp = "";
-			status = false;
-			obj.msg = {};
-
-			// Perform n reties to read response
-			n = obj.retries;
-			while n >= 0
-				n = n - 1;
-				obj.to_r = -1;
-				obj.read_fgetl;
-				read_error = ~strcmp(obj.last_msg, "");
-				if ~read_error
-					resp = obj.last_response;
-					status = true;
-					break
-				}
-				if obj.read_rest
-					obj.read_fgetl;
-				}
-			}
-			// Correct timeout
-			obj.correct_timeout;
-
-			if read_error && nargout < 2
-				System.out.println("GENESIS read error.");
-			}
-		}
 		
-		function read_fgetl(obj)
-			if ~obj.to_susp}
-				obj.to_tic = tic;
-				tic;
-				[resp, count, message] = fgetl(obj.port);
-				if obj.log
-					printl("RESPONSE: //s\n", resp);
-				}
-				obj.to_r = max(obj.to_r, toc);
-				obj.last_response = resp;
-				obj.last_count = count;
-				obj.last_msg = message;
-				if ~strcmpi(message, "")
-					if obj.log
-						printl("MESSAGE: //s\n", message);
-					}
-					obj.msg = {obj.msg{:}, message};
-					obj.to_count = obj.to_count + 1;
-					if obj.to_count > obj.to_countmax
-						obj.to_tic = tic;
-						obj.to_susp} = true;
-					}
-				else
-					obj.to_count = 0;
-					obj.to_susp} = false;
-				}
-			else
-				obj.last_msg = "Susp}ed";
-				obj.msg = {obj.msg{:}, obj.last_msg};
-				if obj.log
-					printl("//s\n", obj.last_msg);
-				}
-			}
-		}
 
 		function correct_timeout(obj)
 			// Correct timeout

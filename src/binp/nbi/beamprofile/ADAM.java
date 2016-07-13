@@ -5,9 +5,11 @@
  */
 package binp.nbi.beamprofile;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import jssc.SerialPort;
+import jssc.SerialPortException;
 
 /**
  *
@@ -24,12 +26,12 @@ public class ADAM {
     
     boolean to_ctrl = true;
     double to_r = 0.0;
-    double to_w = 0.0;
+    long to_w = 0;
     double to_min = 0.5;
     double to_max = 2.0;
     double to_fp = 2;
     double to_fm = 3;
-    long to_tic = 0;
+    Date to_tic = new Date();
     int to_toc = 20;
     int to_count = 0;
     int to_countmax = 2;
@@ -57,11 +59,6 @@ public class ADAM {
     ADAM() {
         last_msg = "Default constructor";
     }
-    ADAM(SerialPort comport) {
-        this();
-        System.out.println(msgIdent + " Wrong nargin.");
-    }
-    
     ADAM(SerialPort comport, int addr) {
         String msgIdent = this.MsgIdent + ":constructor";
         try {
@@ -122,6 +119,7 @@ public class ADAM {
         }
         return status;
     }
+
     boolean attach_addr() {
         boolean status = false;
             try {
@@ -139,80 +137,96 @@ public class ADAM {
     }
 
     boolean isvalidport(SerialPort comport) {
-        boolean status = false;
-        try {
-            if (nargin < 2) {
-                comport = port;
-            }
-            if (~isa(comport, "serial") || ~strcmpi(comport.status, "open")) {
-                last_msg = "Invalid COM port.";
-                error(last_msg);
-            }
-            else {
-                status = true;
-            }
+        if (comport.isOpened()) {
+            last_msg = "Invalid COM port.";
+            System.out.println(last_msg);
+            return false;
         }
-        catch (Exception ME) {
-            if (true /*nargout < 1*/) {
-                throw(ME);
-            }
-        }
-        return status;
+        return true;
     }		
+    boolean isvalidport() {
+        return isvalidport(port);
+    }
 
     boolean isvalidaddr(int address) {
+        if (address < addr_min || address > addr_max) {
+            last_msg = "Invalid address.";
+            System.out.println(last_msg);
+            return false;
+        }
+        return true;
+    }
+    boolean isvalidaddr() {
+        return isvalidaddr(addr);
+    }
+
+    static boolean isaddrattached(SerialPort port, int addr) {
+        // Is address in use on COM port
+        return true;
+    }
+    boolean isaddrattached() {
+        // Is address in use on COM port
+        return isaddrattached(port, addr);
+    }
+		
+    boolean isinitialized() {
+        if (name == null || serial == null || "".equals(name) || "".equals(serial)) {
+            last_msg = "Module is not initialized.";
+            return false;
+        }
+        return true;
+    }
+		
+    boolean valid() {
+        isvalidport();
+        isvalidaddr();
+        isaddrattached();
+        isinitialized();
+        return true;
+    }
+
+    boolean reconnect() {
+        if (to_susp) {
+            Date now = new Date();
+            if ((now.getTime()- to_tic.getTime()) > to_toc) {
+                to_susp = false;
+                try {
+                    String oldname = name;
+                    to_tic = now;
+                    String newname = read_name();
+                    if (newname.equals(oldname)) {
+                        to_count = 0;
+                        return true;
+                    } else {
+                        System.out.println("Module name mismatch.");
+                        return false;
+                    }
+                }
+                catch (Exception ME) {
+                    to_susp = true;
+                    to_tic = now;
+                }
+            }
+        }
+    }
+
+    boolean send_command(String command) throws SerialPortException {
         boolean status = false;
-        if (true /*nargin < 2*/) {
-            address = addr;
-        }
-        try {
-            if (address < addr_min || address > addr_max) {
-                last_msg = "Invalid address.";
-                error(last_msg);
-            }
-            else {
-                status = true;
-            }
-        }
-        catch (Exception ME) {
-            if (nargout < 1) {
-                throw(ME);
-            }
+        // Send command to ADAM module
+        reconnect();
+        last_command = command;
+        // Clear com port buffer;
+        while (port.readString() != null);
+        long now = (new Date()).getTime();
+        status = port.writeString(command);
+        to_w = (new Date()).getTime() - now;
+        if (log) {
+            System.out.println("COMMAND: //s\n" + command);
         }
         return status;
     }
 
-    boolean isaddrattached(int addr) {
-        // Is address in use on com port
-        boolean status = false;
-        int nargin = 1;
-        int nargout = 0;
-        try {
-            if (nargin < 2) {
-                this.addr = addr;
-            }
-            if (isa(obj, "GENESIS")) 
-                comport = port;
-            else if (isa(obj, "serial")) 
-                comport = obj;
-            else
-                error("Wron object.");
-            if (isempty(find(comport.userdata == addr, 1))) 
-                if (isa(obj, "GENESIS")) {
-                    last_msg = "Address is not attched.";
-                    error("Address is not attched.");
-                }
-            else 
-                status = true;
-        }
-        catch (Exception ME) {
-            if (nargout < 1) {
-                throw(ME);
-            }
-        }
-    }
-		
-    /*
+/*
 classdef ADAM < handle
 	//{
 	a=instrhwinfo("serial");
@@ -228,90 +242,6 @@ classdef ADAM < handle
 	fopen(cp);
 	//}
     methods
-		
-		function status = isinitialized(obj)
-			try
-				status = false;
-				if isempty(obj.name) || isempty(obj.serial)
-					obj.last_msg = "Module is not initialized.";
-					error(obj.last_msg);
-				else
-					status = true;
-				}
-			catch ME
-				if nargout < 1
-					rethrow(ME);
-				}
-			}
-		}
-		
-		function status = valid(obj)
-			status = false;
-			try
-				obj.isvalidport;
-				obj.isvalidaddr;
-				obj.isaddrattached;
-				obj.isinitialized;
-				status = true;
-			catch ME
-				if nargout < 1
-					rethrow(ME);
-				}
-			}
-		}
-		
-		function status = reconnect(obj)
-			status = false;
-			if obj.to_susp}
-				if toc(obj.to_tic) > obj.to_toc
-					obj.to_susp} = false;
-					try
-						oldname = obj.name;
-						obj.to_tic = tic;
-						newname = obj.read_name;
-						if strcmpi(newname, oldname)
-							obj.to_count = 0;
-							status = true;
-						else
-							error("Module name mismatch.");
-						}
-					catch ME
-						obj.to_susp} = true;
-						obj.to_tic = tic;
-						if nargout < 1
-							rethrow(ME);
-						}
-					}
-				}
-			}
-		}
-		
-		function status = s}_command(obj, command)
-			// S} command to GENESIS module
-			status = false;
-			temp = obj.reconnect;
-			if ~obj.to_susp}
-				obj.last_command = command;
-				obj.to_w = -1;
-				tic;
-				try
-					if obj.port.BytesAvailable >0
-						fread(obj.port, obj.port.BytesAvailable);
-					}
-					fprintf(obj.port, "//s\n", command);
-					obj.to_w = toc;
-					status = true;
-					if obj.log
-						printl("COMMAND: //s\n", command);
-					}
-				catch ME
-					if nargout < 1
-						rethrow(ME);
-					}
-				}
-			}
-		}
-		
 		function [resp, status] = read_response(obj)
 			// Read response form GENESIS module
 			resp = "";
@@ -338,7 +268,7 @@ classdef ADAM < handle
 			obj.correct_timeout;
 
 			if read_error && nargout < 2
-				error("GENESIS read error.");
+				System.out.println("GENESIS read error.");
 			}
 		}
 		
@@ -511,7 +441,7 @@ classdef ADAM < handle
 				if strcmpi(resp, "OK")
 					status = true;
 				else
-					error(["Unexpected response. " command, " -> ", resp]);
+					System.out.println(["Unexpected response. " command, " -> ", resp]);
 				}
 			catch ME
 				//printl("//s\n", ME.message);
@@ -530,7 +460,7 @@ classdef ADAM < handle
 					status = true;
 					return
 				else
-					error(["Read Value error form ", command, " " , valuetxt]);
+					System.out.println(["Read Value error form ", command, " " , valuetxt]);
 				}
 			catch ME
 				value = [];

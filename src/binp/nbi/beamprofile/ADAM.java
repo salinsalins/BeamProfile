@@ -186,26 +186,23 @@ public class ADAM {
     }
 
     boolean reconnect() {
-        if (to_susp) {
-            Date now = new Date();
-            if ((now.getTime()- to_tic.getTime()) > to_toc) {
-                to_susp = false;
-                try {
-                    String oldname = name;
-                    to_tic = now;
-                    String newname = read_name();
-                    if (newname.equals(oldname)) {
-                        to_count = 0;
-                        return true;
-                    } else {
-                        System.out.println("Module name mismatch.");
-                        return false;
-                    }
+        long now = new Date().getTime();
+        if ((now.getTime()- to_tic.getTime()) > to_toc) {
+            try {
+                String oldname = name;
+                to_tic = now;
+                String newname = read_name();
+                if (newname.equals(oldname)) {
+                    to_count = 0;
+                    return true;
+                } else {
+                    System.out.println("Module name mismatch.");
+                    return false;
                 }
-                catch (Exception ME) {
-                    to_susp = true;
-                    to_tic = now;
-                }
+            }
+            catch (Exception ME) {
+                to_susp = true;
+                to_tic = now;
             }
         }
     }

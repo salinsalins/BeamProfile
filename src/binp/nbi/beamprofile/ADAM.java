@@ -290,7 +290,7 @@ public class ADAM {
 
 
 
-    private void waitReadBytes(SerialPort port, int timeout, int deltat) 
+    private void waitReadBytes(SerialPort port, int timeout, int chartime) 
             throws SerialPortException, SerialPortTimeoutException {
 //        checkPortOpened("waitBytesWithTimeout()");
         boolean timeIsOut = true;
@@ -298,7 +298,7 @@ public class ADAM {
         int oldByteCount = port.getInputBufferBytesCount();
         int newByteCount = oldByteCount;
         try {
-            Thread.sleep(0, timeout);
+            Thread.sleep(4, 0); // delay for 2 characters at 9600 bods
         }
         catch (InterruptedException ex) {
         }

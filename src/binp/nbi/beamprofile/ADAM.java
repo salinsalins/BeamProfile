@@ -28,10 +28,16 @@ public class ADAM {
     boolean to_ctrl = true;
     double to_r = 0.0;
     long to_w = 0;
-    long to_min = 500;
-    long to_max = 2000;
-    double to_fp = 2;
-    double to_fm = 3;
+
+    String response = "";
+    String outstr = "";
+    int timeout = 200;
+    int to_min = 200;
+    int to_max = 2000;
+    boolean toAuto = true;
+    double to_fp = 2.0;
+    double to_fm = 1.0/2.0;
+
     long to_tic = 0;
     long to_toc = 10000;
     int to_count = 0;
@@ -228,84 +234,113 @@ public class ADAM {
 
     boolean read_response() {
         // Read response form GENESIS module
-        String resp = "";
-        boolean status = false;
+        response = "";
         msg.clear();
 
         // Perform n reties to read response
         int n = retries;
         while (n-- >= 0) {
             to_r = -1;
-            read_fgetl();
-            boolean read_error = !last_msg.equals("");
-            if (!read_error) {
-                resp = last_response;
-                status = true;
-                break;
+            try {
+                response = readResponse(port, timeout);
+                decreaseTimeout();
+                return true;
             }
-            if (read_rest) {
-                read_fgetl();
+            catch (Exception ex) {
+                increaseTimeout();
             }
         }
-        
-        // Correct timeout
-        correct_timeout();
+        increaseTimeout();
+        return false;
+    }
 
-        if (read_error && nargout < 2) {
-            System.out.println("ADAM read error.");
+    private String readResponse(SerialPort port, int timeout)  
+            throws SerialPortException, SerialPortTimeoutException, ADAMTimeoutException {
+        byte[] b;
+        StringBuilder sb = new StringBuilder();
+        long startTime = System.currentTimeMillis();
+        long currentTime;
+        while (((currentTime = System.currentTimeMillis()) - startTime) < timeout) {
+            b = port.readBytes(1, timeout - (int) (currentTime - startTime));
+            if (b[0] == 13 )            // wait for CR = 0x0D = 13. 
+                return sb.toString();
+            sb.append(b[0]);
+        }
+        throw new ADAMTimeoutException(timeout);
+    }
+
+    void increaseTimeout() {
+        if (!toAuto) return;
+        int newto = (int) (to_fp * timeout);
+        timeout = (newto > to_max) ? to_max: newto;
+    }
+    
+    void decreaseTimeout() {
+        if (!toAuto) return;
+        int newto = (int) (to_fm * timeout);
+        timeout = (newto < to_min) ? to_min: newto;
+    }
+
+    boolean set_addr() {
+        return true;
+    }
+    
+    boolean execute(String command) {
+        // Send command and read response form ADAM
+        boolean status = false;
+        try {
+            send_command(command);
+            status = read_response();
+            return status;
+        }
+        catch (Exception ME) {
+            //printl("//s\n", ME.message);
+            status = false;
         }
         return status;
     }
 
-    boolean read_fgetl() throws SerialPortException {
-        if (!to_susp) {
-            to_tic = new Date().getTime();
-            String resp = port.readString(); 
-            if (log) {
-                System.out.println("RESPONSE: " + resp);
-            }
-            to_r = (new Date()).getTime() - to_tic;
-            last_response = resp;
-//            last_count = count;
-            last_msg = "";
-            if (timeout) {
-                to_count++;
-                if (to_count > to_countmax) {
-//                    to_tic = tic;
-                    to_susp = true;
-                }
-                else
-                    to_count = 0;
-                    to_susp = false;
-                }
-            }
-        else {
-            last_msg = "Suspended";
-            if (log) {
-                System.out.println(last_msg);
+    boolean execute_format(String fmt) {
+        // Execute command for ADAM address with format string fmt
+        boolean status = false;
+        try {
+            String cmd = String.format(fmt, addr);
+            execute(cmd);
+            status = isok(response);
+        }
+        catch (Exception ME) {
+        }
+        return status;
+    }
+		
+    boolean isok(String instr) {
+        boolean status = false;
+        String outstr = "";
+        if (instr.length() > 3) {
+            if (instr.substring(0, 2).equals(String.format("!%02X", addr))) {
+                status = true;
+                outstr = instr.substring(3);
             }
         }
+        return status;
+    }
+    
+    boolean read_name() {
+        // Read Module Name.  Command: $AAM
+        return execute_format("$%02XM");
+    }
+		
+    boolean read_serial() {
+          response = "not implemented";
         return true;
     }
+		
+		function [version, status] = read_firmware(obj)
+			// Read Module Firware Version.  Command: $AAF
+			[version, status] = obj.execute_format("$//02XF");
+		}
+		
 
-
-
-    private String readResponse(SerialPort port, int timeout)  
-            throws SerialPortException, SerialPortTimeoutException {
-        byte[] b;
-        StringBuilder sb = new StringBuilder();
-        long startTime = System.currentTimeMillis();
-        long currentTime = System.currentTimeMillis();
-        while (((currentTime = System.currentTimeMillis()) - startTime) < timeout) {
-            b = port.readBytes(1, timeout - (int) (currentTime - startTime));
-            if (b[0] == 12 ) // CR 
-                return sb.toString();
-            sb.append(b[0]);
-        }
-        throw new SerialPortTimeoutException(port.getPortName(), "readResponse", timeout);
-    }
-
-    
 /*
 classdef ADAM < handle
 	//{
@@ -322,92 +357,6 @@ classdef ADAM < handle
 	fopen(cp);
 	//}
     methods
-		
-
-		function correct_timeout(obj)
-			// Correct timeout
-			if obj.to_ctrl
-				dt = max(obj.to_r, obj.to_w);
-				if dt >= obj.port.timeout*0.9
-					newto = min(obj.to_fp*obj.port.timeout, obj.to_max);
-					if obj.port.timeout < newto
-						obj.port.timeout = newto;
-						obj.msg = {obj.msg{:}, sprintf("Timeout+ //d //d", obj.port.timeout, dt)};
-						if obj.log
-							printl("Timeout+ //d //d\n", obj.port.timeout, dt);
-						}
-					}
-				else
-					newto = max(obj.to_fm*dt, obj.to_min);
-					if obj.port.timeout > newto
-						obj.port.timeout = newto;
-						obj.msg = {obj.msg{:}, sprintf("Timeout- //d //d", obj.port.timeout, dt)};
-						if obj.log
-							printl("Timeout- //d //d\n", obj.port.timeout, dt);
-						}
-					}
-				}
-			}
-		}
-		
-		function status = set_addr(obj)
-			status = true;
-		}
-		
-		function [resp, status] = execute(obj, command)
-			// S} command and read response form ADAM
-			status = false;
-			try
-				obj.s}_command(command);
-				resp = obj.read_response;
-				status = true;
-			catch ME
-				//printl("//s\n", ME.message);
-				//printl("//s //i\n", ME.message, nargout);
-				if nargout < 2
-					rethrow(ME);
-				}
-			}
-		}
-		
-		function [data, status] = execute_format(obj, fmt)
-			// Execute command for ADAM address with format string fmt
-			data = "";
-			status = false;
-			try
-				cmd = sprintf(fmt, obj.addr);
-				s = obj.execute(cmd);
-				[data, status] = obj.isok(s);
-			catch ME
-			}
-		}
-		
-		function [outstr, status] = isok(obj, instr)
-			status = false;
-			outstr = "";
-			if length(instr) > 3
-				if strcmp(instr(1:3), sprintf("!//02X", obj.addr))
-					status = true;
-					outstr = instr(4:});
-				}
-			}
-		}
-		
-		function [name, status] = read_name(obj)
-			// Read Module Name.  Command: $AAM
-			[name, status] = obj.execute_format("$//02XM");
-		}
-		
-		function [sn, status] = read_serial(obj)
-			// Read Module Serial Number
-			sn = "not implemented";
-			status = true;
-		}
-		
-		function [version, status] = read_firmware(obj)
-			// Read Module Firware Version.  Command: $AAF
-			[version, status] = obj.execute_format("$//02XF");
-		}
 		
 		function outstr = read_str(obj, chan)
 			outstr = "";
@@ -497,4 +446,26 @@ classdef ADAM < handle
 
     */
     
+
+
+//*************************************
+    public class ADAMTimeoutException extends Exception {
+
+        private final int timeoutValue;
+
+        public ADAMTimeoutException(int timeoutValue) {
+            super("ADAM operation timeout " + timeoutValue + " ms.");
+            this.timeoutValue = timeoutValue;
+        }
+
+        public ADAMTimeoutException() {
+            super("ADAM operation timeout.");
+            this.timeoutValue = 0;
+        }
+
+        public int getTimeoutValue(){
+            return timeoutValue;
+        }
+    }
+
 }

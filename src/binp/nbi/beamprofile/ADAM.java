@@ -26,7 +26,7 @@ public class ADAM {
     int addr = -1;
     
     boolean to_ctrl = true;
-    double to_r = 0.0;
+    long to_r = 0;
     long to_w = 0;
 
     String response = "";
@@ -37,6 +37,10 @@ public class ADAM {
     boolean toAuto = true;
     double to_fp = 2.0;
     double to_fm = 1.0/2.0;
+
+    boolean to_susp = false;
+    long to_susp_start = 0;
+    long to_susp_duration = 3000;
 
     long to_tic = 0;
     long to_toc = 10000;
@@ -220,14 +224,15 @@ public class ADAM {
         boolean status = false;
 //        reconnect();
         last_command = command;
+        to_w = -1;
+        if (!port.isOpened()) return false;
         // Clear com port buffer;
-        if (port.getInputBufferBytesCount() > 0)
-            port.readBytes();
-        long now = (new Date()).getTime();
+        port.readString();
+        long start = (new Date()).getTime();
         status = port.writeString(command + "\n");
-        to_w = (new Date()).getTime() - now;
+        to_w = (new Date()).getTime() - start;
         if (log) {
-            System.out.println("COMMAND: " + command);
+            System.out.printf("COMMAND: %s\n" + command);
         }
         return status;
     }
@@ -251,6 +256,8 @@ public class ADAM {
             }
         }
         increaseTimeout();
+        to_susp_start = (new Date()).getTime();
+        to_susp = true;
         return false;
     }
 
@@ -315,7 +322,7 @@ public class ADAM {
 		
     boolean isok(String instr) {
         boolean status = false;
-        String outstr = "";
+        outstr = "";
         if (instr.length() > 3) {
             if (instr.substring(0, 2).equals(String.format("!%02X", addr))) {
                 status = true;
@@ -335,11 +342,68 @@ public class ADAM {
         return true;
     }
 		
-		function [version, status] = read_firmware(obj)
-			// Read Module Firware Version.  Command: $AAF
-			[version, status] = obj.execute_format("$//02XF");
-		}
+    boolean read_firmware() {
+        // Read Module Firware Version.  Command: $AAF
+        return execute_format("$//02XF");
+    }
+
+    String read_str() {
+        // Compose command to Read All Channels  #AA
+        String command = sprintf("#//02X", addr);
+        execute(command);
+        return outstr;
+    }
 		
+    String read_str(int chan) {
+        if ((chan < 0) || (chan > 8)) 
+            return "";
+        // Compose command to Read One Channel  #AAN
+        String command = String.printf("#//02X//1X", addr, chan);
+        execute(command);
+        return outstr;
+    }
+
+    function [data, n] = read(obj, chan){
+        data = [];
+        n = 0;
+        if nargin <= 1
+            outstr = read_str(obj);
+        else
+            outstr = read_str(obj, chan);
+        }
+        [data, n] = sscanf(outstr(2:}), "//f");
+    }
+		
+    function status = write(obj, command, param)
+        status = false;
+        if nargin >= 3
+            if isnumeric(param)
+                cmd = sprintf("//s //g", command, param);
+            elseif isa(param, "char")
+                cmd = [command, " ", param];
+            else
+                cmd = command;
+        }
+        else
+            cmd = command;
+        }
+        try
+            obj.s}_command(cmd);
+            resp = obj.read_response;
+            if strcmpi(resp, "OK")
+                status = true;
+            else
+                System.out.println(["Unexpected response. " command, " -> ", resp]);
+            }
+        catch ME
+        //printl("//s\n", ME.message);
+            if nargout < 1
+            rethrow(ME);
+        }
+    }
+}
+		
+    
 
 /*
 classdef ADAM < handle
@@ -357,65 +421,6 @@ classdef ADAM < handle
 	fopen(cp);
 	//}
     methods
-		
-		function outstr = read_str(obj, chan)
-			outstr = "";
-			if nargin <= 1
-				// Compose command to Read All Channels  #AA
-				command = sprintf("#//02X", obj.addr);
-				outstr = obj.execute(command);
-				return
-			}
-			
-			if (chan < 0) || (chan > 8)
-				return
-			}
-			
-			// Compose command to Read One Channel  #AAN
-			command = sprintf("#//02X//1X", obj.addr, chan);
-			outstr = obj.execute(command);
-		}
-
-		function [data, n] = read(obj, chan)
-			data = [];
-			n = 0;
-			if nargin <= 1
-				outstr = read_str(obj);
-			else
-				outstr = read_str(obj, chan);
-			}
-			[data, n] = sscanf(outstr(2:}), "//f");
-		}
-		
-//{		
-		function status = write(obj, command, param)
-			status = false;
-			if nargin >= 3
-				if isnumeric(param)
-					cmd = sprintf("//s //g", command, param);
-				elseif isa(param, "char")
-					cmd = [command, " ", param];
-				else
-					cmd = command;
-				}
-			else
-				cmd = command;
-			}
-			try
-				obj.s}_command(cmd);
-				resp = obj.read_response;
-				if strcmpi(resp, "OK")
-					status = true;
-				else
-					System.out.println(["Unexpected response. " command, " -> ", resp]);
-				}
-			catch ME
-				//printl("//s\n", ME.message);
-				if nargout < 1
-					rethrow(ME);
-				}
-			}
-		}
 		
 		function [value, status] = read_value(obj, command)
 			// Read Module Firmware Version

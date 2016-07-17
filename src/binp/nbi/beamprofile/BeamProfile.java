@@ -173,7 +173,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     Color cWHITE = new Color(1.0f, 1.0f, 1.0f);
     Color cBLACK = new Color(0.0f, 0.0f, 0.0f);
     Color cGREY  = new Color(0.3f, 0.3f, 0.3f);
-    Color cGREEN = new Color(0.1f, 0.8f, 0.0f);
+    Color cGREEN = new Color(0.0f, 0.8f, 0.0f);
 
     Date c0 = new Date();
     Date c1 = new Date();

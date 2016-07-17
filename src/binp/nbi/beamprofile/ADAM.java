@@ -5,6 +5,7 @@ package binp.nbi.beamprofile;
 import java.util.Date;
 import jssc.SerialPort;
 import jssc.SerialPortException;
+import jssc.SerialPortList;
 import jssc.SerialPortTimeoutException;
 
 /**
@@ -198,7 +199,7 @@ public class ADAM {
         }
         to_w = (new Date()).getTime() - start;
         if (log) {
-            System.out.printf("COMMAND: %s\n" + command);
+            System.out.printf("COMMAND: %s\n", command);
         }
         return status;
     }
@@ -211,17 +212,26 @@ public class ADAM {
 
         // Perform n reties to read response
         int n = to_retries;
-        while (n-- >= 0) {
+        while (n-- > 0) {
             to_r = -1;
             try {
                 resp = readResponse(port, timeout);
                 decreaseTimeout();
                 last_response = resp;
+                if (log) {
+                    System.out.printf("Response: %s\n", resp);
+                }
                 return resp;
             }
             catch (Exception ex) {
+                if (log) {
+                    System.out.printf("Response timeout %d\n", timeout);
+                }
                 increaseTimeout();
             }
+        }
+        if (log) {
+            System.out.printf("No response %d times\n", to_retries);
         }
         to_susp_start = (new Date()).getTime();
         to_susp = true;

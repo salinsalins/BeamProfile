@@ -676,6 +676,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         });
     }
 
+    //<editor-fold defaultstate="collapsed" desc=" Variables declaration - do not modify ">
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton1;
@@ -708,6 +710,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
     
+    //</editor-fold>
+
     private void restoreConfig() {
 //        String logFileName = null;
 //        List<String> columnNames = new LinkedList<>();
@@ -819,28 +823,22 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         saveConfig();
         //System.exit(0);
     }
-
     @Override
     public void windowOpened(WindowEvent e) {
         restoreConfig();
     }
-
     @Override
     public void windowClosing(WindowEvent e) {
     }
-
     @Override
     public void windowIconified(WindowEvent e) {
     }
-
     @Override
     public void windowDeiconified(WindowEvent e) {
     }
-
     @Override
     public void windowActivated(WindowEvent e) {
     }
-
     @Override
     public void windowDeactivated(WindowEvent e) {
     }
@@ -866,20 +864,309 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 	return prefix + arg + "_" + timeStr + "." + ext;
     }
 
+//=================================================
 
+//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
+/*
 
+%% Local functions
 
-//************************
+    function DeleteADAMs
+        try
+            n = numel(adams);
+            if n > 0
+                for ida=1:n
+                    try
+                        delete(adams(ida));
+                    catch
+                    end
+                end
+            end
+        catch
+        end
+    end
 
+    function result = CreateADAMs
+    % Create ADAM objects
+        si = get(hPm1, 'Value');
+        st = get(hPm1, 'String');
+        portname = char(st(si));
+        addr(1) = sscanf(get(hEd4, 'String'),'%d');
+        addr(2) = sscanf(get(hEd5, 'String'),'%d');
+        addr(3) = sscanf(get(hEd8, 'String'),'%d');
+        addr(4) = sscanf(get(hEd9, 'String'),'%d');
+
+        result(1:numel(addr)) = ADAM;
+        %  Attach to com ports
+        for ica=1:numel(addr)
+            if strncmpi(portname, 'COM', 3)
+                try
+                    ports = findopencom(portname);
+                    % If COM port does not exist
+                    if isempty(ports)
+                        % Create new COM port
+                        cp = serial(portname);
+                        set(cp, 'BaudRate', 38400, 'DataBits', 8, 'StopBits', 1);
+                        set(cp, 'Terminator', 'CR');
+                        set(cp, 'Timeout', 1);
+                    else
+                        cp = ports(1);
+                        if get(cp, 'BaudRate') ~= 38400 || get(cp, 'DataBits') ~= 8 || get(cp, 'StopBits') ~= 1 
+                            error('COM port incompatible configuration');
+                        end
+                    end
+                    % Open COM port
+                    if ~strcmpi(cp.status, 'open')
+                        fopen(cp);
+                    end
+                    % If open is sucessfull, create and attach ADAM
+                    if strcmp(cp.status, 'open')
+                        result(ica) = ADAM(cp, addr(ica));
+                        result(ica).valid;
+                        printl('ADAM has been created %s addr %i\n', portname, addr(ica));
+                        cp_open = true;
+                    else
+                        cp_open = false;
+                        % Find FILE in combo box list
+                        for si = 1:numel(st)
+                            if strncmpi(st(val), 'FILE', 4)
+                                set(hPm1,'Value', si);
+                            end
+                        end
+                        cbInputPannel(hPm1);
+                        % Swith to stop state
+                        set(hBtn1, 'Value', get(hBtn1, 'Min'));
+                        cbStart(hBtn1);
+
+                        error('ADAM creation error %s addr %i', portname, addr(ica));
+                    end
+                catch ME
+                    printl('%s\n', ME.message);
+                end
+            end
+            if strncmpi(portname, 'FILE', 4)
+                % Open input file
+                in_file = [in_file_path, in_file_name];
+                in_fid = fopen(in_file);
+                if in_fid > 2
+                    set(hEd1, 'String', in_file_name);
+                    printl('Input file %s has been opened\n', in_file);
+                    break
+                else
+                    in_fid = -1;
+                    printl('Input file open error\n');
+                    set(hBtn1, 'Value', get(hBtn1, 'Min'));
+                    cbStart(hBtn1);
+                end
+            end
+        end
+    end
+
+    function fidout = CloseFile(fidin)
+        % Close file if if was opened
+        if fidin > 0
+            status = fclose(fidin);
+            if status == 0
+                printl('File %d has been closed.\n', fopen(fidin));
+            end
+            fidout = -1;
+        end
+    end
+	
+  		
+    function result = ADAM4118_readstr(cp_obj, adr)
+        result = '';
+        if (adr < 0) || (adr > 255) 
+            return
+        end
+	
+        if in_fid > 2
+            result = ReadFromFile(in_fid);
+            return;
+        else
+            if cp_open
+                result = ReadFromCOM(cp_obj, adr);
+            end
+        end
+    end
+		
+    function result = ReadFromFile(fid)
+        persistent rffs;
+        persistent rffn;
+        persistent rffd;
+        if isempty(rffn)
+            rffn = 0;
+        end
+        result = '';
+        if fid < 0
+            return
+        end
+        if rffn <= 0
+            rffs = fgetl(fid);
+            n = strfind(rffs, ';');
+            [rffd, rffn] = sscanf(rffs((n(1)+2):end), '%f; ');
+            cr1 = datevec([rffs(1:n(1)-1) 0], 'HH:MM:SS.FFF');
+            cr(3:6) = cr1(3:6);
+            if rffn < 24
+                rffd((rffn+1):24) = 0;
+            end
+            rffn = 1;
+        end
+        result = ['<' sprintf('%+07.3f', rffd(rffn:rffn+7))];
+        rffn = rffn + 8;
+        if rffn > 24
+            rffn = 0;
+        end
+        if feof(fid)
+            frewind(fid);
+        end
+        %pause(0.01);
+    end
+		
+    function result = ReadFromCOM(cp, adr)
+        to_ctrl = true;
+        to_min = 0.5;
+        to_max = 2;
+        to_fp = 2;
+        to_fm = 3;
+        read_rest = true;
+        retries = 0;
+		
+        if (adr < 0) || (adr > 255)
+            return
+        end
+    	
+        % Compose command Read All Channels  #AA
+        command = ['#', sprintf('%02X', adr)];
+    		
+        % Send command to ADAM4118
+        tic;
+        fprintf(cp, '%s\n', command);
+        dt1 = toc;
+		
+        % Read response form ADAM4118
+        while retries > -1
+            retries = retries - 1;
+            tic;
+            [result, ~, msg] = fgetl(cp);
+            dt2 = toc;
+            read_error = ~strcmp(msg,  '');
+            if ~read_error
+                break
+            end
+            printl('ADAM Read error %d  "%s" %s\n', retries, result, msg);
+            if read_rest
+                [result1, ~, msg1] = fgetl(cp);
+                printl('ADAM Read rest  "%s" %s\n', result1, msg1);
+            end
+        end
+    		
+        % Correct timeout
+        dt = max(dt1, dt2);
+        if to_ctrl
+            if read_error
+                cp.timeout = min(to_fp*cp.timeout, to_max);
+                printl('ADAM Timeout+ %4.2f %4.2f\n', cp.timeout, dt);
+            else
+                if cp.timeout > to_min && cp.timeout > to_fm*dt
+                    cp.timeout = max(to_fm*dt, to_min);
+                    printl('ADAM Timeout- %4.2f %4.2f\n', cp.timeout, dt);
+                end
+            end
+        end
+    end
+		
+    function scroll_log(h, instr)
+        s = get(h, 'String');
+        for i=2:numel(s)
+            s{i-1} = s{i};
+        end
+        s{numel(s)} = instr;
+        set(h, 'String', s);
+    end
+	
+    function v = getVal(hObj)
+        v = get(hObj, 'Value');
+    end
+	
+    function setMax(hObj)
+        set(hObj, 'Value', get(hObj, 'Max'));
+    end
+	
+    function setMin(hObj)
+        set(hObj, 'Value', get(hObj, 'Min'));
+    end
+	
+    function v = isMax(hObj)
+        v = (get(hObj, 'Value') == get(hObj, 'Max'));
+    end
+	
+    function v = isMin(hObj)
+        v = (get(hObj, 'Value') == get(hObj, 'Min'));
+    end
+	
+    function v = isVal(hObj, val)
+        v = (get(hObj, 'Value') == val);
+    end
+	
+    function p = In(hObj, par)
+        p0 = get(hObj, 'Position');
+        if nargin < 2
+            par = [5, 5, p0(3)-10, p0(4)-10];
+        end
+        if numel(par) < 4
+            p = [par(1), par(1), p0(3)-2*par(1), p0(4)-2*par(1)];
+        else
+            if par(3) == 0 
+                par(3) = p0(3);
+            end
+            if par(4) == 0 
+                par(4) = p0(4);
+            end
+            p = [par(1), par(2), par(3)-2*par(1), par(4)-2*par(2)];
+        end
+    end
+	
+    function p = Right(hObj, par)
+        p0 = get(hObj, 'Position');
+        if nargin < 2
+            par = [5, 0, p0(3), p0(4)];
+        end
+        if numel(par) ~= 4
+            p = [p0(1)+p0(3)+5, p0(2), par(1), p0(4)];
+        else
+            if par(3) == 0 
+                par(3) = p0(3);
+            end
+            if par(4) == 0 
+                par(4) = p0(4);
+            end
+            p = [p0(1)+p0(3)+par(1), p0(2)+par(2), par(3), par(4)];
+        end
+    end
+	
+    function p = Top(hObj, par)
+        p0 = get(hObj, 'Position');
+        if nargin < 2
+            par = [0, 5, p0(3), p0(4)];
+        end
+        if numel(par) ~= 4
+            p = [p0(1), p0(2)+p0(4)+5, p0(3), par(1)];
+        else
+            if par(3) == 0 
+                par(3) = p0(3);
+            end
+            if par(4) == 0 
+                par(4) = p0(4);
+            end
+            p = [p0(1)+par(1), p0(2)+p0(4)+par(2), par(3), par(4)];
+        end
+    end
 
     
-    
-    
-    
-    
-    
-    
-    
+*/    
+//</editor-fold>
+
 //================================================    
     class Task extends SwingWorker<Void, Void> {
 
@@ -899,14 +1186,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 if(bp.flag_in) {
                     // Reset flag
                     bp.flag_in = false;
-    /*
+                    
                     // Close input file
-                    in_fid = CloseFile(in_fid);
+                    bp.closeInputFile();
+                    //in_fid = CloseFile(in_fid);
                     // Delete ADAMs
-                    DeleteADAMs;
+                    bp.deleteADAMs();
                     // Create ADAMs
-                    adams = CreateADAMs;
-    */    
+                    bp.adams = bp.createADAMs();
                 }
                 
                 // If output was changed

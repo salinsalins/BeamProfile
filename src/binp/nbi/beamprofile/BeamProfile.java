@@ -48,6 +48,7 @@ import java.net.*;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.JToggleButton;
 import net.wimpi.modbus.*;
 import net.wimpi.modbus.msg.*;
 import net.wimpi.modbus.io.*;
@@ -121,10 +122,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int prof2maxh = 0;
 
     // Faded profiles
-    int fpn = 10;         // Number of faded pofiles
-    int[] fpi = new int[fpn]; // Faded pofiles indexes
-    int[] fph = new int[fpn];      // Faded pofile plot handles
-    double fpdt = 0.5;       // Faded pofile time inteval [s]
+    int fpn = 10;               // Number of faded pofiles
+    int[] fpi = new int[fpn];   // Faded pofiles indexes
+    int[] fph = new int[fpn];   // Faded pofile plot handles
+    double fpdt = 0.5;          // Faded pofile time inteval [s]
 
     // Traces to plot
     int[] trn = {6, 2, 10};     // Channel numbers of traces
@@ -177,23 +178,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     Date c0 = new Date();
     Date c1 = new Date();
 
-    // ADAMs
-//    ADAM[] adams = new ADAM[4]; 
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Creates new form BeamProfile
      */
@@ -236,6 +220,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         chartPanel.add(chart2);
 
         jScrollPane2.setViewportView(chartPanel);
+        
 //-----------------------------------------------
         for (int i = 0; i < p1range.length; i++) {
             prof1[i] = data[0][p1range[i]];
@@ -252,7 +237,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 //    log_fid = fopen(logFileName, 'at+', 'n', 'windows-1251');
 //	if log_fid < 0
 //		log_fid = 1;
-//	end
+//	}
 
         // Create ADAMs
 //        for(int i = 0; i < adams.length; i++) {
@@ -266,8 +251,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         task = new Task(this);
         //task.addPropertyChangeListener(this);
         task.execute();
-        
-    }
+    }    
+    
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -309,8 +294,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Calorimeter Beam Profile Plotter");
-        setPreferredSize(new java.awt.Dimension(488, 800));
-        setSize(new java.awt.Dimension(0, 0));
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Config"));
 
@@ -331,11 +314,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jSpinner1.setModel(new javax.swing.SpinnerNumberModel(502, 0, null, 1));
 
         jButton1.setText("Read");
-        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButton1MouseClicked(evt);
-            }
-        });
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
@@ -434,7 +412,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 .add(jSpinner2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(jPanel1Layout.createSequentialGroup()
                                 .add(jLabel6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 31, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(jPanel1Layout.createSequentialGroup()
                                         .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -584,19 +561,19 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             ReadInputRegistersRequest req = new ReadInputRegistersRequest(ref, count);
             req.setUnitID(unitid);
             //req.setHeadless();
-            System.out.println(req);
-            System.out.println(req.getDataLength());
-            System.out.println(req.getFunctionCode());
-            System.out.println(req.getHexMessage());
+            System.out.System.out.printfn(req);
+            System.out.System.out.printfn(req.getDataLength());
+            System.out.System.out.printfn(req.getFunctionCode());
+            System.out.System.out.printfn(req.getHexMessage());
 
             //byte[] requestData = {32};
             //requestData[1]=(byte)0x80;
             //CommonIPRequest reqInfo = new CommonIPRequest(0x46, requestData);
             //reqInfo.setUnitID(unitid);
-            //System.out.println(reqInfo);
-            //System.out.println(reqInfo.getDataLength());
-            //System.out.println(reqInfo.getFunctionCode());
-            //System.out.println(reqInfo.getHexMessage());
+            //System.out.System.out.printfn(reqInfo);
+            //System.out.System.out.printfn(reqInfo.getDataLength());
+            //System.out.System.out.printfn(reqInfo.getFunctionCode());
+            //System.out.System.out.printfn(reqInfo.getHexMessage());
             
             //4. Prepare the transaction
             trans = new ModbusTCPTransaction(con);
@@ -605,13 +582,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             //5. Execute the transaction
             trans.execute();
             ReadInputRegistersResponse res = (ReadInputRegistersResponse) trans.getResponse();
-            System.out.println(res);
-            System.out.println(res.getDataLength());
-            System.out.println(res.getFunctionCode());
-            System.out.println(res.getHexMessage());
+            System.out.System.out.printfn(res);
+            System.out.System.out.printfn(res.getDataLength());
+            System.out.System.out.printfn(res.getFunctionCode());
+            System.out.System.out.printfn(res.getHexMessage());
             jTextArea1.setText("");
             for (int n = 0; n < res.getWordCount(); n++) {
-                System.out.printf("%2d - %2$d %2$H\n", n, res.getRegisterValue(n));
+                System.out.printf("//2d - //2$d //2$H\n", n, res.getRegisterValue(n));
                 jTextArea1.append(Integer.toHexString(res.getRegisterValue(n)) + "\n");
 
             }
@@ -629,16 +606,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             logger.log(Level.SEVERE, "Exception", ex);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1MouseClicked
     
     private static int count = 0;
     private static Date lastDate = new Date();
     public void mark() {
         Date date = new Date();
-        System.out.printf("%d %tT.%2$tL %d\n", count++, date, date.getTime()-lastDate.getTime());
+        System.out.printf("//d //tT.//2$tL //d\n", count++, date, date.getTime()-lastDate.getTime());
         lastDate= date;
     }
     public void mark(int c) {
@@ -646,7 +619,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         mark();
     }
     public void mark(String s) {
-        System.out.printf("%s ", s);
+        System.out.printf("//s ", s);
         mark();
     }
     
@@ -791,10 +764,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 //
 //                ListSelectionModel lsm = (ListSelectionModel) event.getSource();
 //                if (lsm.isSelectionEmpty()) {
-//                    //System.out.println("No rows selected.");
+//                    //System.out.System.out.printfn("No rows selected.");
 //                } else {
 //                    int selectedRow = lsm.getMaxSelectionIndex();
-//                    //System.out.println("Row " + selectedRow + " is now selected.");
+//                    //System.out.System.out.printfn("Row " + selectedRow + " is now selected.");
 //                    //String fileName = folder + "\\" + logViewTable.files.get(selectedRow);
 //                    try {
 //                        File zipFile = logViewTable.files.get(selectedRow);
@@ -887,20 +860,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 	if (strs.length >= 2) {
             ext = strs[1];
         }
-        //SimpleDateFormat ydf = new SimpleDateFormat("yyyy");
-        //SimpleDateFormat mdf = new SimpleDateFormat("yyyy-MM");
-        //SimpleDateFormat ddf = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
-        //File dir = new File(new File(ydf.format(now), mdf.format(now)), ddf.format(now));
-        //if(make) dir.mkdirs();
-        //return dir;
         SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 	String timeStr = fmt.format(now);
-	return prefix + timeStr + "." + ext;
+	return prefix + arg + "_" + timeStr + "." + ext;
     }
 
+
+
+
 //************************
-}
+
 
     
     
@@ -913,10 +883,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 //================================================    
     class Task extends SwingWorker<Void, Void> {
 
-        BeamProfile beamProfile;
+        BeamProfile bp;
         
         Task(BeamProfile bp) {
-            beamProfile = bp;
+            this.bp = bp;
         }
     
         /**
@@ -924,263 +894,278 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
          */
         @Override
         public Void doInBackground() {
-            while(!beamProfile.flag_stop) {
+            while(!bp.flag_stop) {
                 // If input was changed
-                if(beamProfile.flag_in) {
+                if(bp.flag_in) {
                     // Reset flag
-                    beamProfile.flag_in = false;
-                /*
+                    bp.flag_in = false;
+    /*
                     // Close input file
                     in_fid = CloseFile(in_fid);
                     // Delete ADAMs
                     DeleteADAMs;
                     // Create ADAMs
                     adams = CreateADAMs;
-                */    
+    */    
                 }
                 
                 // If output was changed
-                if(beamProfile.flag_out) {
+                if(bp.flag_out) {
                     // Reset flag
-                    beamProfile.flag_out = false;
-                /*
+                    bp.flag_out = false;
+    /*
                     // If writing to output is enabled
-                    if get(hCbOut,'Value') == get(hCbOut,'Max')
-			out_fid = CloseFile(out_fid);
-	
+                    if (get(hCbOut,'Value') == get(hCbOut,'Max')) {
+                        // Close fout
+                        out_fid = CloseFile(out_fid);
 			// Open new output file
 			outFileName = LogFileName(ProgNameShort, 'txt');
 			outFile = [outFilePath, outFileName];
 			out_fid = fopen(outFile, 'at+', 'n', 'windows-1251');
-			if out_fid < 0
-				printl('Output file %s open error\n', outFileName);
-				% Disable output writing
-				set(hCbOut,'Value', get(hCbOut,'Min'));
-			else
-				set(hTxtOut,  'String', outFileName);
-				printl('Output file %s has been opened\n', outFile);
-			end
-                    end
-                */
+			if (out_fid < 0) {
+                            System.out.printf('Output file //s open error\n', outFileName);
+                            // Disable output writing
+                            set(hCbOut,'Value', get(hCbOut,'Min'));
+                        }
+                        else {
+                            set(hTxtOut,  'String', outFileName);
+                            System.out.printf('Output file //s has been opened\n', outFile);
+			}
+                    }
+    */
                 }
                 
-                /*
-	% If Start was pressed
-	if get(hBtn1, 'Value') == get(hBtn1, 'Max')
-		c = clock;
 
-		% Change output file every hour
-		if flag_hour && c(4) ~= c0(4)
-			c0 = c;
+                // If Start was pressed
+                if (bp.jToggleButton1.isSelected()) {
+                    Date c = new Date();
+                
+                    // Change output file every hour
+                    if (flag_hour && (c.getHours() != c0.getHours())) {
+                        c0 = c;
 			flag_out = true;
-		end
-			
-		% Faded profiles - refresh every fpdt seconds
-		if abs(c(6) - c1(6)) < fpdt
-			fpi = fpi - 1;
-		else
-			fpi(1:end-1) = fpi(2:end);
-			fpi(end) = nx;
-			c1 = c;
-		end
-		
-	%% Read data from ADAMs
- 		cr = clock;
-		[t3, ai3] = ADAM4118_read(adams(1).port, adams(1).addr);
-		[t4, ai4] = ADAM4118_read(adams(2).port, adams(2).addr);
-		[t2, ai2] = ADAM4118_read(adams(3).port, adams(3).addr);
-		
-		temp = data(nx, :);
-		temp(1) = datenum(cr);
-		temp(2:9) = t3(1:8);
-		temp(10:17) = t4(1:8);
-		temp(18:25) = t2(1:8);
-		
-		% If temperature readings == 0 then use previous value
-		ind = find(temp(1:17) == 0);
-		temp(ind) = data(nx, ind);
+                    }
 
-		%% Save line with data to output file If log writing is enabled
-		if get(hCbOut, 'Value') == get(hCbOut, 'Max') && out_fid > 0
-			% Separator is "; "
-			sep = '; ';
-			% Write time HH:MM:SS.SS
-			fprintf(out_fid, ['%02.0f:%02.0f:%05.2f' sep], c2(4), c2(5), c2(6));
-			% Data output format
-			fmt = '%+09.4f';
-			% Write data array
-			fprintf(out_fid, [fmt sep], temp(2:end-1));
-			% Write last value with NL instead of sepearator
-			fprintf(out_fid, [fmt '\n'], temp(end));
-		end
+                
+                    // Faded profiles - refresh every fpdt seconds
+                    if (Math.abs(c.getSeconds() - c1.getSeconds()) < fpdt) {
+                        for(int i = 0; i < fpi.length; i++) {
+                            fpi[i] = fpi[i] - 1;
+                        }
+                    }
+                    else {
+                        for(int i = 0; i < fpi.length-1; i++) {
+                            fpi[i] = fpi[i+1];
+                        }
+                        fpi[fpi.length - 1] = nx;
+                        c1 = c;
+                    }
 		
-	%% Shift data array
-		data(1:nx-1, :) = data(2:nx, :);
-		% Fill last data point
-		data(nx, :) = temp;
-	%% Shift marker
-		mi = mi - 1;
-		if mi < 1
+                    // Read data from ADAMs
+                    Date cr = new Date();
+/*
+                    [t3, ai3] = ADAM4118_read(adams(1).port, adams(1).addr);
+                    [t4, ai4] = ADAM4118_read(adams(2).port, adams(2).addr);
+                    [t2, ai2] = ADAM4118_read(adams(3).port, adams(3).addr);
+		
+                    temp = data(nx, :);
+                    temp(1) = datenum(cr);
+                    temp(2:9) = t3(1:8);
+                    temp(10:17) = t4(1:8);
+                    temp(18:25) = t2(1:8);
+		
+                    // If temperature readings == 0 then use previous value
+                    ind = find(temp(1:17) == 0);
+                    temp(ind) = data(nx, ind);
+
+                    // Save line with data to output file If log writing is enabled
+                    if get(hCbOut, 'Value') == get(hCbOut, 'Max') && out_fid > 0
+                        // Separator is "; "
+                        sep = '; ';
+                        // Write time HH:MM:SS.SS
+                        fprintf(out_fid, ['//02.0f://02.0f://05.2f' sep], c2(4), c2(5), c2(6));
+                        // Data output format
+                        fmt = '//+09.4f';
+                        // Write data array
+                        fprintf(out_fid, [fmt sep], temp(2:}-1));
+                        // Write last value with NL instead of sepearator
+                        fprintf(out_fid, [fmt '\n'], temp(}));
+                    }
+		
+                    // Shift data array
+                    data(1:nx-1, :) = data(2:nx, :);
+                    // Fill last data point
+                    data(nx, :) = temp;
+                    // Shift marker
+                    mi = mi - 1;
+                    if mi < 1
 			[~, mi] = max(current);
-		end
-		mi1 = max(mi - mw, 1);
-		mi2 = min(mi + mw, nx);
+                    }
+                    mi1 = max(mi - mw, 1);
+                    mi2 = min(mi + mw, nx);
 
-	%% Calculate minimum values
-		if max(dmin) <= 0
-			% First reading, fill arrays with defaults
+                    // Calculate minimum values
+                    if max(dmin) <= 0
+			// First reading, fill arrays with defaults
 			dmin = data(nx, :);
 			for ii = 1:nx-1
-				data(ii, :) = data(nx, :);
-			end
-		else
-			% Calculate minimum
+                            data(ii, :) = data(nx, :);
+			}
+                    }
+                    else {
+			// Calculate minimum
 			dmin = min(data);
-		end
+                    }
 		
-	%% Update data traces for trn(:) channels
-		for ii = 1:numel(trn)
+                    // Update data traces for trn(:) channels
+                    for ii = 1:numel(trn)
 			set(trh(ii), 'Ydata', data(:, trn(ii)));
-		end
+                    }
 		
-	%% Determine index for targeting traces
-		[v1, v2] = max(data(mi1:mi2, tpn));
-		[~, v3] = max(v1);
-		tpnm = v2(v3) + mi1;
-		tpn2 = tpnm + tpw;
-		if tpn2 > nx
+                    // Determine index for targeting traces
+                    [v1, v2] = max(data(mi1:mi2, tpn));
+                    [~, v3] = max(v1);
+                    tpnm = v2(v3) + mi1;
+                    tpn2 = tpnm + tpw;
+                    if tpn2 > nx {
 			tpn2 = nx;
 			tpn1 = nx - 2*tpw - 1;
-		else
+                    }
+                    else {
 			tpn1 = tpnm - tpw;
-			if tpn1 < 1
-				tpn1 = 1;
-				tpn2 = 2*tpw + 2;
-			end
-		end
+			if tpn1 < 1 {
+                            tpn1 = 1;
+                            tpn2 = 2*tpw + 2;
+			}
+                    }
 		
-		% Determine beam durationi from targeting traces
-		if (tpn1 > 1) && (tpn2 < nx)
+                    // Determine beam durationi from targeting traces
+                    if (tpn1 > 1) && (tpn2 < nx) {
 			[v1, v2] = max(data(tpn1:tpn2, tpn));
 			[d1, v3] = max(v1);
 			d2 = min(data(tpn1:tpn2, tpn(v3)));
 			d3 = d2+(d1-d2)*0.5;
 			d4 = find(data(tpn1:tpn2, tpn(v3)) > d3) + tpn1;
-			if numel(d4) > 1
-				cdt = etime(datevec(data(d4(end), 1)), datevec(data(d4(1), 1)));
-				if ~isMax(hCbDuration)
-					% Replase with calculated value 
-					set(hEdDuration, 'String', sprintf('%4.2f', cdt));
-					duration = cdt;
-				end
-			end
-		end
+			if numel(d4) > 1 {
+                            cdt = etime(datevec(data(d4(}), 1)), datevec(data(d4(1), 1)));
+                            if ~isMax(hCbDuration) {
+                                // Replase with calculated value 
+                                set(hEdDuration, 'String', sprintf('//4.2f', cdt));
+                                duration = cdt;
+                            }
+			}
+                    }
 		
-		% Update targeting traces
-		for ii = 1:numel(tpn)
+                    // Update targeting traces
+                    for ii = 1:numel(tpn) {
 			set(tph(ii), 'Ydata', data(:, tpn(ii))-dmin(tpn(ii)));
 			set(hAxes4, 'XLimMode', 'manual', 'XLim', [tpn1, tpn2]);
 			set(tph1(ii), 'Xdata', tpn1:tpn2);
 			set(tph1(ii), 'Ydata', data(tpn1:tpn2, tpn(ii))-dmin(tpn(ii)));
-		end
+                    }
 
-		% Update acceleration grid traces
-		for ii = 1:numel(agn)
+                    // Update acceleration grid traces
+                    for ii = 1:numel(agn) {
 			set(agh(ii), 'Ydata', smooth(data(:, agn(ii)), 20)-dmin(agn(ii)));
-		end
+                    }
 		
-		% Calculate and plot equivalent current
-		% Calculate Delta T
-		deltat = data(:, bctout)-data(:, bctin)-dmin(bctout)+dmin(bctin);  % C
-		deltat = smooth(deltat,30);
-		% Calculate measured flow
-		cflow = data(:, bcflowchan);
-		cflow(cflow <= 0.001) = 0.001;
-		cflow = smooth(cflow,30);
-		cflow = cflow*bcv2flow;
-		if isMax(hCbFlow)
+                    // Calculate and plot equivalent current
+                    // Calculate Delta T
+                    deltat = data(:, bctout)-data(:, bctin)-dmin(bctout)+dmin(bctin);  // C
+                    deltat = smooth(deltat,30);
+                    // Calculate measured flow
+                    cflow = data(:, bcflowchan);
+                    cflow(cflow <= 0.001) = 0.001;
+                    cflow = smooth(cflow,30);
+                    cflow = cflow*bcv2flow;
+                    if isMax(hCbFlow) {
 			cflow(:) = flow;
-		else
-			set(hEdFlow, 'String', sprintf('%5.2f', cflow(end)));
-		end
-		current = deltat.*cflow*Q/voltage;  %mA
+                    }
+                    else {
+			set(hEdFlow, 'String', sprintf('//5.2f', cflow(})));
+                    }
+                    current = deltat.*cflow*Q/voltage;  //mA
 		
-		% Calculate current by intergal 
-		[bcmax, ind] = max(current);
-		bcw = mw;   % Intergation window is 2*bcw+1 points
-		ind = mi;
-		i2 = ind + bcw;
-		if i2 > nx
-			 i2 = nx;
-			 i1 = nx -2*bcw-1;
-		else
-			i1 = ind - bcw;
-			if i1 < 1
-				i1 = 1;
-				i2 = 2*bcw+1;
-			end
-		end
-		if (i1 > 1) && (i2 < nx)
+                    // Calculate current by intergal 
+                    [bcmax, ind] = max(current);
+                    bcw = mw;   // Intergation window is 2*bcw+1 points
+                    ind = mi;
+                    i2 = ind + bcw;
+                    if (i2 > nx) {
+                        i2 = nx;
+                        i1 = nx -2*bcw-1;
+                    }
+                    else {
+                        i1 = ind - bcw;
+			if (i1 < 1) {
+                            i1 = 1;
+                            i2 = 2*bcw+1;
+			}
+                    }
+                    if ((i1 > 1) && (i2 < nx)) {
 			ctotal = sum(current(i1:i2));
 			cdt = etime(datevec(data(i2, 1)), datevec(data(i1, 1)));
 			ctotal = ctotal - (current(i1)+current(i2))/2*(2*bcw);
 			cdt1 = cdt/(2*bcw);
-			cbd = duration;   % sec Beam duration
+			cbd = duration;   // sec Beam duration
 			cti = ctotal*cdt1/cbd;
-			set(hTxtCurrent, 'String', sprintf('Current %5.1f mA', cti));
-		end
+			set(hTxtCurrent, 'String', sprintf('Current //5.1f mA', cti));
+                    }
 
-		set(bcmaxh, 'String', sprintf('%5.1f mA', bcmax));
-		set(bcch, 'String', sprintf('%5.1f mA', current(end)));
-		set(bch, 'Ydata', current - min(current));
-		set(mh, 'Xdata', i1:i2);
-		set(mh, 'Ydata', current(i1:i2) - min(current));
+                    set(bcmaxh, 'String', sprintf('//5.1f mA', bcmax));
+                    set(bcch, 'String', sprintf('//5.1f mA', current(})));
+                    set(bch, 'Ydata', current - min(current));
+                    set(mh, 'Xdata', i1:i2);
+                    set(mh, 'Ydata', current(i1:i2) - min(current));
 		
-		% Calculate profiles prof1 - vertical and prof2 - horizontal
-		prof1 = data(nx, p1range) - dmin(p1range);
-		prof2 = data(nx, p2range) - dmin(p2range);
-		% Calculate maximal profile
-		[dmax, imax] = max(data(:, p1range));
-		[~, immax] = max(dmax);
-		prof1max  = data(imax(immax), p1range) - dmin(p1range);
-		prof2max  = data(imax(immax), p2range) - dmin(p2range);
-		if max(prof1max) < 1
-			prof1max(:)  = 1;
-		end
-		if max(prof1max) > max(prof1max1)
+                    // Calculate profiles prof1 - vertical and prof2 - horizontal
+                    prof1 = data(nx, p1range) - dmin(p1range);
+                    prof2 = data(nx, p2range) - dmin(p2range);
+                    // Calculate maximal profile
+                    [dmax, imax] = max(data(:, p1range));
+                    [~, immax] = max(dmax);
+                    prof1max  = data(imax(immax), p1range) - dmin(p1range);
+                    prof2max  = data(imax(immax), p2range) - dmin(p2range);
+                    if (max(prof1max) < 1) {
+			prof1max(:) = 1;
+                    }
+                    
+                    if (max(prof1max) > max(prof1max1)) {
 			prof1max1  = prof1max;
-		end
+                    }
 		
-		% Plot profiles
-		% Plot current vertical profile
-		set(prof1h, 'Ydata',  prof1);
+                    // Plot profiles
+                    // Plot current vertical profile
+                    set(prof1h, 'Ydata',  prof1);
 		
-		% Plot current horizontal profile
-		set(prof2h, 'Ydata',  prof2);
+                    // Plot current horizontal profile
+                    set(prof2h, 'Ydata',  prof2);
 		
-		% Plot faded profiles
-		for ii = 1:numel(fpi)
+                    // Plot faded profiles
+                    for (ii = 1:numel(fpi)) {
 			prof1  = data(fpi(ii), p1range) - dmin(p1range);
 			set(fph(ii), 'Ydata',  prof1);
-		end
+                    }
 			
-		% Plot max1 profile
-		if get(hCbMax1Prof, 'Value') == get(hCbMax1Prof, 'Max')
+                    // Plot max1 profile
+                    if (get(hCbMax1Prof, 'Value') == get(hCbMax1Prof, 'Max')) {
 			set(prof1max1h, 'Ydata',  prof1max1);
-		end
+                    }
 			
-		% Plot max profile
-		set(prof1maxh, 'Ydata',  prof1max);
-		set(prof2maxh, 'Ydata',  prof2max);
-		
-		% Refresh Figure
-		drawnow
-	else
-		% Refresh Figure
-		drawnow
-	end
-                */
-            }
+                    // Plot max profile
+                    set(prof1maxh, 'Ydata',  prof1max);
+                    set(prof2maxh, 'Ydata',  prof2max);
+                    
+                    // Refresh Figure
+                    drawnow
+                }
+                else {
+                    // Refresh Figure
+                    drawnow
+                }
+*/
+                    }
+                }
             return null;
         }
 
@@ -1189,8 +1174,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
          */
         @Override
         public void done() {
-            //taskOutput.append("Done!\n");
+            //taskOutput.app}("Done!\n");
         }
     }
-
 }

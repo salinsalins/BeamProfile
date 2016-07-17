@@ -1,13 +1,8 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
  */
 package binp.nbi.beamprofile;
 
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortTimeoutException;
@@ -18,10 +13,7 @@ import jssc.SerialPortTimeoutException;
  */
 public class ADAM {
     //Class for ADAM4xxx series devices
-//    SerialPort	ports;
-    private static final int addr_max = 127;
-    private static final int addr_min = 0;
-    private static final String MsgIdent = "ADAM";
+
     SerialPort port;
     int addr = -1;
     
@@ -29,140 +21,110 @@ public class ADAM {
     long to_r = 0;
     long to_w = 0;
 
-    String response = "";
-    String outstr = "";
-    int timeout = 200;
+    String last_command = "";
+    String last_response = "";
+
+    int timeout = 500;
     int to_min = 200;
     int to_max = 2000;
+    int to_retries = 3;
     boolean toAuto = true;
     double to_fp = 2.0;
     double to_fm = 1.0/2.0;
 
     boolean to_susp = false;
     long to_susp_start = 0;
-    long to_susp_duration = 3000;
-
-    long to_tic = 0;
-    long to_toc = 10000;
-    int to_count = 0;
-    int to_countmax = 2;
-    boolean to_susp = false;
-		
-    boolean set_addr_strict = true;
-    int set_addr_retries = 3;
-
-    boolean read_rest = false;
-    int retries = 0;
+    long to_susp_duration = 5000;
 
     String name = "";
     String firmware = "";
     String serial = "";
 		
-    String last_command = "";
-    String last_response = "";
-    int last_count = 0;
-    String last_msg = "";
-    List<String> msg = new LinkedList<>();
-		
-    boolean log = false;
+    boolean log = true;
 
-    // Default constructor
-    ADAM() {
-        last_msg = "Default constructor";
-    }
-    ADAM(SerialPort comport, int addr) {
-        String msgIdent = this.MsgIdent + ":constructor";
+    ADAM (SerialPort comport, int addr) {
+
+/*
+        String[] ports = SerialPortList.getPortNames();
+        String portName;
+        if(ports.length > 0){
+            portName = ports[0];
+        }
+
+        SerialPort newPort = new SerialPort("COM6");
+        newPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8, 
+                SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+	newPort.openPort();
+*/
+
         try {
-            isvalidport(comport);
-            port = comport;
-            isvalidaddr(addr);
-            if (isaddrattached()) {
-                System.out.println(msgIdent + "Address is in use.");
-            }
-            this.addr = addr;
-            attach_addr();
-            //obj.set_addr;
+            setPort(comport);
+            setAddr(addr);
+
             name = read_name();
             firmware = read_firmware();
             serial = read_serial();
-            // Check if created object is valid
-            valid();
+
         }
-        catch (Exception ME) {
+        catch (Exception ex) {
             if (log) {
-                System.out.printf("//s\n", ME.getMessage());
+                System.out.printf("%s\n", ex.getMessage());
+                ex.printStackTrace();
             }
-            throw(ME);
         }
     }
-		
+
+    void setPort(SerialPort serialPort) throws SerialPortException {
+        port = serialPort;
+        if (!serialPort.isOpened()) serialPort.openPort();
+    }
+    
+    void setPort(String portName) throws SerialPortException {
+        SerialPort newPort = new SerialPort(portName);
+        newPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8, 
+                SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+        setPort(newPort);
+    }
+
+    void setBaudRate(int baud) throws SerialPortException {
+        port.setParams(baud, SerialPort.DATABITS_8, 
+                SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+    }
+    
+    void setAddr(int address) throws ADAMException {
+        addr = -1;
+        if (address < 0 || address > 127) {
+            throw(new ADAMException("Wrong address " + address));
+        }
+        addr = address;
+    }
+
     void delete() {
-        try {
-            //temp = obj.detach_addr;
-            addr = -1;
-            last_msg = "Deleted";
-            name = "";
-            firmware = "";
-            serial = "";
-        }
-        catch (Exception ME) {
-            last_msg = "Delete " + ME.getMessage();
-        }
+        addr = -1;
+        name = "";
+        firmware = "";
+        serial = "";
     }
 
     boolean detach_addr() {
-        boolean status = false;
-        try {
-            if (port != null) {
-                //boolean index = port.usedAddr.indexOf(addr);
-                //port.usedAddr.remove(index);
-                status = true;
-            }
-            else {
-                System.out.println("Wrong COM port");
-            }
-        }
-        catch (Exception ME) {
-            if (true /*nargout < 1*/) {
-                System.out.println("Wrong COM port");
-                throw(ME);
-            }
-        }
-        return status;
+        addr = -1;
+        return true;
     }
 
     boolean attach_addr() {
-        boolean status = false;
-            try {
-                isvalidaddr();
-                detach_addr();
-                port.usedAddr.add(addr);
-                status = true;
-            }
-            catch (Exception ME) {
-                if (true /*nargout < 1*/) {
-                    throw(ME);
-                }
-            }
-        return status;
+        return true;
     }
 
-    boolean isvalidport(SerialPort comport) {
-        if (comport.isOpened()) {
-            last_msg = "Invalid COM port.";
-            System.out.println(last_msg);
-            return false;
-        }
+    boolean isvalidport(SerialPort comport) throws SerialPortException {
+        if (!comport.isOpened()) return comport.openPort();
         return true;
     }		
-    boolean isvalidport() {
+    boolean isvalidport() throws SerialPortException {
         return isvalidport(port);
     }
 
     boolean isvalidaddr(int address) {
-        if (address < addr_min || address > addr_max) {
-            last_msg = "Invalid address.";
-            System.out.println(last_msg);
+        if (address < 0 || address > 127) {
             return false;
         }
         return true;
@@ -181,14 +143,13 @@ public class ADAM {
     }
 		
     boolean isinitialized() {
-        if (name == null || serial == null || "".equals(name) || "".equals(serial)) {
-            last_msg = "Module is not initialized.";
+        if (name == null || "".equals(name)) {
             return false;
         }
         return true;
     }
 		
-    boolean valid() {
+    boolean valid() throws SerialPortException {
         isvalidport();
         isvalidaddr();
         isaddrattached();
@@ -197,39 +158,44 @@ public class ADAM {
     }
 
     boolean reconnect() {
-        long now = new Date().getTime();
-        if ((now - to_tic) > to_toc) {
-            try {
-                String oldname = name;
-                to_tic = now;
-                String newname = read_name();
-                if (newname.equals(oldname)) {
-                    to_count = 0;
-                    return true;
-                } else {
-                    System.out.println("Module name mismatch during reconnect.");
-                    return false;
-                }
-            }
-            catch (Exception ME) {
-                to_susp = true;
-                to_tic = now;
+        if (isSuspended()) return false;
+        try {
+            if (!port.isOpened()) port.openPort();
+            String newName = read_name();
+            if (newName.equals(name)) {
+                return true;
+            } else {
+                System.out.println("Module name mismatch during reconnect.");
+                return false;
             }
         }
-        return false;
+        catch (Exception ME) {
+            return false;
+        }
     }
 
-    boolean send_command(String command) throws SerialPortException {
+    boolean send_command(String command) {
         // Send command to ADAM module
+        if (isSuspended()) return false;
+
+        command = command.trim();
+        if (!command.substring(command.length()-2).equals("\n")) command += "\n";
+
         boolean status = false;
-//        reconnect();
         last_command = command;
         to_w = -1;
-        if (!port.isOpened()) return false;
-        // Clear com port buffer;
-        port.readString();
+
         long start = (new Date()).getTime();
-        status = port.writeString(command + "\n");
+        try {
+            // Clear com port buffer;
+            port.readString();
+            
+            // Write command
+            status = port.writeString(command);
+        }
+        catch (Exception ex) {
+            ex.printStackTrace();
+        }
         to_w = (new Date()).getTime() - start;
         if (log) {
             System.out.printf("COMMAND: %s\n" + command);
@@ -237,32 +203,45 @@ public class ADAM {
         return status;
     }
 
-    boolean read_response() {
-        // Read response form GENESIS module
-        response = "";
-        msg.clear();
+    String read_response() {
+        // Read response form ADAM module
+        String resp = "";
+        last_response = "";
+        if (isSuspended()) return resp;
 
         // Perform n reties to read response
-        int n = retries;
+        int n = to_retries;
         while (n-- >= 0) {
             to_r = -1;
             try {
-                response = readResponse(port, timeout);
+                resp = readResponse(port, timeout);
                 decreaseTimeout();
-                return true;
+                last_response = resp;
+                return resp;
             }
             catch (Exception ex) {
                 increaseTimeout();
             }
         }
-        increaseTimeout();
         to_susp_start = (new Date()).getTime();
         to_susp = true;
-        return false;
+        resp = "";
+        last_response = resp;
+        return resp;
     }
-
+    
+    boolean isSuspended() {
+        if (!to_susp) return false;
+        long now = new Date().getTime();
+        if ((now - to_susp_start) >= to_susp_duration) {
+            to_susp = false;
+            return false;
+        }
+        return true;
+    }
+            
     private String readResponse(SerialPort port, int timeout)  
-            throws SerialPortException, SerialPortTimeoutException, ADAMTimeoutException {
+            throws SerialPortException, SerialPortTimeoutException, ADAMException {
         byte[] b;
         StringBuilder sb = new StringBuilder();
         long startTime = System.currentTimeMillis();
@@ -273,7 +252,7 @@ public class ADAM {
                 return sb.toString();
             sb.append(b[0]);
         }
-        throw new ADAMTimeoutException(timeout);
+        throw new ADAMException(timeout);
     }
 
     void increaseTimeout() {
@@ -287,190 +266,104 @@ public class ADAM {
         int newto = (int) (to_fm * timeout);
         timeout = (newto < to_min) ? to_min: newto;
     }
-
-    boolean set_addr() {
-        return true;
-    }
-    
-    boolean execute(String command) {
+  
+    String execute(String command) {
         // Send command and read response form ADAM
-        boolean status = false;
         try {
             send_command(command);
-            status = read_response();
-            return status;
+            return read_response();
         }
         catch (Exception ME) {
-            //printl("//s\n", ME.message);
-            status = false;
-        }
-        return status;
-    }
-
-    boolean execute_format(String fmt) {
-        // Execute command for ADAM address with format string fmt
-        boolean status = false;
-        try {
-            String cmd = String.format(fmt, addr);
-            execute(cmd);
-            status = isok(response);
-        }
-        catch (Exception ME) {
-        }
-        return status;
-    }
-		
-    boolean isok(String instr) {
-        boolean status = false;
-        outstr = "";
-        if (instr.length() > 3) {
-            if (instr.substring(0, 2).equals(String.format("!%02X", addr))) {
-                status = true;
-                outstr = instr.substring(3);
-            }
-        }
-        return status;
-    }
-    
-    boolean read_name() {
-        // Read Module Name.  Command: $AAM
-        return execute_format("$%02XM");
-    }
-		
-    boolean read_serial() {
-          response = "not implemented";
-        return true;
-    }
-		
-    boolean read_firmware() {
-        // Read Module Firware Version.  Command: $AAF
-        return execute_format("$//02XF");
-    }
-
-    String read_str() {
-        // Compose command to Read All Channels  #AA
-        String command = sprintf("#//02X", addr);
-        execute(command);
-        return outstr;
-    }
-		
-    String read_str(int chan) {
-        if ((chan < 0) || (chan > 8)) 
             return "";
-        // Compose command to Read One Channel  #AAN
-        String command = String.printf("#//02X//1X", addr, chan);
-        execute(command);
-        return outstr;
+        }
     }
 
-    function [data, n] = read(obj, chan){
-        data = [];
-        n = 0;
-        if nargin <= 1
-            outstr = read_str(obj);
-        else
-            outstr = read_str(obj, chan);
-        }
-        [data, n] = sscanf(outstr(2:}), "//f");
+    public String read_name() {
+        // Read Module Name.  Command: $AAM
+        return execute(String.format("$%02XM", addr));
     }
 		
-    function status = write(obj, command, param)
-        status = false;
-        if nargin >= 3
-            if isnumeric(param)
-                cmd = sprintf("//s //g", command, param);
-            elseif isa(param, "char")
-                cmd = [command, " ", param];
-            else
-                cmd = command;
+    public String read_serial() {
+          return "Not implemented";
+    }
+		
+    String read_firmware() {
+        // Read Module Firware Version.  Command: $AAF
+        return execute(String.format("$%02XF", addr));
+    }
+
+    double read(int chan) {
+        if ((chan < 0) || (chan > 8)) 
+            return -8888.8; //Float.NaN
+        try {
+            // Compose command to Read One Channel  #AAN
+            String command = String.format("#%02X%1X", addr, chan);
+            String resp = execute(command);
+            if (!resp.substring(0,1).equals(">"))
+                throw new ADAMException("Wrong reading response.");
+            return Float.parseFloat(resp.substring(1));
         }
-        else
-            cmd = command;
+        catch (ADAMException | NumberFormatException ex) {
+            return -8888.8;
         }
-        try
-            obj.s}_command(cmd);
-            resp = obj.read_response;
-            if strcmpi(resp, "OK")
-                status = true;
-            else
-                System.out.println(["Unexpected response. " command, " -> ", resp]);
+    }
+		
+    double[] read() {
+        double[] data = {-8888.8};
+        try {
+            // Compose command to Read All Channels  #AA
+            String command = String.format("#%02X", addr);
+            String resp = execute(command);
+            if (!resp.substring(0,1).equals(">"))
+                throw new ADAMException("Wrong reading response.");
+
+            int n = resp.length();
+            if (n < 8)
+                throw new ADAMException("Wrong reading response.");
+            data = new double[(n-1)/7];
+            for (int i = 1; i < data.length; i++) {
+                data[i] = -8888.8;
             }
-        catch ME
-        //printl("//s\n", ME.message);
-            if nargout < 1
-            rethrow(ME);
+            int j = 0; 
+            for (int i = 1; i < n; i+=7) {
+                String str = resp.substring(i, i+6);
+                data[j++] = Float.parseFloat(str);
+            }
+            return data;
+        }
+        catch (ADAMException | NumberFormatException ex) {
+            return data;
         }
     }
-}
 		
-    
-
-/*
-classdef ADAM < handle
-	//{
-	a=instrhwinfo("serial");
-	ports = instrfind;
-	if numel(ports) > 0 
-		fclose(ports);
-		delete(ports);
-	}
-	cp = serial("COM6");
-	set(cp, "BaudRate", 38400, "DataBits", 8, "StopBits", 1);
-	set(cp, "Terminator", "CR");
-	set(cp, "Timeout", 1);
-	fopen(cp);
-	//}
-    methods
+    boolean write(String command, int param) throws SerialPortException {
+        String cmd = String.format("%s %d", command, param);
+            send_command(cmd);
+            String resp = read_response();
+            if ("OK".equals(resp)) {
+                return true;
+            }
+            else{
+                System.out.println("Unexpected response. " + cmd + " -> " + resp);
+                return false;
+            }
+    }
 		
-		function [value, status] = read_value(obj, command)
-			// Read Module Firmware Version
-			try
-				valuetxt = obj.read(command);
-				[value, status] = sscanf(valuetxt, "//g");
-				if status == 1
-					status = true;
-					return
-				else
-					System.out.println(["Read Value error form ", command, " " , valuetxt]);
-				}
-			catch ME
-				value = [];
-				status = false;
-				//printl("//s\n", ME.message);
-				if nargout < 2
-					rethrow(ME);
-				}
-			}
-		}
+//************************************************************
+    public class ADAMException extends Exception {
 
-//}	
-	}
-}
-
-
-
-    */
-    
-
-
-//*************************************
-    public class ADAMTimeoutException extends Exception {
-
-        private final int timeoutValue;
-
-        public ADAMTimeoutException(int timeoutValue) {
-            super("ADAM operation timeout " + timeoutValue + " ms.");
-            this.timeoutValue = timeoutValue;
+        public ADAMException(int timeout) {
+            super("ADAM operation timeout " + timeout + " ms.");
         }
 
-        public ADAMTimeoutException() {
-            super("ADAM operation timeout.");
-            this.timeoutValue = 0;
+        public ADAMException(String str) {
+            super("ADAM exception: " + str + ".");
         }
 
-        public int getTimeoutValue(){
-            return timeoutValue;
+        public ADAMException() {
+            super("ADAM exception.");
         }
     }
+//************************************************************
 
 }

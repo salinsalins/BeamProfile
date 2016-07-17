@@ -375,16 +375,7 @@ printl('%s Version %s Stopped.\n', ProgName, ProgVersion);
 		end
 	end
 	
-	function [t, ai] = ADAM4118_read(cp_obj, adr)
-		ai = ADAM4118_readstr(cp_obj, adr);
-		[t, n] = sscanf(ai(2:end), '%f');
-		if n < 8
-			t(1:8) = 0;
-			printl('ADAM %02X %s\n', adr, ai);
-		end
-		t(t == 888888) = 0;
-	end
-		
+  		
 	function result = ADAM4118_readstr(cp_obj, adr)
 		result = '';
 		if (adr < 0) || (adr > 255) 

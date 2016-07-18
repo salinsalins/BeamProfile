@@ -48,6 +48,8 @@ import java.net.*;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.LogRecord;
 import javax.swing.JToggleButton;
 import net.wimpi.modbus.*;
 import net.wimpi.modbus.msg.*;
@@ -188,6 +190,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         addWindowListener(this);
         initComponents();
         
+        logger.addHandler(new ConsoleHandler() {
+            @Override
+            public void publish(LogRecord record) {
+                jTextArea3.append(record.getMessage());
+                jTextArea3.append("\n");
+            }
+        });
+        
         String[] ports = SerialPortList.getPortNames();
         for(String port : ports){
             jComboBox1.addItem(port);
@@ -321,6 +331,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jCheckBox2 = new javax.swing.JCheckBox();
         jTextField7 = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
+        jPanel8 = new javax.swing.JPanel();
+        jLabel19 = new javax.swing.JLabel();
+        jButton4 = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jTextArea3 = new javax.swing.JTextArea();
+        jComboBox5 = new javax.swing.JComboBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Calorimeter Beam Profile Plotter");
@@ -570,6 +586,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
             jButton2.setText("...");
 
+            jCheckBox2.setSelected(true);
             jCheckBox2.setText("Write to File: ");
 
             jTextField7.setText("D:\\");
@@ -682,6 +699,55 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 );
 
                 jTabbedPane1.addTab("Config", jPanel7);
+
+                jLabel19.setText("Log Level:");
+
+                jButton4.setText("Clear Log");
+                jButton4.setFocusTraversalPolicyProvider(true);
+                jButton4.addActionListener(new java.awt.event.ActionListener() {
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        jButton4ActionPerformed(evt);
+                    }
+                });
+
+                jTextArea3.setColumns(20);
+                jTextArea3.setRows(5);
+                jScrollPane1.setViewportView(jTextArea3);
+
+                jComboBox5.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "SEVERE", "WARNING", "INFO", "CONFIG", "FINE", "FINER", "FINEST", "OFF", "ALL" }));
+                jComboBox5.setToolTipText("");
+
+                org.jdesktop.layout.GroupLayout jPanel8Layout = new org.jdesktop.layout.GroupLayout(jPanel8);
+                jPanel8.setLayout(jPanel8Layout);
+                jPanel8Layout.setHorizontalGroup(
+                    jPanel8Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel8Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(jScrollPane1)
+                        .addContainerGap())
+                    .add(jPanel8Layout.createSequentialGroup()
+                        .add(20, 20, 20)
+                        .add(jLabel19)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jComboBox5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 118, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 122, Short.MAX_VALUE)
+                        .add(jButton4)
+                        .add(42, 42, 42))
+                );
+                jPanel8Layout.setVerticalGroup(
+                    jPanel8Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel8Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(jPanel8Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jLabel19)
+                            .add(jButton4)
+                            .add(jComboBox5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 75, Short.MAX_VALUE)
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 535, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                );
+
+                jTabbedPane1.addTab("Log", jPanel8);
 
                 org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
                 getContentPane().setLayout(layout);
@@ -806,6 +872,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             logger.log(Level.SEVERE, "Exception", ex);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        jTextArea3.setText("");
+    }//GEN-LAST:event_jButton4ActionPerformed
     
     private static int count = 0;
     private static Date lastDate = new Date();
@@ -883,6 +953,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
     private javax.swing.JButton jButton5;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox2;
@@ -890,6 +961,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JComboBox jComboBox3;
     private javax.swing.JComboBox jComboBox4;
+    private javax.swing.JComboBox jComboBox5;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -900,6 +972,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JLabel jLabel16;
     private javax.swing.JLabel jLabel17;
     private javax.swing.JLabel jLabel18;
+    private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
@@ -915,6 +988,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
+    private javax.swing.JPanel jPanel8;
+    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
@@ -931,6 +1006,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea2;
+    private javax.swing.JTextArea jTextArea3;
     private javax.swing.JTextField jTextField5;
     private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField7;

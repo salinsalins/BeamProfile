@@ -339,6 +339,25 @@ public class ADAM {
         }
     }
 		
+    public static double[] doubleFromString(String str) {
+        int n = str.length();
+        double[] data = new double[(n-1)/7];
+        for (int i = 1; i < data.length; i++) {
+            data[i] = -8888.8;
+        }
+        int j = 0; 
+        for (int i = 1; i < n; i+=7) {
+            try {
+                data[j] = Double.parseDouble(str.substring(i, 7));
+            }
+            catch (NumberFormatException ex) {
+                data[j] = -8888.8;
+            }
+            j++;
+        }
+        return data;
+    }
+
     public double[] read() {
         double[] data = {-8888.8};
         try {
@@ -347,26 +366,16 @@ public class ADAM {
             String resp = execute(command);
             if (!resp.substring(0,1).equals(">"))
                 throw new ADAMException("Wrong reading response.");
-
-            int n = resp.length();
-            if (n < 8)
+            data = doubleFromString(resp);
+            if (data.length != 8)
                 throw new ADAMException("Wrong reading response.");
-            data = new double[(n-1)/7];
-            for (int i = 1; i < data.length; i++) {
-                data[i] = -8888.8;
-            }
-            int j = 0; 
-            for (int i = 1; i < n; i+=7) {
-                String str = resp.substring(i, i+6);
-                data[j++] = Float.parseFloat(str);
-            }
             return data;
         }
         catch (ADAMException | NumberFormatException ex) {
             return data;
         }
     }
-		
+
     public boolean write(String command, int param) throws SerialPortException {
         String cmd = String.format("%s %d", command, param);
             send_command(cmd);

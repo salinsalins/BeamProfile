@@ -58,7 +58,9 @@ import net.wimpi.modbus.util.*;
 
 public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     static final Logger logger = Logger.getLogger(BeamProfile.class.getName());
-
+    
+    String ProgNameShort = "BeamProfile";
+    
     ChartPanel chart1;
     ChartPanel chart2;
     JPanel chartPanel;
@@ -71,12 +73,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     String progVersion = "10";
     String iniFileName = "BeamProfile" + progVersion + ".ini";
 
-    // Output file
-    String outFileName = LogFileName(progNameShort, "txt");
-    String outFilePath = "D:\\";
-    String outFile = outFilePath + outFileName;
-    int out_fid = -1;
-
     // COM Port
     SerialPort	cp_obj;
     boolean cp_open = false;
@@ -85,11 +81,18 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int	addr2 = 4;
     int	addr3 = 2;
     int	addr4 = 5;
+
     // Input file
     String in_file_name = "ADAMTempLog_2014-12-30-13-00-00.txt";
     String in_file_path = ".\\2014-12-30\\";
     File in_file = new File(in_file_path, in_file_name);
     BufferedReader in_fid = null;
+
+    // Output file
+    String outFileName = LogFileName(progNameShort, "txt");
+    String outFilePath = "D:\\";
+    File outFile = new File(outFilePath, outFileName);
+    BufferedWriter out_fid = null;
 
     // Logical flags
     boolean flag_stop = false;
@@ -315,6 +318,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jTextField6 = new javax.swing.JTextField();
         jCheckBox1 = new javax.swing.JCheckBox();
         jButton2 = new javax.swing.JButton();
+        jCheckBox2 = new javax.swing.JCheckBox();
+        jTextField7 = new javax.swing.JTextField();
+        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Calorimeter Beam Profile Plotter");
@@ -564,142 +570,159 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
             jButton2.setText("...");
 
-            org.jdesktop.layout.GroupLayout jPanel7Layout = new org.jdesktop.layout.GroupLayout(jPanel7);
-            jPanel7.setLayout(jPanel7Layout);
-            jPanel7Layout.setHorizontalGroup(
-                jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(jPanel7Layout.createSequentialGroup()
-                    .addContainerGap()
-                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(jPanel7Layout.createSequentialGroup()
-                            .add(jLabel9)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 57, Short.MAX_VALUE)
+            jCheckBox2.setText("Write to File: ");
+
+            jTextField7.setText("D:\\");
+
+                jButton3.setText("...");
+
+                org.jdesktop.layout.GroupLayout jPanel7Layout = new org.jdesktop.layout.GroupLayout(jPanel7);
+                jPanel7.setLayout(jPanel7Layout);
+                jPanel7Layout.setHorizontalGroup(
+                    jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel7Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jPanel7Layout.createSequentialGroup()
+                                .add(jLabel9)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(jLabel2)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(18, 18, 18)
+                                .add(jLabel8)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(jPanel7Layout.createSequentialGroup()
+                                .add(jLabel10)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(jLabel11)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jComboBox2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(18, 18, 18)
+                                .add(jLabel12)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(jPanel7Layout.createSequentialGroup()
+                                .add(jLabel13)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(jLabel14)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jComboBox3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(18, 18, 18)
+                                .add(jLabel15)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                                .add(jLabel16)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .add(jLabel17)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jComboBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .add(18, 18, 18)
+                                .add(jLabel18)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                                .add(jCheckBox1)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                .add(jTextField6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 252, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jButton2))
+                            .add(jPanel7Layout.createSequentialGroup()
+                                .add(jCheckBox2)
+                                .add(18, 18, 18)
+                                .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 252, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jButton3)))
+                        .addContainerGap())
+                );
+                jPanel7Layout.setVerticalGroup(
+                    jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel7Layout.createSequentialGroup()
+                        .add(24, 24, 24)
+                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel2)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(18, 18, 18)
+                            .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jLabel8)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(jPanel7Layout.createSequentialGroup()
-                            .add(jLabel10)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel9))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel11)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jComboBox2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(18, 18, 18)
+                            .add(jComboBox2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jLabel12)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(jPanel7Layout.createSequentialGroup()
-                            .add(jLabel13)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel10))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel14)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jComboBox3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(18, 18, 18)
+                            .add(jComboBox3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jLabel15)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
-                            .add(jLabel16)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel13))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel17)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jComboBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(18, 18, 18)
+                            .add(jComboBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jLabel18)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                            .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jLabel16))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jTextField6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jCheckBox1)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jTextField6)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                            .add(jButton2)))
-                    .addContainerGap())
-            );
-            jPanel7Layout.setVerticalGroup(
-                jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(jPanel7Layout.createSequentialGroup()
-                    .add(24, 24, 24)
-                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(jLabel2)
-                        .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jLabel8)
-                        .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jLabel9))
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(jLabel11)
-                        .add(jComboBox2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jLabel12)
-                        .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jLabel10))
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(jLabel14)
-                        .add(jComboBox3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jLabel15)
-                        .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jLabel13))
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(jLabel17)
-                        .add(jComboBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jLabel18)
-                        .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jLabel16))
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(jTextField6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jCheckBox1)
-                        .add(jButton2))
-                    .addContainerGap(499, Short.MAX_VALUE))
-            );
+                            .add(jButton2))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jCheckBox2)
+                            .add(jButton3))
+                        .addContainerGap(465, Short.MAX_VALUE))
+                );
 
-            jTabbedPane1.addTab("Config", jPanel7);
+                jTabbedPane1.addTab("Config", jPanel7);
 
-            org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
-            getContentPane().setLayout(layout);
-            layout.setHorizontalGroup(
-                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(layout.createSequentialGroup()
-                    .addContainerGap()
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(layout.createSequentialGroup()
-                            .add(10, 10, 10)
-                            .add(jToggleButton1)
-                            .add(18, 18, 18)
-                            .add(jButton5))
+                org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+                getContentPane().setLayout(layout);
+                layout.setHorizontalGroup(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(layout.createSequentialGroup()
+                                .add(10, 10, 10)
+                                .add(jToggleButton1)
+                                .add(18, 18, 18)
+                                .add(jButton5))
+                            .add(jPanel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jTabbedPane1)
+                        .addContainerGap())
+                );
+                layout.setVerticalGroup(
+                    layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(layout.createSequentialGroup()
+                        .add(6, 6, 6)
                         .add(jPanel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                    .add(jTabbedPane1)
-                    .addContainerGap())
-            );
-            layout.setVerticalGroup(
-                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(layout.createSequentialGroup()
-                    .add(6, 6, 6)
-                    .add(jPanel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(4, 4, 4)
-                    .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(jToggleButton1)
-                        .add(jButton5))
-                    .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .add(layout.createSequentialGroup()
-                    .addContainerGap()
-                    .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                    .addContainerGap())
-            );
+                        .add(4, 4, 4)
+                        .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                        .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jToggleButton1)
+                            .add(jButton5))
+                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addContainerGap())
+                );
 
-            jToggleButton1.getAccessibleContext().setAccessibleDescription("");
+                jToggleButton1.getAccessibleContext().setAccessibleDescription("");
 
-            pack();
-        }// </editor-fold>//GEN-END:initComponents
+                pack();
+            }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
@@ -859,8 +882,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JButton jButton5;
     private javax.swing.JCheckBox jCheckBox1;
+    private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JComboBox jComboBox3;
@@ -908,6 +933,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTextField jTextField5;
     private javax.swing.JTextField jTextField6;
+    private javax.swing.JTextField jTextField7;
     private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
     
@@ -1107,19 +1133,31 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     public void DeleteADAMs() {}
 
-    public Reader CloseFile(Reader fidin) {
+    public void CloseFile(Closeable file) {
         try {
             // Close file if it was opened
-            fidin.close();
+            file.close();
             System.out.printf("File has been closed.\n");
         } catch (IOException ex) {
             Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return fidin;
     }
 
-    public String ADAM4118_readstr(int ind) 
-    {
+    public void openOutputFile() {
+        outFileName = LogFileName(ProgNameShort, "txt");
+        outFile = new File(outFilePath, outFileName);
+        try {
+            out_fid = new BufferedWriter(new FileWriter(outFile));
+            jTextField7.setText(outFileName);
+            System.out.printf("Output file %s has been opened\n", outFileName);
+        } catch (IOException ex) {
+            // Disable output writing
+            jCheckBox2.setSelected(false);
+            Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public String ADAM4118_readstr(int ind) {
         if ((ind < 0) || (ind > 255)) 
             return "";
 	
@@ -1367,10 +1405,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 if(bp.flag_in) {
                     // Reset flag
                     bp.flag_in = false;
-                    
                     // Close input file
                     bp.CloseFile(in_fid);
-                    //in_fid = CloseFile(in_fid);
                     // Delete ADAMs
                     bp.DeleteADAMs();
                     // Create ADAMs
@@ -1381,29 +1417,16 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 if(bp.flag_out) {
                     // Reset flag
                     bp.flag_out = false;
-    /*
+   
                     // If writing to output is enabled
-                    if (get(hCbOut,"Value") == get(hCbOut,"Max")) {
-                        // Close fout
-                        out_fid = CloseFile(out_fid);
-			// Open new output file
-			outFileName = LogFileName(ProgNameShort, "txt");
-			outFile = [outFilePath, outFileName];
-			out_fid = fopen(outFile, "at+", "n", "windows-1251");
-			if (out_fid < 0) {
-                            System.out.printf("Output file //s open error\n", outFileName);
-                            // Disable output writing
-                            set(hCbOut,"Value", get(hCbOut,"Min"));
-                        }
-                        else {
-                            set(hTxtOut,  "String", outFileName);
-                            System.out.printf("Output file //s has been opened\n", outFile);
-			}
+                    if (jCheckBox2.isSelected()) {
+                        // Close output file
+                        CloseFile(out_fid);
+                        // Open new output file
+                        openOutputFile();
                     }
-    */
                 }
                 
-
                 // If Start was pressed
                 if (bp.jToggleButton1.isSelected()) {
                     Date c = new Date();
@@ -1413,7 +1436,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         c0 = c;
 			flag_out = true;
                     }
-
                 
                     // Faded profiles - refresh every fpdt seconds
                     if (Math.abs(c.getSeconds() - c1.getSeconds()) < fpdt) {
@@ -1431,6 +1453,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 		
                     // Read data from ADAMs
                     Date cr = new Date();
+                    
+//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
 /*
                     [t3, ai3] = ADAM4118_read(adams(1).port, adams(1).addr);
                     [t4, ai4] = ADAM4118_read(adams(2).port, adams(2).addr);
@@ -1632,6 +1656,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     drawnow
                 }
 */
+// </editor-fold> 
                     }
                 }
             return null;

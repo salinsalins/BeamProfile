@@ -561,10 +561,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             ReadInputRegistersRequest req = new ReadInputRegistersRequest(ref, count);
             req.setUnitID(unitid);
             //req.setHeadless();
-            System.out.System.out.printfn(req);
-            System.out.System.out.printfn(req.getDataLength());
-            System.out.System.out.printfn(req.getFunctionCode());
-            System.out.System.out.printfn(req.getHexMessage());
+            System.out.println(req);
+            System.out.println(req.getDataLength());
+            System.out.println(req.getFunctionCode());
+            System.out.println(req.getHexMessage());
 
             //byte[] requestData = {32};
             //requestData[1]=(byte)0x80;
@@ -582,10 +582,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             //5. Execute the transaction
             trans.execute();
             ReadInputRegistersResponse res = (ReadInputRegistersResponse) trans.getResponse();
-            System.out.System.out.printfn(res);
-            System.out.System.out.printfn(res.getDataLength());
-            System.out.System.out.printfn(res.getFunctionCode());
-            System.out.System.out.printfn(res.getHexMessage());
+            System.out.println(res);
+            System.out.println(res.getDataLength());
+            System.out.println(res.getFunctionCode());
+            System.out.println(res.getHexMessage());
             jTextArea1.setText("");
             for (int n = 0; n < res.getWordCount(); n++) {
                 System.out.printf("//2d - //2$d //2$H\n", n, res.getRegisterValue(n));
@@ -866,40 +866,25 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
 //=================================================
 
-//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
-/*
+    ADAM[] adams;
+    int[] addr = {6, 7, 8, 9};
 
-%% Local functions
+    ADAM[] = CreateADAMs() {
+    // Create ADAM objects
+        //si = get(hPm1, 'Value');
+        //st = get(hPm1, 'String');
+        //portname = char(st(si));
+        //addr[1] = sscanf(get(hEd4, 'String'),'%d');
+        //addr[2] = sscanf(get(hEd5, 'String'),'%d');
+        //addr[3] = sscanf(get(hEd8, 'String'),'%d');
+        //addr[4] = sscanf(get(hEd9, 'String'),'%d');
 
-    function DeleteADAMs
-        try
-            n = numel(adams);
-            if n > 0
-                for ida=1:n
-                    try
-                        delete(adams(ida));
-                    catch
-                    end
-                end
-            end
-        catch
-        end
-    end
-
-    function result = CreateADAMs
-    % Create ADAM objects
-        si = get(hPm1, 'Value');
-        st = get(hPm1, 'String');
-        portname = char(st(si));
-        addr(1) = sscanf(get(hEd4, 'String'),'%d');
-        addr(2) = sscanf(get(hEd5, 'String'),'%d');
-        addr(3) = sscanf(get(hEd8, 'String'),'%d');
-        addr(4) = sscanf(get(hEd9, 'String'),'%d');
-
-        result(1:numel(addr)) = ADAM;
-        %  Attach to com ports
-        for ica=1:numel(addr)
-            if strncmpi(portname, 'COM', 3)
+        ADAM result[] = new ADAM[addr.length];
+        String portname = "";
+        
+        //  Attach to com ports
+        for (int ica = 0; ica < addr.length; ica++) {
+            if ("COM".equals(portname.substring(0,2))) {
                 try
                     ports = findopencom(portname);
                     % If COM port does not exist
@@ -943,7 +928,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 catch ME
                     printl('%s\n', ME.message);
                 end
-            end
+            }
             if strncmpi(portname, 'FILE', 4)
                 % Open input file
                 in_file = [in_file_path, in_file_name];
@@ -959,8 +944,30 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     cbStart(hBtn1);
                 end
             end
+        }
+    }
+
+
+//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
+/*
+
+%% Local functions
+
+    function DeleteADAMs
+        try
+            n = numel(adams);
+            if n > 0
+                for ida=1:n
+                    try
+                        delete(adams(ida));
+                    catch
+                    end
+                end
+            end
+        catch
         end
     end
+
 
     function fidout = CloseFile(fidin)
         % Close file if if was opened

@@ -107,8 +107,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int ny = 4*8+1;   // number of registered temperatures + time
     // Preallocate arrays
     double[][] data = new double[nx][ny];   // traces
-    double[][] dmin = new double[1][ny];    // minimal temperatures
-    double[][] dmax = new double[1][ny];    // maximal temperatures
+    double[] dmin = new double[ny];         // minimal temperatures
+    double[] dmax = new double[ny];         // maximal temperatures
 	
     // Profile arrays and their plot handles
     int[] p1range = {1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13}; // Channels for vertical profile
@@ -877,39 +877,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jTextArea3.setText("");
     }//GEN-LAST:event_jButton4ActionPerformed
     
-    private static int count = 0;
-    private static Date lastDate = new Date();
-    public void mark() {
-        Date date = new Date();
-        System.out.printf("//d //tT.//2$tL //d\n", count++, date, date.getTime()-lastDate.getTime());
-        lastDate= date;
-    }
-    public void mark(int c) {
-        count = c;
-        mark();
-    }
-    public void mark(String s) {
-        System.out.printf("//s ", s);
-        mark();
-    }
-    
-    public static String readURL(String urlName) throws MalformedURLException, IOException {
-        String result = "";
-        // Create a URL 
-        URL urlToRead = new URL(urlName);
-        // Read and the URL characterwise
-        // Open the streams
-        InputStream inputStream = urlToRead.openStream();
-        int c = inputStream.read();
-        while (c != -1) {
-            //System.out.print((char) c);
-            result += (char) c;
-            c = inputStream.read();
-        }
-        inputStream.close();
-        return result;
-    }
-
     /**
      * @param args the command line arguments
      */
@@ -1014,6 +981,31 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     // End of variables declaration//GEN-END:variables
     
     //</editor-fold>
+
+    @Override
+    public void windowClosed(WindowEvent e) {
+        saveConfig();
+        //System.exit(0);
+    }
+    @Override
+    public void windowOpened(WindowEvent e) {
+        restoreConfig();
+    }
+    @Override
+    public void windowClosing(WindowEvent e) {
+    }
+    @Override
+    public void windowIconified(WindowEvent e) {
+    }
+    @Override
+    public void windowDeiconified(WindowEvent e) {
+    }
+    @Override
+    public void windowActivated(WindowEvent e) {
+    }
+    @Override
+    public void windowDeactivated(WindowEvent e) {
+    }
 
     private void restoreConfig() {
 //        String logFileName = null;
@@ -1121,31 +1113,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 //        }
     }
 
-    @Override
-    public void windowClosed(WindowEvent e) {
-        saveConfig();
-        //System.exit(0);
-    }
-    @Override
-    public void windowOpened(WindowEvent e) {
-        restoreConfig();
-    }
-    @Override
-    public void windowClosing(WindowEvent e) {
-    }
-    @Override
-    public void windowIconified(WindowEvent e) {
-    }
-    @Override
-    public void windowDeiconified(WindowEvent e) {
-    }
-    @Override
-    public void windowActivated(WindowEvent e) {
-    }
-    @Override
-    public void windowDeactivated(WindowEvent e) {
-    }
-
 //=================================================
     static String prefix, ext;
     public static String LogFileName(String arg, String... strs) {
@@ -1169,12 +1136,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
 //=================================================
 
-    ADAM[] adams;
+    Adam4118[] adams;
     int[] addr = {6, 7, 8, 9};
     String[] ports = new String[4];
 
     public void CreateADAMs() {
-    // Create ADAM objects
+        // Create ADAM objects
         addr = new int[4];
         addr[0] = (int) jSpinner7.getValue();
         addr[1] = (int) jSpinner8.getValue();
@@ -1186,30 +1153,21 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         ports[2] = (String) jComboBox3.getSelectedItem();
         ports[3] = (String) jComboBox4.getSelectedItem();
         
-        if (jCheckBox1.isSelected()) {
-            // Open input file
-            in_file = new File(in_file_path, in_file_name);
-            try {
-                in_fid = new BufferedReader(new FileReader(in_file));
-                //set(hEd1, "String", in_file_name);
-                System.out.printf("Input file %s has been opened\n", in_file.getName());
-                return;
-            }
-            catch (Exception ex) {
-                System.out.printf("Input file open error\n");
-                in_fid = null;
-                return;
-            }
-        }
-
         for (int i = 0; i < addr.length; i++) {
-            adams[i] = new ADAM(ports[i], addr[i]);
+            adams[i] = new Adam4118(ports[i], addr[i]);
+            if (isReadFromFile()) {
+                // Open input file
+                adams[i].openFile(in_file_path, in_file_name);
+            }
         }
     }
 
-    public void DeleteADAMs() {}
+    public void DeleteADAMs() {
+        for (int i = 0; i < adams.length; i++) 
+            adams[i].closeFile();
+    }
 
-    public void CloseFile(Closeable file) {
+    public void closeFile(Closeable file) {
         try {
             // Close file if it was opened
             file.close();
@@ -1233,66 +1191,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
     }
 
-    public String ADAM4118_readstr(int ind) {
-        if ((ind < 0) || (ind > 255)) 
-            return "";
-	
-        if (jCheckBox1.isSelected()) 
-            return ReadFromFile(in_fid);
-        else
-            return ReadFromCOM(ind);
-    }
-
-    static String[] rffs;
-    static String[] rffd;
-    static int rffn = 0;
-    String ReadFromFile(BufferedReader fid)
-    {
-        if (rffn <= 0) 
-        {
-            // Read line from file
-            String line;
-            try {
-                line = fid.readLine();
-            } catch (IOException ex) {
-                try {
-                    fid.reset();
-                } catch (IOException ex1) {
-                }
-                Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, null, ex);
-                return "";
-            }
-            if (line == null)
-                return "";
-
-            rffs = line.split(";");
-            rffn = 1;
-        }
-        
-        StringBuilder result = new StringBuilder();
-        result.append("<");
-        String str;
-        for (int i = 0; i < 8; i++)
-        {
-            str = rffs[rffn++].trim();
-            result.append("+");
-            result.append(str);
-            if (str.length() < 6) 
-            {
-                result.append("000000".substring(0,6-str.length()));
-            }
-        }
-        if (rffn > 24)
-            rffn = 0;
-        return result.toString();
-        //pause(0.01);
-    }
-
-    String ReadFromCOM(int ind)
-    {
-        return adams[ind].execute(String.format("#%02X", adams[ind].addr));
-    }	
-
     void scroll_log(int h, String instr)
     {
     /*    
@@ -1303,6 +1201,39 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         s{numel(s)} = instr;
         set(h, "String", s);
     */
+    }
+
+    public boolean isWriteEnabled() {
+        return jCheckBox2.isSelected();
+    }
+
+    public boolean isReadFromFile() {
+        return jCheckBox1.isSelected();
+    }
+    
+    public double max(double[] array) {
+        double result = array[0];
+        for (double d: array)
+            result = Math.max(d, result);
+        return result;
+    }
+
+    public double min(double[] array) {
+        double result = array[0];
+        for (double d: array)
+            result = Math.min(d, result);
+        return result;
+    }
+
+    public double[] min(double[][] array) {
+        int nx = array.length;
+        int ny = array[0].length;
+        double[] result = new double[ny];
+        System.arraycopy(array[0], 0, result, 0, ny);
+        for (int j = 0; j < ny; j++)
+            for (int i = 0; i < nx; i++)
+                result[j] = Math.min(array[i][j], result[j]);
+        return result;
     }
 
 //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
@@ -1476,35 +1407,33 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
          */
         @Override
         public Void doInBackground() {
-            while(!bp.flag_stop) {
+            while(!flag_stop) {
                 // If input was changed
-                if(bp.flag_in) {
+                if(flag_in) {
                     // Reset flag
-                    bp.flag_in = false;
+                    flag_in = false;
                     // Close input file
-                    bp.CloseFile(in_fid);
-                    // Delete ADAMs
-                    bp.DeleteADAMs();
+                    DeleteADAMs();
                     // Create ADAMs
-                    bp.CreateADAMs();
+                    CreateADAMs();
                 }
                 
                 // If output was changed
-                if(bp.flag_out) {
+                if(flag_out) {
                     // Reset flag
-                    bp.flag_out = false;
+                    flag_out = false;
    
-                    // If writing to output is enabled
-                    if (jCheckBox2.isSelected()) {
+                    // If write to output is enabled
+                    if (isWriteEnabled()) {
                         // Close output file
-                        CloseFile(out_fid);
+                        closeFile(out_fid);
                         // Open new output file
                         openOutputFile();
                     }
                 }
                 
                 // If Start was pressed
-                if (bp.jToggleButton1.isSelected()) {
+                if (jToggleButton1.isSelected()) {
                     Date c = new Date();
                 
                     // Change output file every hour
@@ -1530,40 +1459,71 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     // Read data from ADAMs
                     Date cr = new Date();
                     
-//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
-/*
-                    [t3, ai3] = ADAM4118_read(adams(1).port, adams(1).addr);
-                    [t4, ai4] = ADAM4118_read(adams(2).port, adams(2).addr);
-                    [t2, ai2] = ADAM4118_read(adams(3).port, adams(3).addr);
-		
-                    temp = data(nx, :);
-                    temp(1) = datenum(cr);
-                    temp(2:9) = t3(1:8);
-                    temp(10:17) = t4(1:8);
-                    temp(18:25) = t2(1:8);
+                    double[] t3 = adams[0].readData();
+                    double[] t4 = adams[1].readData();
+                    double[] t2 = adams[3].readData();
+
+                    double[] temp = new double[data[0].length];
+                    System.arraycopy(data[nx-1], 0, temp, 0, temp.length);
+                    
+                    temp[0] = cr.getTime();
+                    System.arraycopy(t3, 0, temp, 1, 8);
+                    System.arraycopy(t4, 0, temp, 9, 8);
+                    System.arraycopy(t2, 0, temp, 17, 8);
 		
                     // If temperature readings == 0 then use previous value
-                    ind = find(temp(1:17) == 0);
-                    temp(ind) = data(nx, ind);
+                    for (int i = 0; i < temp.length; i++) {
+                        if (temp[i] == 0.0)
+                            temp[i] = data[nx-1][i];
+                    } 
 
                     // Save line with data to output file If log writing is enabled
-                    if get(hCbOut, "Value") == get(hCbOut, "Max") && out_fid > 0
-                        // Separator is "; "
-                        sep = "; ";
-                        // Write time HH:MM:SS.SS
-                        fprintf(out_fid, ["//02.0f://02.0f://05.2f" sep], c2(4), c2(5), c2(6));
-                        // Data output format
-                        fmt = "//+09.4f";
-                        // Write data array
-                        fprintf(out_fid, [fmt sep], temp(2:}-1));
-                        // Write last value with NL instead of sepearator
-                        fprintf(out_fid, [fmt "\n"], temp(}));
+                    if (isWriteEnabled() && (out_fid != null)) {
+                        try {
+                            // Write Time in milliseconds - not time HH:MM:SS.SS
+                            String str = String.format("%d; ", (long) temp[0]);
+                            out_fid.write(str, 0, str.length());
+                            // Data output format
+                            String fmt = "%+07.2f";
+                            // Separator is "; "
+                            String sep = "; ";
+                            // Write data array
+                            for (int i = 1; i < temp.length-1; i++) {
+                                str = String.format(fmt+sep, temp[i]);
+                                out_fid.write(str, 0, str.length());
+                            }
+                            // Write last value with NL instead of sepearator
+                            str = String.format(fmt+"\n", temp[temp.length-1]);
+                            out_fid.write(str, 0, str.length());
+                            out_fid.flush();
+                        } catch (IOException ex) {
+                            Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+
+                    // Shift data array
+                    for (int i = 0; i < data.length-1; i++) {
+                        data[i] = data[i+1];
+                    }
+                    // Fill last data point
+                    data[nx-1] = temp;
+
+                    // Calculate minimum values
+                    if (max(dmin) <= 0 ) {
+			// First reading, fill arrays with defaults
+                        System.arraycopy(data[nx-1], 0, dmin, 0, dmin.length);
+			for (int i = 0; i < data[0].length-1; i++) {
+                            System.arraycopy(data[data.length-1], 0, data[i], 0, dmin.length);
+                            //data(ii, :) = data(nx, :);
+			}
+                    }
+                    else {
+			// Calculate minimum
+			dmin = min(data);
                     }
 		
-                    // Shift data array
-                    data(1:nx-1, :) = data(2:nx, :);
-                    // Fill last data point
-                    data(nx, :) = temp;
+//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
+/*
                     // Shift marker
                     mi = mi - 1;
                     if mi < 1
@@ -1572,20 +1532,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     mi1 = max(mi - mw, 1);
                     mi2 = min(mi + mw, nx);
 
-                    // Calculate minimum values
-                    if max(dmin) <= 0
-			// First reading, fill arrays with defaults
-			dmin = data(nx, :);
-			for ii = 1:nx-1
-                            data(ii, :) = data(nx, :);
-			}
-                    }
-                    else {
-			// Calculate minimum
-			dmin = min(data);
-                    }
-		
-                    // Update data traces for trn(:) channels
+
+// Update data traces for trn(:) channels
                     for ii = 1:numel(trn)
 			set(trh(ii), "Ydata", data(:, trn(ii)));
                     }
@@ -1733,8 +1681,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 }
 */
 // </editor-fold> 
-                    }
                 }
+            }
             return null;
         }
 

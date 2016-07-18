@@ -35,11 +35,16 @@ public class Adam4118 extends ADAM {
     }
     
     public void openFile() {
-        try {
-            reader = new BufferedReader(new FileReader(file));
-        } catch (FileNotFoundException ex) {
-            reader = null;
-            Logger.getLogger(Adam4118.class.getName()).log(Level.WARNING, null, ex);
+        if (reader != null) {
+            try {
+                if (!file.canRead())
+                    throw new FileNotFoundException("File is unreadable.");
+                reader = new BufferedReader(new FileReader(file));
+                System.out.printf("Input file %s has been opened\n", file.getName());
+            } catch (FileNotFoundException ex) {
+                reader = null;
+                Logger.getLogger(Adam4118.class.getName()).log(Level.WARNING, null, ex);
+            }
         }
     }
     public void openFile(String fileName) {
@@ -52,11 +57,14 @@ public class Adam4118 extends ADAM {
     }
  
     public void closeFile() {
-        try {
-            reader.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Adam4118.class.getName()).log(Level.SEVERE, null, ex);
+        if (reader != null) {
+            try {
+                reader.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Adam4118.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
+        reader = null;
     }
 
     public String readString() {

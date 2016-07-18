@@ -1061,7 +1061,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         ports[2] = (String) jComboBox3.getSelectedItem();
         ports[3] = (String) jComboBox4.getSelectedItem();
         
-        ADAM result[] = new ADAM[addr.length];
         for (int i = 0; i < addr.length; i++) {
             adams[i] = new ADAM(ports[i], addr[i]);
         }

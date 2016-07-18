@@ -1224,7 +1224,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             result = Math.min(d, result);
         return result;
     }
-
     public double[] min(double[][] array) {
         int nx = array.length;
         int ny = array[0].length;

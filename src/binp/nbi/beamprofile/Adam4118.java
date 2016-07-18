@@ -5,19 +5,21 @@
  */
 package binp.nbi.beamprofile;
 
+import java.io.BufferedReader;
 import java.io.File;
+import jssc.SerialPort;
 
 /**
  *
  * @author sanin
  */
-public class Adam4118 {
-    int port;
-    int addr;
+public class Adam4118 extends ADAM {
     File file;
+    BufferedReader reader;
     
-    Adam4118() {
-        
+    Adam4118(SerialPort comport, int addr) 
+    {
+        super(comport, addr);
     }
     
 }

@@ -88,8 +88,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     // Input file
     String in_file_name = "ADAMTempLog_2014-12-30-13-00-00.txt";
     String in_file_path = ".\\2014-12-30\\";
-    String in_file = in_file_path + in_file_name;
-    int	in_fid = -1;
+    File in_file = new File(in_file_path, in_file_name);
+    BufferedReader in_fid = null;
 
     // Logical flags
     boolean flag_stop = false;
@@ -234,7 +234,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         for (int i = 0; i < fpi.length; i++) {
             fpi[i] = nx;
         }
-//    log_fid = fopen(logFileName, 'at+', 'n', 'windows-1251');
+//    log_fid = fopen(logFileName, "at+", "n", "windows-1251");
 //	if log_fid < 0
 //		log_fid = 1;
 //	}
@@ -312,6 +312,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jComboBox4 = new javax.swing.JComboBox();
         jLabel18 = new javax.swing.JLabel();
         jSpinner10 = new javax.swing.JSpinner();
+        jTextField6 = new javax.swing.JTextField();
+        jCheckBox1 = new javax.swing.JCheckBox();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Calorimeter Beam Profile Plotter");
@@ -555,131 +558,148 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         jSpinner10.setModel(new javax.swing.SpinnerNumberModel(3, 0, 127, 1));
 
-        org.jdesktop.layout.GroupLayout jPanel7Layout = new org.jdesktop.layout.GroupLayout(jPanel7);
-        jPanel7.setLayout(jPanel7Layout);
-        jPanel7Layout.setHorizontalGroup(
-            jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel7Layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jPanel7Layout.createSequentialGroup()
-                        .add(jLabel9)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 57, Short.MAX_VALUE)
+        jTextField6.setText("D:\\");
+
+            jCheckBox1.setText("Read From File: ");
+
+            jButton2.setText("...");
+
+            org.jdesktop.layout.GroupLayout jPanel7Layout = new org.jdesktop.layout.GroupLayout(jPanel7);
+            jPanel7.setLayout(jPanel7Layout);
+            jPanel7Layout.setHorizontalGroup(
+                jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(jPanel7Layout.createSequentialGroup()
+                    .addContainerGap()
+                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(jPanel7Layout.createSequentialGroup()
+                            .add(jLabel9)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 57, Short.MAX_VALUE)
+                            .add(jLabel2)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(18, 18, 18)
+                            .add(jLabel8)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(jPanel7Layout.createSequentialGroup()
+                            .add(jLabel10)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(jLabel11)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jComboBox2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(18, 18, 18)
+                            .add(jLabel12)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(jPanel7Layout.createSequentialGroup()
+                            .add(jLabel13)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(jLabel14)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jComboBox3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(18, 18, 18)
+                            .add(jLabel15)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                            .add(jLabel16)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .add(jLabel17)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jComboBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(18, 18, 18)
+                            .add(jLabel18)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                            .add(jCheckBox1)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jTextField6)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jButton2)))
+                    .addContainerGap())
+            );
+            jPanel7Layout.setVerticalGroup(
+                jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(jPanel7Layout.createSequentialGroup()
+                    .add(24, 24, 24)
+                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(jLabel2)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(18, 18, 18)
+                        .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(jLabel8)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(jPanel7Layout.createSequentialGroup()
-                        .add(jLabel10)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jLabel9))
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(jLabel11)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jComboBox2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(18, 18, 18)
+                        .add(jComboBox2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(jLabel12)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(jPanel7Layout.createSequentialGroup()
-                        .add(jLabel13)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jLabel10))
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(jLabel14)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jComboBox3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(18, 18, 18)
+                        .add(jComboBox3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(jLabel15)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(jPanel7Layout.createSequentialGroup()
-                        .add(jLabel16)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jLabel13))
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(jLabel17)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jComboBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(18, 18, 18)
+                        .add(jComboBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(jLabel18)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap())
-        );
-        jPanel7Layout.setVerticalGroup(
-            jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jPanel7Layout.createSequentialGroup()
-                .add(24, 24, 24)
-                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel2)
-                    .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel8)
-                    .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel9))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel11)
-                    .add(jComboBox2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel12)
-                    .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel10))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel14)
-                    .add(jComboBox3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel15)
-                    .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel13))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jLabel17)
-                    .add(jComboBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel18)
-                    .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jLabel16))
-                .addContainerGap(533, Short.MAX_VALUE))
-        );
+                        .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jLabel16))
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(jTextField6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jCheckBox1)
+                        .add(jButton2))
+                    .addContainerGap(499, Short.MAX_VALUE))
+            );
 
-        jTabbedPane1.addTab("Config", jPanel7);
+            jTabbedPane1.addTab("Config", jPanel7);
 
-        org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(10, 10, 10)
-                        .add(jToggleButton1)
-                        .add(18, 18, 18)
-                        .add(jButton5))
+            org.jdesktop.layout.GroupLayout layout = new org.jdesktop.layout.GroupLayout(getContentPane());
+            getContentPane().setLayout(layout);
+            layout.setHorizontalGroup(
+                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(layout.createSequentialGroup()
+                            .add(10, 10, 10)
+                            .add(jToggleButton1)
+                            .add(18, 18, 18)
+                            .add(jButton5))
+                        .add(jPanel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                    .add(jTabbedPane1)
+                    .addContainerGap())
+            );
+            layout.setVerticalGroup(
+                layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(layout.createSequentialGroup()
+                    .add(6, 6, 6)
                     .add(jPanel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jTabbedPane1)
-                .addContainerGap())
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(layout.createSequentialGroup()
-                .add(6, 6, 6)
-                .add(jPanel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .add(4, 4, 4)
-                .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(jToggleButton1)
-                    .add(jButton5))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .add(layout.createSequentialGroup()
-                .addContainerGap()
-                .add(jTabbedPane1)
-                .addContainerGap())
-        );
+                    .add(4, 4, 4)
+                    .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                    .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(jToggleButton1)
+                        .add(jButton5))
+                    .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .add(layout.createSequentialGroup()
+                    .addContainerGap()
+                    .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                    .addContainerGap())
+            );
 
-        jToggleButton1.getAccessibleContext().setAccessibleDescription("");
+            jToggleButton1.getAccessibleContext().setAccessibleDescription("");
 
-        pack();
-    }// </editor-fold>//GEN-END:initComponents
+            pack();
+        }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
@@ -694,11 +714,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             //ReadInputDiscretesRequest req = null; //the request
             //ReadInputDiscretesResponse res = null; //the response
             /* Variables for storing the parameters */
-            InetAddress addr = null; //the slave's address
+            InetAddress addr = null; //the slave"s address
             int port = Modbus.DEFAULT_PORT;
             int unitid = 1; //the unit identifier we will be talking to
             int ref = 0;    //the reference; offset where to start reading from
-            int count = 1;  //the number of DI's or AI's to read
+            int count = 1;  //the number of DI"s or AI"s to read
 
             //1. Setup the parameters
             port = (int) jSpinner1.getValue();
@@ -838,7 +858,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton5;
+    private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JComboBox jComboBox3;
@@ -885,6 +907,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JTextArea jTextArea1;
     private javax.swing.JTextArea jTextArea2;
     private javax.swing.JTextField jTextField5;
+    private javax.swing.JTextField jTextField6;
     private javax.swing.JToggleButton jToggleButton1;
     // End of variables declaration//GEN-END:variables
     
@@ -1048,7 +1071,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int[] addr = {6, 7, 8, 9};
     String[] ports = new String[4];
 
-    ADAM[] CreateADAMs() {
+    public void CreateADAMs() {
     // Create ADAM objects
         addr = new int[4];
         addr[0] = (int) jSpinner7.getValue();
@@ -1061,299 +1084,265 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         ports[2] = (String) jComboBox3.getSelectedItem();
         ports[3] = (String) jComboBox4.getSelectedItem();
         
+        if (jCheckBox1.isSelected()) {
+            // Open input file
+            in_file = new File(in_file_path, in_file_name);
+            try {
+                in_fid = new BufferedReader(new FileReader(in_file));
+                //set(hEd1, "String", in_file_name);
+                System.out.printf("Input file %s has been opened\n", in_file.getName());
+                return;
+            }
+            catch (Exception ex) {
+                System.out.printf("Input file open error\n");
+                in_fid = null;
+                return;
+            }
+        }
+
         for (int i = 0; i < addr.length; i++) {
             adams[i] = new ADAM(ports[i], addr[i]);
         }
+    }
 
-/*        
-        //  Attach to com ports
-        for (int ica = 0; ica < addr.length; ica++) {
-            if ("COM".equals(portname.substring(0,2))) {
-                try
-                    ports = findopencom(portname);
-                    % If COM port does not exist
-                    if isempty(ports)
-                        % Create new COM port
-                        cp = serial(portname);
-                        set(cp, 'BaudRate', 38400, 'DataBits', 8, 'StopBits', 1);
-                        set(cp, 'Terminator', 'CR');
-                        set(cp, 'Timeout', 1);
-                    else
-                        cp = ports(1);
-                        if get(cp, 'BaudRate') ~= 38400 || get(cp, 'DataBits') ~= 8 || get(cp, 'StopBits') ~= 1 
-                            error('COM port incompatible configuration');
-                        end
-                    end
-                    % Open COM port
-                    if ~strcmpi(cp.status, 'open')
-                        fopen(cp);
-                    end
-                    % If open is sucessfull, create and attach ADAM
-                    if strcmp(cp.status, 'open')
-                        result(ica) = ADAM(cp, addr(ica));
-                        result(ica).valid;
-                        printl('ADAM has been created %s addr %i\n', portname, addr(ica));
-                        cp_open = true;
-                    else
-                        cp_open = false;
-                        % Find FILE in combo box list
-                        for si = 1:numel(st)
-                            if strncmpi(st(val), 'FILE', 4)
-                                set(hPm1,'Value', si);
-                            end
-                        end
-                        cbInputPannel(hPm1);
-                        % Swith to stop state
-                        set(hBtn1, 'Value', get(hBtn1, 'Min'));
-                        cbStart(hBtn1);
+    public void DeleteADAMs() {}
 
-                        error('ADAM creation error %s addr %i', portname, addr(ica));
-                    end
-                catch ME
-                    printl('%s\n', ME.message);
-                end
-            }
-            if strncmpi(portname, 'FILE', 4)
-                % Open input file
-                in_file = [in_file_path, in_file_name];
-                in_fid = fopen(in_file);
-                if in_fid > 2
-                    set(hEd1, 'String', in_file_name);
-                    printl('Input file %s has been opened\n', in_file);
-                    break
-                else
-                    in_fid = -1;
-                    printl('Input file open error\n');
-                    set(hBtn1, 'Value', get(hBtn1, 'Min'));
-                    cbStart(hBtn1);
-                end
-            end
+    public Reader CloseFile(Reader fidin) {
+        try {
+            // Close file if it was opened
+            fidin.close();
+            System.out.printf("File has been closed.\n");
+        } catch (IOException ex) {
+            Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, null, ex);
         }
-*/
-        }
+        return fidin;
+    }
 
-
-//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
-/*
-
-%% Local functions
-
-    function DeleteADAMs
-        try
-            n = numel(adams);
-            if n > 0
-                for ida=1:n
-                    try
-                        delete(adams(ida));
-                    catch
-                    end
-                end
-            end
-        catch
-        end
-    end
-
-
-    function fidout = CloseFile(fidin)
-        % Close file if if was opened
-        if fidin > 0
-            status = fclose(fidin);
-            if status == 0
-                printl('File %d has been closed.\n', fopen(fidin));
-            end
-            fidout = -1;
-        end
-    end
+    public String ADAM4118_readstr(int ind) 
+    {
+        if ((ind < 0) || (ind > 255)) 
+            return "";
 	
-  		
-    function result = ADAM4118_readstr(cp_obj, adr)
-        result = '';
-        if (adr < 0) || (adr > 255) 
-            return
-        end
-	
-        if in_fid > 2
-            result = ReadFromFile(in_fid);
-            return;
+        if (jCheckBox1.isSelected()) 
+            return ReadFromFile(in_fid);
         else
-            if cp_open
-                result = ReadFromCOM(cp_obj, adr);
-            end
-        end
-    end
-		
-    function result = ReadFromFile(fid)
-        persistent rffs;
-        persistent rffn;
-        persistent rffd;
-        if isempty(rffn)
-            rffn = 0;
-        end
-        result = '';
-        if fid < 0
-            return
-        end
-        if rffn <= 0
-            rffs = fgetl(fid);
-            n = strfind(rffs, ';');
-            [rffd, rffn] = sscanf(rffs((n(1)+2):end), '%f; ');
-            cr1 = datevec([rffs(1:n(1)-1) 0], 'HH:MM:SS.FFF');
-            cr(3:6) = cr1(3:6);
-            if rffn < 24
-                rffd((rffn+1):24) = 0;
-            end
+            return ReadFromCOM(ind);
+    }
+
+    static String[] rffs;
+    static String[] rffd;
+    static int rffn = 0;
+    String ReadFromFile(BufferedReader fid)
+    {
+        if (rffn <= 0) 
+        {
+            // Read line from file
+            String line;
+            try {
+                line = fid.readLine();
+            } catch (IOException ex) {
+                try {
+                    fid.reset();
+                } catch (IOException ex1) {
+                }
+                Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, null, ex);
+                return "";
+            }
+            if (line == null)
+                return "";
+
+            rffs = line.split(";");
             rffn = 1;
-        end
-        result = ['<' sprintf('%+07.3f', rffd(rffn:rffn+7))];
-        rffn = rffn + 8;
-        if rffn > 24
+        }
+        
+        StringBuilder result = new StringBuilder();
+        result.append("<");
+        String str;
+        for (int i = 0; i < 8; i++)
+        {
+            str = rffs[rffn++].trim();
+            result.append("+");
+            result.append(str);
+            if (str.length() < 6) 
+            {
+                result.append("000000".substring(0,6-str.length()));
+            }
+        }
+        if (rffn > 24)
             rffn = 0;
-        end
-        if feof(fid)
-            frewind(fid);
-        end
-        %pause(0.01);
-    end
-		
-    function result = ReadFromCOM(cp, adr)
-        to_ctrl = true;
-        to_min = 0.5;
-        to_max = 2;
-        to_fp = 2;
-        to_fm = 3;
-        read_rest = true;
-        retries = 0;
-		
-        if (adr < 0) || (adr > 255)
-            return
-        end
-    	
-        % Compose command Read All Channels  #AA
-        command = ['#', sprintf('%02X', adr)];
-    		
-        % Send command to ADAM4118
-        tic;
-        fprintf(cp, '%s\n', command);
-        dt1 = toc;
-		
-        % Read response form ADAM4118
-        while retries > -1
-            retries = retries - 1;
-            tic;
-            [result, ~, msg] = fgetl(cp);
-            dt2 = toc;
-            read_error = ~strcmp(msg,  '');
-            if ~read_error
-                break
-            end
-            printl('ADAM Read error %d  "%s" %s\n', retries, result, msg);
-            if read_rest
-                [result1, ~, msg1] = fgetl(cp);
-                printl('ADAM Read rest  "%s" %s\n', result1, msg1);
-            end
-        end
-    		
-        % Correct timeout
-        dt = max(dt1, dt2);
-        if to_ctrl
-            if read_error
-                cp.timeout = min(to_fp*cp.timeout, to_max);
-                printl('ADAM Timeout+ %4.2f %4.2f\n', cp.timeout, dt);
-            else
-                if cp.timeout > to_min && cp.timeout > to_fm*dt
-                    cp.timeout = max(to_fm*dt, to_min);
-                    printl('ADAM Timeout- %4.2f %4.2f\n', cp.timeout, dt);
-                end
-            end
-        end
-    end
-		
-    function scroll_log(h, instr)
-        s = get(h, 'String');
+        return result.toString();
+        //pause(0.01);
+    }
+
+    String ReadFromCOM(int ind)
+    {
+        return adams[ind].execute(String.format("#%02X", adams[ind].addr));
+    }	
+
+    void scroll_log(int h, String instr)
+    {
+    /*    
+        s = get(h, "String");
         for i=2:numel(s)
             s{i-1} = s{i};
         end
         s{numel(s)} = instr;
-        set(h, 'String', s);
-    end
+        set(h, "String", s);
+    */
+    }
+
+//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
+/*
+%% Callback functions
+
+	function bdAxes3(h, ~)
+		cpoint = get(hAxes3, 'CurrentPoint');
+		mi = fix(cpoint(1,1));
+		mi1 = mi-mw;
+		if mi1 < 1
+			mi1 = 1;
+		end
+		mi2 = mi+mw;
+		if mi2 > nx
+			mi2 = nx;
+		end
+		[~, mi] = max(current(mi1:mi2));
+		mi = mi + mi1;
+	end
 	
-    function v = getVal(hObj)
-        v = get(hObj, 'Value');
-    end
+	function cbOutSelect(~, ~)
+		[file_name, file_path] = uiputfile([out_file_path LogFileName()], 'Save Log to File');
+		if ~isequal(file_name, 0)
+			out_file_path = file_path;
+            out_file_name = file_name;
+			out_file = [out_file_path, out_file_name];
+			set(hTxt2,  'String', out_file_name);
+			flag_out = true;
+		end
+	end
+
+	function cbInSelect(~, ~)
+		[file_name, file_path] = uigetfile([in_file_path in_file_name],'Read from File');
+		if ~isequal(file_name, 0)
+			in_file_path = file_path;
+			in_file_name = file_name;
+			in_file = [in_file_path, in_file_name];
+			set(hEd1, 'String', in_file_name);
+			flag_in = true;
+		end
+	end
+
+	function cbMax1Prof(hObj, ~)
+		if get(hObj, 'Value') == get(hObj, 'Min')
+			set(prof1max1h, 'Visible', 'off');
+		else
+			set(prof1max1h, 'Visible', 'on');
+		end
+	end
 	
-    function setMax(hObj)
-        set(hObj, 'Value', get(hObj, 'Max'));
-    end
+	function cbSplitOut(hObj, ~)
+		if get(hObj, 'Value') == get(hObj, 'Min')
+				flag_hour = false;
+		else
+				flag_hour = true;
+		end
+	end
 	
-    function setMin(hObj)
-        set(hObj, 'Value', get(hObj, 'Min'));
-    end
+	function cbInputPannel(~, ~)
+		flag_in = true;
+		value = get(hPm1, 'Value');
+		st = get(hPm1, 'String');
+		if strcmp(st(value), 'FILE');
+			set(hEd4, 'Visible', 'off');
+			set(hEd5, 'Visible', 'off');
+			set(hEd8, 'Visible', 'off');
+			set(hEd9, 'Visible', 'off');
+			set(hEd1, 'Visible', 'on');
+			set(hBtn3, 'Visible', 'on');
+		else
+			set(hEd4, 'Visible', 'on');
+			set(hEd5, 'Visible', 'on');
+			set(hEd8, 'Visible', 'on');
+			set(hEd9, 'Visible', 'on');
+			set(hEd1, 'Visible', 'off');
+			set(hBtn3, 'Visible', 'off');
+		end
+	end
+
+	function cbCb2(~, ~)
+		flag_out = true;
+	end
+ 
+	function cbStart(hObj, ~)
+		if get(hObj, 'Value') == get(hObj, 'Min')
+			set(hObj, 'String', 'Start');
+		else
+			set(hObj, 'String', 'Stop');
+			prof1max(:) = 1;
+		end
+	end
+
+	function cbBtn4(hObj, ~)
+		if get(hObj, 'Value') == get(hObj, 'Min')
+			set(hObj, 'String', 'Config');
+			set(hp3, 'Visible', 'on');
+			set(hpConf, 'Visible', 'off');
+		else
+			set(hObj, 'String', 'Log');
+			set(hp3, 'Visible', 'off');
+			set(hpConf, 'Visible', 'on');
+		end
+	end
 	
-    function v = isMax(hObj)
-        v = (get(hObj, 'Value') == get(hObj, 'Max'));
-    end
+	function cbTargeting(hObj, ~)
+		if get(hObj, 'Value') == get(hObj, 'Min')
+			set(hp4, 'Visible', 'on');
+			set(hp6, 'Visible', 'off');
+			set(hObj, 'String', 'Targeting');
+		else
+			set(hp4, 'Visible', 'off');
+			set(hp6, 'Visible', 'on');
+			set(hObj, 'String', 'Calorimeter');
+		end
+	end
 	
-    function v = isMin(hObj)
-        v = (get(hObj, 'Value') == get(hObj, 'Min'));
-    end
+	function FigCloseFun(~,~)
+		flag_stop = true;
+	end
+
+	function cbVoltage(~ ,~)
+		if isMax(hCbVoltage)
+			[v, n] = sscanf(get(hEdVoltage, 'String'), '%f');
+			if n >= 1
+				voltage = v(1);
+			else
+				set(hEdVoltage, 'String', sprintf('%4.1f', voltage));
+			end
+		end
+	end
 	
-    function v = isVal(hObj, val)
-        v = (get(hObj, 'Value') == val);
-    end
+	function cbFlow(~ ,~)
+		if isMax(hCbFlow)
+			[v, n] = sscanf(get(hEdFlow, 'String'), '%f');
+			if n >= 1
+				flow = v(1);
+			else
+				set(hEdFlow, 'String', sprintf('%4.1f', flow));
+			end
+		end
+	end
 	
-    function p = In(hObj, par)
-        p0 = get(hObj, 'Position');
-        if nargin < 2
-            par = [5, 5, p0(3)-10, p0(4)-10];
-        end
-        if numel(par) < 4
-            p = [par(1), par(1), p0(3)-2*par(1), p0(4)-2*par(1)];
-        else
-            if par(3) == 0 
-                par(3) = p0(3);
-            end
-            if par(4) == 0 
-                par(4) = p0(4);
-            end
-            p = [par(1), par(2), par(3)-2*par(1), par(4)-2*par(2)];
-        end
-    end
+	function cbDuration(h,~)
+		if isMax(hCbDuration)
+			[v, n] = sscanf(get(hEdDuration, 'String'), '%f');
+			if n >= 1
+				duration = v(1);
+			else
+				set(hEdDuration, 'String', sprintf('%4.1f', duration));
+			end
+		end
+	end
 	
-    function p = Right(hObj, par)
-        p0 = get(hObj, 'Position');
-        if nargin < 2
-            par = [5, 0, p0(3), p0(4)];
-        end
-        if numel(par) ~= 4
-            p = [p0(1)+p0(3)+5, p0(2), par(1), p0(4)];
-        else
-            if par(3) == 0 
-                par(3) = p0(3);
-            end
-            if par(4) == 0 
-                par(4) = p0(4);
-            end
-            p = [p0(1)+p0(3)+par(1), p0(2)+par(2), par(3), par(4)];
-        end
-    end
-	
-    function p = Top(hObj, par)
-        p0 = get(hObj, 'Position');
-        if nargin < 2
-            par = [0, 5, p0(3), p0(4)];
-        end
-        if numel(par) ~= 4
-            p = [p0(1), p0(2)+p0(4)+5, p0(3), par(1)];
-        else
-            if par(3) == 0 
-                par(3) = p0(3);
-            end
-            if par(4) == 0 
-                par(4) = p0(4);
-            end
-            p = [p0(1)+par(1), p0(2)+p0(4)+par(2), par(3), par(4)];
-        end
-    end
 
     
 */    
@@ -1380,12 +1369,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     bp.flag_in = false;
                     
                     // Close input file
-                    bp.closeInputFile();
+                    bp.CloseFile(in_fid);
                     //in_fid = CloseFile(in_fid);
                     // Delete ADAMs
-                    bp.deleteADAMs();
+                    bp.DeleteADAMs();
                     // Create ADAMs
-                    bp.adams = bp.createADAMs();
+                    bp.CreateADAMs();
                 }
                 
                 // If output was changed
@@ -1394,21 +1383,21 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     bp.flag_out = false;
     /*
                     // If writing to output is enabled
-                    if (get(hCbOut,'Value') == get(hCbOut,'Max')) {
+                    if (get(hCbOut,"Value") == get(hCbOut,"Max")) {
                         // Close fout
                         out_fid = CloseFile(out_fid);
 			// Open new output file
-			outFileName = LogFileName(ProgNameShort, 'txt');
+			outFileName = LogFileName(ProgNameShort, "txt");
 			outFile = [outFilePath, outFileName];
-			out_fid = fopen(outFile, 'at+', 'n', 'windows-1251');
+			out_fid = fopen(outFile, "at+", "n", "windows-1251");
 			if (out_fid < 0) {
-                            System.out.printf('Output file //s open error\n', outFileName);
+                            System.out.printf("Output file //s open error\n", outFileName);
                             // Disable output writing
-                            set(hCbOut,'Value', get(hCbOut,'Min'));
+                            set(hCbOut,"Value", get(hCbOut,"Min"));
                         }
                         else {
-                            set(hTxtOut,  'String', outFileName);
-                            System.out.printf('Output file //s has been opened\n', outFile);
+                            set(hTxtOut,  "String", outFileName);
+                            System.out.printf("Output file //s has been opened\n", outFile);
 			}
                     }
     */
@@ -1458,17 +1447,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     temp(ind) = data(nx, ind);
 
                     // Save line with data to output file If log writing is enabled
-                    if get(hCbOut, 'Value') == get(hCbOut, 'Max') && out_fid > 0
+                    if get(hCbOut, "Value") == get(hCbOut, "Max") && out_fid > 0
                         // Separator is "; "
-                        sep = '; ';
+                        sep = "; ";
                         // Write time HH:MM:SS.SS
-                        fprintf(out_fid, ['//02.0f://02.0f://05.2f' sep], c2(4), c2(5), c2(6));
+                        fprintf(out_fid, ["//02.0f://02.0f://05.2f" sep], c2(4), c2(5), c2(6));
                         // Data output format
-                        fmt = '//+09.4f';
+                        fmt = "//+09.4f";
                         // Write data array
                         fprintf(out_fid, [fmt sep], temp(2:}-1));
                         // Write last value with NL instead of sepearator
-                        fprintf(out_fid, [fmt '\n'], temp(}));
+                        fprintf(out_fid, [fmt "\n"], temp(}));
                     }
 		
                     // Shift data array
@@ -1498,7 +1487,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 		
                     // Update data traces for trn(:) channels
                     for ii = 1:numel(trn)
-			set(trh(ii), 'Ydata', data(:, trn(ii)));
+			set(trh(ii), "Ydata", data(:, trn(ii)));
                     }
 		
                     // Determine index for targeting traces
@@ -1529,7 +1518,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             cdt = etime(datevec(data(d4(}), 1)), datevec(data(d4(1), 1)));
                             if ~isMax(hCbDuration) {
                                 // Replase with calculated value 
-                                set(hEdDuration, 'String', sprintf('//4.2f', cdt));
+                                set(hEdDuration, "String", sprintf("//4.2f", cdt));
                                 duration = cdt;
                             }
 			}
@@ -1537,15 +1526,15 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 		
                     // Update targeting traces
                     for ii = 1:numel(tpn) {
-			set(tph(ii), 'Ydata', data(:, tpn(ii))-dmin(tpn(ii)));
-			set(hAxes4, 'XLimMode', 'manual', 'XLim', [tpn1, tpn2]);
-			set(tph1(ii), 'Xdata', tpn1:tpn2);
-			set(tph1(ii), 'Ydata', data(tpn1:tpn2, tpn(ii))-dmin(tpn(ii)));
+			set(tph(ii), "Ydata", data(:, tpn(ii))-dmin(tpn(ii)));
+			set(hAxes4, "XLimMode", "manual", "XLim", [tpn1, tpn2]);
+			set(tph1(ii), "Xdata", tpn1:tpn2);
+			set(tph1(ii), "Ydata", data(tpn1:tpn2, tpn(ii))-dmin(tpn(ii)));
                     }
 
                     // Update acceleration grid traces
                     for ii = 1:numel(agn) {
-			set(agh(ii), 'Ydata', smooth(data(:, agn(ii)), 20)-dmin(agn(ii)));
+			set(agh(ii), "Ydata", smooth(data(:, agn(ii)), 20)-dmin(agn(ii)));
                     }
 		
                     // Calculate and plot equivalent current
@@ -1561,7 +1550,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 			cflow(:) = flow;
                     }
                     else {
-			set(hEdFlow, 'String', sprintf('//5.2f', cflow(})));
+			set(hEdFlow, "String", sprintf("//5.2f", cflow(})));
                     }
                     current = deltat.*cflow*Q/voltage;  //mA
 		
@@ -1588,14 +1577,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 			cdt1 = cdt/(2*bcw);
 			cbd = duration;   // sec Beam duration
 			cti = ctotal*cdt1/cbd;
-			set(hTxtCurrent, 'String', sprintf('Current //5.1f mA', cti));
+			set(hTxtCurrent, "String", sprintf("Current //5.1f mA", cti));
                     }
 
-                    set(bcmaxh, 'String', sprintf('//5.1f mA', bcmax));
-                    set(bcch, 'String', sprintf('//5.1f mA', current(})));
-                    set(bch, 'Ydata', current - min(current));
-                    set(mh, 'Xdata', i1:i2);
-                    set(mh, 'Ydata', current(i1:i2) - min(current));
+                    set(bcmaxh, "String", sprintf("//5.1f mA", bcmax));
+                    set(bcch, "String", sprintf("//5.1f mA", current(})));
+                    set(bch, "Ydata", current - min(current));
+                    set(mh, "Xdata", i1:i2);
+                    set(mh, "Ydata", current(i1:i2) - min(current));
 		
                     // Calculate profiles prof1 - vertical and prof2 - horizontal
                     prof1 = data(nx, p1range) - dmin(p1range);
@@ -1615,25 +1604,25 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 		
                     // Plot profiles
                     // Plot current vertical profile
-                    set(prof1h, 'Ydata',  prof1);
+                    set(prof1h, "Ydata",  prof1);
 		
                     // Plot current horizontal profile
-                    set(prof2h, 'Ydata',  prof2);
+                    set(prof2h, "Ydata",  prof2);
 		
                     // Plot faded profiles
                     for (ii = 1:numel(fpi)) {
 			prof1  = data(fpi(ii), p1range) - dmin(p1range);
-			set(fph(ii), 'Ydata',  prof1);
+			set(fph(ii), "Ydata",  prof1);
                     }
 			
                     // Plot max1 profile
-                    if (get(hCbMax1Prof, 'Value') == get(hCbMax1Prof, 'Max')) {
-			set(prof1max1h, 'Ydata',  prof1max1);
+                    if (get(hCbMax1Prof, "Value") == get(hCbMax1Prof, "Max")) {
+			set(prof1max1h, "Ydata",  prof1max1);
                     }
 			
                     // Plot max profile
-                    set(prof1maxh, 'Ydata',  prof1max);
-                    set(prof2maxh, 'Ydata',  prof2max);
+                    set(prof1maxh, "Ydata",  prof1max);
+                    set(prof2maxh, "Ydata",  prof2max);
                     
                     // Refresh Figure
                     drawnow

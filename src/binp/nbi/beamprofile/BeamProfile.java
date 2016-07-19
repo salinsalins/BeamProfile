@@ -200,8 +200,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         logger.addHandler(new ConsoleHandler() {
             @Override
             public void publish(LogRecord record) {
-                jTextArea3.append(record.getMessage());
-                jTextArea3.append("\n");
+                jTextArea3.append(getFormatter().format(record));
+                //jTextArea3.append("\n");
             }
         });
         testLogger("2");
@@ -542,6 +542,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 });
 
                 jTextArea3.setColumns(20);
+                jTextArea3.setFont(new java.awt.Font("Monospaced", 0, 12)); // NOI18N
                 jTextArea3.setRows(5);
                 jScrollPane1.setViewportView(jTextArea3);
 
@@ -573,9 +574,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             .add(jLabel19)
                             .add(jButton4)
                             .add(jComboBox5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 535, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE))
                 );
 
                 jTabbedPane1.addTab("Log", jPanel8);
@@ -640,18 +640,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
-        logger.setLevel(Level.FINEST);
-        System.out.println(logger.getLevel());
-        
-        loggingConfig();
-/*        try {
-            LogManager.getLogManager().readConfiguration(BeamProfile.class.getResourceAsStream("logging.properties"));
-        } catch (IOException ex) {
-           logger.log(Level.SEVERE, null, ex);
-        } catch (SecurityException ex) {
-            logger.log(Level.SEVERE, null, ex);
-        }*/
-        testLogger("1");
+        configLogger();
+        //testLogger("-1");
 
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
@@ -941,8 +931,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
     }
 
-    void scroll_log(int h, String instr)
-    {
+    void scroll_log(int h, String instr) {
     /*    
         s = get(h, "String");
         for i=2:numel(s)
@@ -985,7 +974,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         return result;
     }
 
-    public static void loggingConfig() {
+    public static void configLogger() {
         try {
             // Load a properties file from class path that way can't be achieved with java.util.logging.config.file
             /*
@@ -994,27 +983,18 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 logManager.readConfiguration(is);
             }
             */
-
             // Programmatic configuration
-            System.setProperty("java.util.logging.SimpleFormatter.format",
-                    "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL %4$-7s [%3$s] (%2$s) %5$s %6$s%n");
+            //System.setProperty("java.util.logging.SimpleFormatter.format",
+            //        "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL %4$-7s [%3$s] (%2$s) %5$s %6$s%n");
 
+            System.setProperty("java.util.logging.SimpleFormatter.format",
+                    "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL %4$-7s %2$s %5$s %6$s%n");
             final ConsoleHandler consoleHandler = new ConsoleHandler();
             consoleHandler.setLevel(Level.FINEST);
             consoleHandler.setFormatter(new SimpleFormatter());
-
-            //final Logger app = Logger.getLogger("app");
-            //app.setLevel(Level.FINEST);
-            //app.addHandler(consoleHandler);
-            Handler[] hs = logger.getHandlers();
-            System.out.println("Handlers " + hs.length);
-            for (Handler h: hs) {
-                System.out.println(h);
-                logger.removeHandler(h);
-            }
-            
             logger.setLevel(Level.FINEST);
-            //logger.addHandler(consoleHandler);
+            logger.addHandler(consoleHandler);
+            logger.setUseParentHandlers(false);
         } catch (Exception e) {
             // The runtime won't show stack traces if the exception is thrown
             e.printStackTrace();
@@ -1029,8 +1009,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         logger.fine("Test Fine" + s);
         logger.finer("Test Finer" + s);
         logger.finest("Test Finest" + s);
-        logger.log(Level.SEVERE, "log SEVERE" + s);
-        logger.log(Level.FINE, "log FINE" + s);
     }
 
 //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">

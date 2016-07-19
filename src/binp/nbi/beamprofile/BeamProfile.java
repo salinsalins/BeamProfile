@@ -1140,7 +1140,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int[] addr = {6, 7, 8, 9};
     String[] ports = new String[4];
 
-    public void CreateADAMs() {
+    public void createADAMs() {
         // Create ADAM objects
         addr = new int[4];
         addr[0] = (int) jSpinner7.getValue();
@@ -1162,7 +1162,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
     }
 
-    public void DeleteADAMs() {
+    public void deleteADAMs() {
         for (int i = 0; i < adams.length; i++) 
             adams[i].closeFile();
     }
@@ -1412,9 +1412,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     // Reset flag
                     flag_in = false;
                     // Close input file
-                    DeleteADAMs();
+                    deleteADAMs();
                     // Create ADAMs
-                    CreateADAMs();
+                    createADAMs();
                 }
                 
                 // If output was changed

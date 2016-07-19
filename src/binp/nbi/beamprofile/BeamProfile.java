@@ -93,7 +93,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     BufferedWriter out_fid = null;
 
     // Logical flags
-    boolean flag_stop = false;
+    boolean flag_stop = true;
     boolean flag_hour = true;
 	
     // Data arrays for traces
@@ -185,6 +185,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         addWindowListener(this);
         initComponents();
         
+        
         logger.addHandler(new ConsoleHandler() {
             @Override
             public void publish(LogRecord record) {
@@ -192,11 +193,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 //jTextArea3.append("\n");
             }
         });
-        testLogger("-2");
         
-        String[] ports = SerialPortList.getPortNames();
-        for(String port : ports){
+        String[] pts = SerialPortList.getPortNames();
+        for(String port : pts){
             jComboBox1.addItem(port);
+            jComboBox2.addItem(port);
+            jComboBox3.addItem(port);
+            jComboBox4.addItem(port);
         }
 
         chart1 = new ChartPanel(ChartFactory.createXYLineChart(
@@ -598,9 +601,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             in_file = fileChooser.getSelectedFile();
             in_file_path = in_file.getParent();
             in_file_name = in_file.getName();
-            logger.fine("Input file " + in_file_name);
+            logger.log(Level.FINE, "Input file {0} selected", in_file_name);
             jTextField6.setText(in_file.getAbsolutePath());
-            adams[0].file = in_file;
+            Adam4118.file = in_file;
             jCheckBox1.setSelected(true);
             in_flag = true;
         }
@@ -891,15 +894,16 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     public void deleteADAMs() {
         for (int i = 0; i < adams.length; i++) 
             adams[i].closeFile();
+        logger.fine("ADAMs deleted.");
     }
 
     public void closeFile(Closeable file) {
         try {
             // Close file if it was opened
             file.close();
-            System.out.printf("File has been closed.\n");
+            logger.fine("Output file has been closed.");
         } catch (IOException ex) {
-            Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, "Output file close error.");
         }
     }
 
@@ -909,11 +913,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         try {
             out_fid = new BufferedWriter(new FileWriter(outFile));
             jTextField7.setText(outFileName);
-            System.out.printf("Output file %s has been opened\n", outFileName);
+            logger.log(Level.FINE, "Output file {0} has been opened.", outFileName);
         } catch (IOException ex) {
             // Disable output writing
             jCheckBox2.setSelected(false);
-            Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, null, ex);
+            logger.log(Level.SEVERE, "Output file {0} open error.", outFileName);
         }
     }
 
@@ -942,7 +946,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             result = Math.max(d, result);
         return result;
     }
-
     public double min(double[] array) {
         double result = array[0];
         for (double d: array)
@@ -989,31 +992,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             //System.out.print("parent = ");
             //System.out.println(logger.getParent());
             //Logger parentLogger = logger.getParent();
-            
             //Handler[] hs = logger.getParent().getHandlers();
             //System.out.println("Handlers " + hs.length);
             //for (Handler h: hs) {
             //    System.out.println(h);
                 //logger.getParent().removeHandler(h);
             //}
-            
-            logger.setLevel(Level.FINE);
-            logger.addHandler(consoleHandler);
-            logger.setUseParentHandlers(false);
-            //hs = logger.getHandlers();
-            //System.out.println("Handlers " + hs.length);
-            //for (Handler h: hs) {
-            //    System.out.println(h);
-                //logger.removeHandler(h);
-            //}
-            //hs = logger.getHandlers();
-            //System.out.println("Handlers " + hs.length);
         } catch (Exception e) {
             // The runtime won't show stack traces if the exception is thrown
             e.printStackTrace();
         }
     }    
-    
     static void testLogger(String s) {
         logger.entering("Class", "testLogger " + s);
         logger.severe("Test Severe " + s);
@@ -1028,153 +1017,153 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 /*
 %% Callback functions
 
-	function bdAxes3(h, ~)
-		cpoint = get(hAxes3, 'CurrentPoint');
-		mi = fix(cpoint(1,1));
-		mi1 = mi-mw;
-		if mi1 < 1
-			mi1 = 1;
-		end
-		mi2 = mi+mw;
-		if mi2 > nx
-			mi2 = nx;
-		end
-		[~, mi] = max(current(mi1:mi2));
-		mi = mi + mi1;
-	end
-	
-	function cbOutSelect(~, ~)
-		[file_name, file_path] = uiputfile([out_file_path LogFileName()], 'Save Log to File');
-		if ~isequal(file_name, 0)
-			out_file_path = file_path;
+    function bdAxes3(h, ~)
+        cpoint = get(hAxes3, 'CurrentPoint');
+        mi = fix(cpoint(1,1));
+        mi1 = mi-mw;
+        if mi1 < 1
+            mi1 = 1;
+        end
+        mi2 = mi+mw;
+        if mi2 > nx
+            mi2 = nx;
+        end
+        [~, mi] = max(current(mi1:mi2));
+        mi = mi + mi1;
+    end
+
+    function cbOutSelect(~, ~)
+        [file_name, file_path] = uiputfile([out_file_path LogFileName()], 'Save Log to File');
+        if ~isequal(file_name, 0)
+            out_file_path = file_path;
             out_file_name = file_name;
-			out_file = [out_file_path, out_file_name];
-			set(hTxt2,  'String', out_file_name);
-			outFlag = true;
-		end
-	end
+            out_file = [out_file_path, out_file_name];
+            set(hTxt2,  'String', out_file_name);
+            outFlag = true;
+        end
+    end
 
-	function cbInSelect(~, ~)
-		[file_name, file_path] = uigetfile([in_file_path in_file_name],'Read from File');
-		if ~isequal(file_name, 0)
-			in_file_path = file_path;
-			in_file_name = file_name;
-			in_file = [in_file_path, in_file_name];
-			set(hEd1, 'String', in_file_name);
-			in_flag = true;
-		end
-	end
+    function cbInSelect(~, ~)
+        [file_name, file_path] = uigetfile([in_file_path in_file_name],'Read from File');
+        if ~isequal(file_name, 0)
+            in_file_path = file_path;
+            in_file_name = file_name;
+            in_file = [in_file_path, in_file_name];
+            set(hEd1, 'String', in_file_name);
+            in_flag = true;
+        end
+    end
 
-	function cbMax1Prof(hObj, ~)
-		if get(hObj, 'Value') == get(hObj, 'Min')
-			set(prof1max1h, 'Visible', 'off');
-		else
-			set(prof1max1h, 'Visible', 'on');
-		end
-	end
-	
-	function cbSplitOut(hObj, ~)
-		if get(hObj, 'Value') == get(hObj, 'Min')
-				flag_hour = false;
-		else
-				flag_hour = true;
-		end
-	end
-	
-	function cbInputPannel(~, ~)
-		in_flag = true;
-		value = get(hPm1, 'Value');
-		st = get(hPm1, 'String');
-		if strcmp(st(value), 'FILE');
-			set(hEd4, 'Visible', 'off');
-			set(hEd5, 'Visible', 'off');
-			set(hEd8, 'Visible', 'off');
-			set(hEd9, 'Visible', 'off');
-			set(hEd1, 'Visible', 'on');
-			set(hBtn3, 'Visible', 'on');
-		else
-			set(hEd4, 'Visible', 'on');
-			set(hEd5, 'Visible', 'on');
-			set(hEd8, 'Visible', 'on');
-			set(hEd9, 'Visible', 'on');
-			set(hEd1, 'Visible', 'off');
-			set(hBtn3, 'Visible', 'off');
-		end
-	end
+    function cbMax1Prof(hObj, ~)
+        if get(hObj, 'Value') == get(hObj, 'Min')
+            set(prof1max1h, 'Visible', 'off');
+        else
+            set(prof1max1h, 'Visible', 'on');
+        end
+    end
 
-	function cbCb2(~, ~)
-		outFlag = true;
-	end
- 
-	function cbStart(hObj, ~)
-		if get(hObj, 'Value') == get(hObj, 'Min')
-			set(hObj, 'String', 'Start');
-		else
-			set(hObj, 'String', 'Stop');
-			prof1max(:) = 1;
-		end
-	end
+    function cbSplitOut(hObj, ~)
+        if get(hObj, 'Value') == get(hObj, 'Min')
+            flag_hour = false;
+        else
+            flag_hour = true;
+        end
+    end
 
-	function cbBtn4(hObj, ~)
-		if get(hObj, 'Value') == get(hObj, 'Min')
-			set(hObj, 'String', 'Config');
-			set(hp3, 'Visible', 'on');
-			set(hpConf, 'Visible', 'off');
-		else
-			set(hObj, 'String', 'Log');
-			set(hp3, 'Visible', 'off');
-			set(hpConf, 'Visible', 'on');
-		end
-	end
-	
-	function cbTargeting(hObj, ~)
-		if get(hObj, 'Value') == get(hObj, 'Min')
-			set(hp4, 'Visible', 'on');
-			set(hp6, 'Visible', 'off');
-			set(hObj, 'String', 'Targeting');
-		else
-			set(hp4, 'Visible', 'off');
-			set(hp6, 'Visible', 'on');
-			set(hObj, 'String', 'Calorimeter');
-		end
-	end
-	
-	function FigCloseFun(~,~)
-		flag_stop = true;
-	end
+    function cbInputPannel(~, ~)
+        in_flag = true;
+        value = get(hPm1, 'Value');
+        st = get(hPm1, 'String');
+        if strcmp(st(value), 'FILE');
+            set(hEd4, 'Visible', 'off');
+            set(hEd5, 'Visible', 'off');
+            set(hEd8, 'Visible', 'off');
+            set(hEd9, 'Visible', 'off');
+            set(hEd1, 'Visible', 'on');
+            set(hBtn3, 'Visible', 'on');
+        else
+            set(hEd4, 'Visible', 'on');
+            set(hEd5, 'Visible', 'on');
+            set(hEd8, 'Visible', 'on');
+            set(hEd9, 'Visible', 'on');
+            set(hEd1, 'Visible', 'off');
+            set(hBtn3, 'Visible', 'off');
+        end
+    end
 
-	function cbVoltage(~ ,~)
-		if isMax(hCbVoltage)
-			[v, n] = sscanf(get(hEdVoltage, 'String'), '%f');
-			if n >= 1
-				voltage = v(1);
-			else
-				set(hEdVoltage, 'String', sprintf('%4.1f', voltage));
-			end
-		end
-	end
-	
-	function cbFlow(~ ,~)
-		if isMax(hCbFlow)
-			[v, n] = sscanf(get(hEdFlow, 'String'), '%f');
-			if n >= 1
-				flow = v(1);
-			else
-				set(hEdFlow, 'String', sprintf('%4.1f', flow));
-			end
-		end
-	end
-	
-	function cbDuration(h,~)
-		if isMax(hCbDuration)
-			[v, n] = sscanf(get(hEdDuration, 'String'), '%f');
-			if n >= 1
-				duration = v(1);
-			else
-				set(hEdDuration, 'String', sprintf('%4.1f', duration));
-			end
-		end
-	end
+    function cbCb2(~, ~)
+        outFlag = true;
+    end
+
+    function cbStart(hObj, ~)
+        if get(hObj, 'Value') == get(hObj, 'Min')
+            set(hObj, 'String', 'Start');
+        else
+            set(hObj, 'String', 'Stop');
+            prof1max(:) = 1;
+        end
+    end
+
+    function cbBtn4(hObj, ~)
+        if get(hObj, 'Value') == get(hObj, 'Min')
+            set(hObj, 'String', 'Config');
+            set(hp3, 'Visible', 'on');
+            set(hpConf, 'Visible', 'off');
+        else
+            set(hObj, 'String', 'Log');
+            set(hp3, 'Visible', 'off');
+            set(hpConf, 'Visible', 'on');
+        end
+    end
+
+    function cbTargeting(hObj, ~)
+        if get(hObj, 'Value') == get(hObj, 'Min')
+            set(hp4, 'Visible', 'on');
+            set(hp6, 'Visible', 'off');
+            set(hObj, 'String', 'Targeting');
+        else
+            set(hp4, 'Visible', 'off');
+            set(hp6, 'Visible', 'on');
+            set(hObj, 'String', 'Calorimeter');
+        end
+    end
+
+    function FigCloseFun(~,~)
+        flag_stop = true;
+    end
+
+    function cbVoltage(~ ,~)
+        if isMax(hCbVoltage)
+            [v, n] = sscanf(get(hEdVoltage, 'String'), '%f');
+            if n >= 1
+                voltage = v(1);
+            else
+                set(hEdVoltage, 'String', sprintf('%4.1f', voltage));
+            end
+        end
+    end
+
+    function cbFlow(~ ,~)
+        if isMax(hCbFlow)
+            [v, n] = sscanf(get(hEdFlow, 'String'), '%f');
+            if n >= 1
+                flow = v(1);
+            else
+                set(hEdFlow, 'String', sprintf('%4.1f', flow));
+            end
+        end
+    end
+
+    function cbDuration(h,~)
+        if isMax(hCbDuration)
+            [v, n] = sscanf(get(hEdDuration, 'String'), '%f');
+            if n >= 1
+                duration = v(1);
+            else
+                set(hEdDuration, 'String', sprintf('%4.1f', duration));
+            end
+        end
+    end
 	
 
     

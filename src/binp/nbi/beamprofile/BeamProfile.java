@@ -202,6 +202,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             }
         });
         logger.setLevel(Level.FINEST);
+        System.out.println(logger.getLevel());
         testLogger();
         
         String[] ports = SerialPortList.getPortNames();
@@ -879,6 +880,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         logger.fine("Test Fine");
         logger.finer("Test Finer");
         logger.finest("Test Finest");
+        logger.log(Level.SEVERE, "log SEVERE");
+        logger.log(Level.FINE, "log FINE");
     }
 
     Adam4118[] adams;

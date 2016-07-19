@@ -66,30 +66,17 @@ import net.wimpi.modbus.util.*;
  
 
 public class BeamProfile extends javax.swing.JFrame implements WindowListener {
-    static final Logger logger = Logger.getLogger(BeamProfile.class.getName());
-    
-    String ProgNameShort = "BeamProfile";
+    static final Logger logger = Logger.getLogger(BeamProfile.class.getPackage().getName());
     
     ChartPanel chart1;
     ChartPanel chart2;
     JPanel chartPanel;
     Task task;
 
-    private SerialPort serialPort;
-    
     String progName = "Calorimeter Beam Profile";
     String progNameShort = "BeamProfile_";
-    String progVersion = "10";
+    String progVersion = "20";
     String iniFileName = "BeamProfile" + progVersion + ".ini";
-
-    // COM Port
-    SerialPort	cp_obj;
-    boolean cp_open = false;
-    // Adresses of ADAMs
-    int	addr1 = 3;
-    int	addr2 = 4;
-    int	addr3 = 2;
-    int	addr4 = 5;
 
     // Input file
     boolean in_flag = false;
@@ -187,6 +174,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     Color cGREY  = new Color(0.3f, 0.3f, 0.3f);
     Color cGREEN = new Color(0.0f, 0.8f, 0.0f);
 
+    // Clocks
     Date c0 = new Date();
     Date c1 = new Date();
 
@@ -204,7 +192,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 //jTextArea3.append("\n");
             }
         });
-        testLogger("2");
+        testLogger("-2");
         
         String[] ports = SerialPortList.getPortNames();
         for(String port : ports){
@@ -273,7 +261,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         //task.addPropertyChangeListener(this);
         task.execute();
     }    
-    
     
     /** This method is called from within the constructor to
      * initialize the form.
@@ -854,7 +841,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 //        }
     }
 
-//=================================================
     static String prefix, ext;
     public static String LogFileName(String arg, String... strs) {
 	if (prefix==null || "".equals(prefix)) {
@@ -918,7 +904,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }
 
     public void openOutputFile() {
-        outFileName = LogFileName(ProgNameShort, "txt");
+        outFileName = LogFileName(progNameShort, "txt");
         outFile = new File(outFilePath, outFileName);
         try {
             out_fid = new BufferedWriter(new FileWriter(outFile));
@@ -995,6 +981,33 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             logger.setLevel(Level.FINEST);
             logger.addHandler(consoleHandler);
             logger.setUseParentHandlers(false);
+
+            //final Logger app = Logger.getLogger("app");
+            //app.setLevel(Level.FINEST);
+            //app.addHandler(consoleHandler);
+            //System.out.println("logger = " + logger.getName());
+            //System.out.print("parent = ");
+            //System.out.println(logger.getParent());
+            //Logger parentLogger = logger.getParent();
+            
+            //Handler[] hs = logger.getParent().getHandlers();
+            //System.out.println("Handlers " + hs.length);
+            //for (Handler h: hs) {
+            //    System.out.println(h);
+                //logger.getParent().removeHandler(h);
+            //}
+            
+            logger.setLevel(Level.FINE);
+            logger.addHandler(consoleHandler);
+            logger.setUseParentHandlers(false);
+            //hs = logger.getHandlers();
+            //System.out.println("Handlers " + hs.length);
+            //for (Handler h: hs) {
+            //    System.out.println(h);
+                //logger.removeHandler(h);
+            //}
+            //hs = logger.getHandlers();
+            //System.out.println("Handlers " + hs.length);
         } catch (Exception e) {
             // The runtime won't show stack traces if the exception is thrown
             e.printStackTrace();

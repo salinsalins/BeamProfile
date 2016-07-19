@@ -386,7 +386,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         jTextField6.setText("D:\\");
 
-            jCheckBox1.setSelected(true);
             jCheckBox1.setText("Read From File: ");
 
             jButton2.setText("...");
@@ -396,7 +395,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 }
             });
 
-            jCheckBox2.setSelected(true);
             jCheckBox2.setText("Write to File: ");
 
             jTextField7.setText("D:\\");
@@ -565,7 +563,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             .add(jButton4)
                             .add(jComboBox5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 452, Short.MAX_VALUE))
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 441, Short.MAX_VALUE)
+                        .addContainerGap())
                 );
 
                 jTabbedPane1.addTab("Log", jPanel8);
@@ -1254,7 +1253,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             temp[i] = data[nx-1][i];
                     } 
 
-                    // Save line with data to output file If log writing is enabled
+                    // Save line with data to output file if log writing is enabled
                     if (isWriteEnabled() && (out_fid != null)) {
                         try {
                             // Write Time in milliseconds - not time HH:MM:SS.SS

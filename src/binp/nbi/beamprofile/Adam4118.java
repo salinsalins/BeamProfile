@@ -5,6 +5,7 @@
  */
 package binp.nbi.beamprofile;
 
+import static binp.nbi.beamprofile.BeamProfile.logger;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,10 +41,10 @@ public class Adam4118 extends ADAM {
                 if (!file.canRead())
                     throw new FileNotFoundException("File is unreadable.");
                 reader = new BufferedReader(new FileReader(file));
-                System.out.printf("Input file %s has been opened\n", file.getName());
+                logger.log(Level.FINE, "File {0} has been opened.", file.getName());
             } catch (FileNotFoundException ex) {
                 reader = null;
-                Logger.getLogger(Adam4118.class.getName()).log(Level.WARNING, null, ex);
+                logger.log(Level.WARNING, "File {0} not found.", file.getName());
             }
         }
     }
@@ -104,11 +105,13 @@ public class Adam4118 extends ADAM {
             if (index > 24)
                 index = 0;
             //pause(0.01);
+            logger.log(Level.FINE, "File read: {0}", result.toString());
             return result.toString();
         } 
         else {
             String command = String.format("#%02X", addr);
             String resp = execute(command);
+            logger.log(Level.INFO, "4118 Read: ", resp);
             if (resp.substring(0,1).equals(">"))
                 return resp;
             //throw new ADAMException("Wrong reading response.");

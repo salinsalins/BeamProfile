@@ -93,7 +93,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     BufferedWriter out_fid = null;
 
     // Logical flags
-    boolean flag_stop = true;
+    boolean flag_stop = false;
     boolean flag_hour = true;
 	
     // Data arrays for traces
@@ -260,9 +260,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         c1 = new Date();
 
 //-----------------------------------------------
-        task = new Task(this);
-        //task.addPropertyChangeListener(this);
-        task.execute();
     }    
     
     /** This method is called from within the constructor to
@@ -313,7 +310,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jTextArea3 = new javax.swing.JTextArea();
         jComboBox5 = new javax.swing.JComboBox();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Calorimeter Beam Profile Plotter");
 
         jTabbedPane1.setVerifyInputWhenFocusTarget(false);
@@ -385,8 +382,18 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jSpinner10.setModel(new javax.swing.SpinnerNumberModel(3, 0, 127, 1));
 
         jTextField6.setText("D:\\");
+            jTextField6.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jTextField6ActionPerformed(evt);
+                }
+            });
 
             jCheckBox1.setText("Read From File: ");
+            jCheckBox1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+                public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                    jCheckBox1PropertyChange(evt);
+                }
+            });
 
             jButton2.setText("...");
             jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -595,7 +602,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             "Text File", "txt");
         fileChooser.setFileFilter(filter);
         fileChooser.setCurrentDirectory(in_file.getParentFile());
-        int result = fileChooser.showDialog(null, "Open Log File");
+        int result = fileChooser.showDialog(null, "Open Input File");
         if (result == JFileChooser.APPROVE_OPTION) {
             in_file = fileChooser.getSelectedFile();
             in_file_path = in_file.getParent();
@@ -603,7 +610,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             logger.log(Level.FINE, "Input file {0} selected", in_file_name);
             jTextField6.setText(in_file.getAbsolutePath());
             Adam4118.file = in_file;
-            jCheckBox1.setSelected(true);
+            //jCheckBox1.setSelected(true);
             in_flag = true;
         }
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -624,6 +631,15 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             outFlag = true;
         }
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jCheckBox1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jCheckBox1PropertyChange
+        in_flag = true;
+    }//GEN-LAST:event_jCheckBox1PropertyChange
+
+    private void jTextField6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField6ActionPerformed
+        in_file = new File(jTextField6.getText());
+        Adam4118.file = in_file;
+    }//GEN-LAST:event_jTextField6ActionPerformed
     
     /**
      * @param args the command line arguments
@@ -713,11 +729,15 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     @Override
     public void windowClosed(WindowEvent e) {
         saveConfig();
-        //System.exit(0);
+        System.exit(0);
     }
     @Override
     public void windowOpened(WindowEvent e) {
         restoreConfig();
+
+        task = new Task(this);
+        //task.addPropertyChangeListener(this);
+        task.execute();
     }
     @Override
     public void windowClosing(WindowEvent e) {
@@ -739,13 +759,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         logger.entering("", "restoreConfig");
 //        String logFileName = null;
 //        List<String> columnNames = new LinkedList<>();
-//        try {
-//            ObjectInputStream objIStrm = new ObjectInputStream(new FileInputStream("config.dat"));
+        try {
+            ObjectInputStream objIStrm = new ObjectInputStream(new FileInputStream("config.dat"));
 //
 //            Rectangle bounds = (Rectangle) objIStrm.readObject();
 //            frame.setBounds(bounds);
 //
-//            logFileName = (String) objIStrm.readObject();
+            String str = (String) objIStrm.readObject();
+            jTextField6.setText(str);
 //            txtFileName.setText(logFileName);
 //            fileLog = new File(logFileName);
 //
@@ -769,9 +790,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 //            objIStrm.close();
 //
 //            logger.info("Config restored.");
-//        } catch (IOException | ClassNotFoundException e) {
-//            logger.log(Level.WARNING, "Config read error {0}", e);
-//        }
+        } catch (IOException | ClassNotFoundException e) {
+            logger.log(Level.WARNING, "Config read error {0}", e);
+        }
 //        timer.cancel();
 //        timer = new Timer();
 //        timerTask = new DirWatcher(window);
@@ -816,20 +837,21 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     private void saveConfig() {
         logger.entering("", "saveConfig");
-//        timer.cancel();
+        flag_stop = true;
+//        timerkimer.cancel();
 //
 //        Rectangle bounds = frame.getBounds();
-//        String txt = txtFileName.getText();
+        String txt = jTextField6.getText();
 //        txt = fileLog.getAbsolutePath();
 //        String txt1 = txtarExcludedColumns.getText();
 //        String txt2 = txtarIncludedColumns.getText();
 //        boolean sm = chckbxShowMarkers.isSelected();
 //        boolean sp = chckbxShowPreviousShot.isSelected();
 //        List<String> columnNames = logViewTable.getColumnNames();
-//        try {
-//            ObjectOutputStream objOStrm = new ObjectOutputStream(new FileOutputStream("config.dat"));
+        try {
+            ObjectOutputStream objOStrm = new ObjectOutputStream(new FileOutputStream("config.dat"));
 //            objOStrm.writeObject(bounds);
-//            objOStrm.writeObject(txt);
+            objOStrm.writeObject(txt);
 //            objOStrm.writeObject(folder);
 //            objOStrm.writeObject(txt1);
 //            objOStrm.writeObject(txt2);
@@ -838,9 +860,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 //            objOStrm.writeObject(columnNames);
 //            objOStrm.close();
 //            logger.info("Config saved.");
-//        } catch (IOException e) {
-//            logger.log(Level.WARNING, "Config write error ", e);
-//        }
+        } catch (IOException e) {
+            logger.log(Level.WARNING, "Config write error ", e);
+        }
     }
 
     static String prefix, ext;
@@ -885,7 +907,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             adams[i] = new Adam4118(ports[i], addr[i]);
             if (isReadFromFile()) {
                 // Open input file
-                adams[i].openFile(in_file_path, in_file_name);
+                adams[i].openFile(jTextField6.getText());
             }
         }
     }
@@ -1183,9 +1205,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
          */
         @Override
         public Void doInBackground() {
+            logger.fine("Background task started");
             while(!flag_stop) {
+                logger.fine("LOOP");
                 // If input was changed
                 if(in_flag) {
+                    logger.fine("Input changed");
                     // Reset flag
                     in_flag = false;
                     // Close input file
@@ -1196,6 +1221,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 
                 // If output was changed
                 if(outFlag) {
+                    logger.fine("Output changed");
                     // Reset flag
                     outFlag = false;
    

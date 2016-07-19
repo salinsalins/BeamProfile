@@ -388,6 +388,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 }
             });
 
+            jCheckBox1.setSelected(true);
             jCheckBox1.setText("Read From File: ");
             jCheckBox1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
                 public void propertyChange(java.beans.PropertyChangeEvent evt) {
@@ -903,18 +904,22 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         ports[2] = (String) jComboBox3.getSelectedItem();
         ports[3] = (String) jComboBox4.getSelectedItem();
         
+        adams = new Adam4118[4];
+        
+        if (isReadFromFile()) {
+            // Open input file
+            Adam4118.openFile(jTextField6.getText());
+        }
         for (int i = 0; i < addr.length; i++) {
             adams[i] = new Adam4118(ports[i], addr[i]);
-            if (isReadFromFile()) {
-                // Open input file
-                adams[i].openFile(jTextField6.getText());
-            }
         }
     }
 
     public void deleteADAMs() {
-        for (int i = 0; i < adams.length; i++) 
-            adams[i].closeFile();
+        if (adams == null) return;
+        for (Adam4118 adam : adams) {
+            adam.closeFile();
+        }
         logger.fine("ADAMs deleted.");
     }
 
@@ -1207,7 +1212,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         public Void doInBackground() {
             logger.fine("Background task started");
             while(!flag_stop) {
-                logger.fine("LOOP");
+                //logger.fine("LOOP");
                 // If input was changed
                 if(in_flag) {
                     logger.fine("Input changed");

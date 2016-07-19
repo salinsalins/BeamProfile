@@ -43,6 +43,9 @@ public class ADAM {
 		
     public boolean log = true;
 
+    ADAM () {
+    }
+
     ADAM (SerialPort comport, int addr) {
 
 /*
@@ -330,7 +333,7 @@ public class ADAM {
             // Compose command to Read One Channel  #AAN
             String command = String.format("#%02X%1X", addr, chan);
             String resp = execute(command);
-            if (!resp.substring(0,1).equals(">"))
+            if (!resp.substring(0, 0).equals(">"))
                 throw new ADAMException("Wrong reading response.");
             return Float.parseFloat(resp.substring(1));
         }
@@ -340,15 +343,17 @@ public class ADAM {
     }
 		
     public static double[] doubleFromString(String str) {
+        if (str == null) return new double[0];
         int n = str.length();
         double[] data = new double[(n-1)/7];
         for (int i = 1; i < data.length; i++) {
             data[i] = -8888.8;
         }
         int j = 0; 
-        for (int i = 1; i < n; i+=7) {
+        for (int i = 1; i < n-6; i+=7) {
             try {
-                data[j] = Double.parseDouble(str.substring(i, 7));
+                String s = str.substring(i, i+6);
+                data[j] = Double.parseDouble(str.substring(i, i+6));
             }
             catch (NumberFormatException ex) {
                 data[j] = -8888.8;
@@ -364,7 +369,7 @@ public class ADAM {
             // Compose command to Read All Channels  #AA
             String command = String.format("#%02X", addr);
             String resp = execute(command);
-            if (!resp.substring(0,1).equals(">"))
+            if (!resp.substring(0, 0).equals(">"))
                 throw new ADAMException("Wrong reading response.");
             data = doubleFromString(resp);
             if (data.length != 8)

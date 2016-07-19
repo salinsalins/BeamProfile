@@ -28,15 +28,48 @@ public class Adam4118 extends ADAM {
     static public int index;
 
     Adam4118(SerialPort comport, int addr) {
-        super(comport, addr);
+        if (reader == null ) {
+            try {
+                setPort(comport);
+                setAddr(addr);
+
+                name = read_name();
+                firmware = read_firmware();
+                serial = read_serial();
+
+            }
+            catch (Exception ex) {
+                if (log) {
+                    System.out.printf("%s\n", ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
+        }
     }
     
     Adam4118(String comport, int addr) {
-        super(comport, addr);
+        if (reader == null ) {
+            try {
+                setPort(comport);
+                setAddr(addr);
+
+                name = read_name();
+                firmware = read_firmware();
+                serial = read_serial();
+
+            }
+            catch (Exception ex) {
+                if (log) {
+                    System.out.printf("%s\n", ex.getMessage());
+                    ex.printStackTrace();
+                }
+
+            }
+        }
     }
     
-    public void openFile() {
-        if (reader != null) {
+    public static void openFile() {
+        if (reader == null) {
             try {
                 if (!file.canRead())
                     throw new FileNotFoundException("File is unreadable.");
@@ -48,16 +81,16 @@ public class Adam4118 extends ADAM {
             }
         }
     }
-    public void openFile(String fileName) {
+    public static void openFile(String fileName) {
         file = new File(fileName);
         openFile();
     }
-    public void openFile(String filePath, String fileName) {
+    public static void openFile(String filePath, String fileName) {
         file = new File(filePath, fileName);
         openFile();
     }
  
-    public void closeFile() {
+    public static void closeFile() {
         if (reader != null) {
             try {
                 reader.close();
@@ -94,8 +127,12 @@ public class Adam4118 extends ADAM {
             String str;
             for (int i = 0; i < 8; i++)
             {
-                str = columns[index++].trim();
-                result.append("+");
+                if (index >= columns.length) 
+                    str = "+00.000";
+                else
+                    str = columns[index].trim();
+                index++;
+                if (!"+".equals(str.substring(0, 1))) result.append("+");
                 result.append(str);
                 if (str.length() < 6) 
                 {

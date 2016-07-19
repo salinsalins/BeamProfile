@@ -51,6 +51,7 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.ConsoleHandler;
+import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import javax.swing.JFileChooser;
 import javax.swing.JToggleButton;
@@ -201,8 +202,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 jTextArea3.append("\n");
             }
         });
-        logger.setLevel(Level.FINEST);
-        System.out.println(logger.getLevel());
         testLogger();
         
         String[] ports = SerialPortList.getPortNames();
@@ -639,6 +638,18 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
      * @param args the command line arguments
      */
     public static void main(String args[]) {
+        logger.setLevel(Level.FINEST);
+        System.out.println(logger.getLevel());
+
+/*        try {
+            LogManager.getLogManager().readConfiguration(BeamProfile.class.getResourceAsStream("logging.properties"));
+        } catch (IOException ex) {
+           logger.log(Level.SEVERE, null, ex);
+        } catch (SecurityException ex) {
+            logger.log(Level.SEVERE, null, ex);
+        }*/
+        testLogger();
+
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
@@ -872,7 +883,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }
 
 //=================================================
-    void testLogger() {
+    static void testLogger() {
         logger.entering("Class", "testLogger");
         logger.severe("Test Severe");
         logger.warning("Test Warning");

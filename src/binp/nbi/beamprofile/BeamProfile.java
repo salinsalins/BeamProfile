@@ -63,13 +63,14 @@ import net.wimpi.modbus.msg.*;
 import net.wimpi.modbus.io.*;
 import net.wimpi.modbus.net.*;
 import net.wimpi.modbus.util.*;
+import org.jfree.data.xy.XYSeries;
  
 
 public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     static final Logger logger = Logger.getLogger(BeamProfile.class.getPackage().getName());
     
-    ChartPanel chart1;
-    ChartPanel chart2;
+    public ChartPanel chart1;
+    public ChartPanel chart2;
     JPanel chartPanel;
     Task task;
 
@@ -1201,7 +1202,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         public Void doInBackground() {
             logger.fine("Background task started");
             while(!flag_stop) {
-                //logger.fine("LOOP");
+                logger.fine("LOOP");
                 // If input was changed
                 if(in_flag) {
                     logger.fine("Input changed");
@@ -1318,6 +1319,26 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 			dmin = min(data);
                     }
 		
+                    // Update data traces for trn(:) channels
+                    XYPlot plot = chart1.getChart().getXYPlot();
+                    boolean savedNotify = plot.isNotify();
+                    // Stop refreshing the plot
+                    plot.setNotify(false);
+                    XYSeriesCollection dataset = (XYSeriesCollection) plot.getDataset();
+                    dataset.removeAllSeries();
+                    for (int i = 0; i < trn.length; i++) { 
+                        XYSeries series0 = new XYSeries("Signal " + i);
+                    for (int j = 0; j < data.length; j++) {
+                            double x = j;
+                            //double y = Math.sin(Math.PI*j/500.0);
+                            double y = data[j][trn[i]];
+                            series0.add(x, y);
+                        }
+                        dataset.addSeries(series0);
+                        // Restore refreshing state
+                        plot.setNotify(savedNotify);
+                    }
+
 //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
 /*
                     // Shift marker
@@ -1327,12 +1348,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     }
                     mi1 = max(mi - mw, 1);
                     mi2 = min(mi + mw, nx);
-
-
-// Update data traces for trn(:) channels
-                    for ii = 1:numel(trn)
-			set(trh(ii), "Ydata", data(:, trn(ii)));
-                    }
 		
                     // Determine index for targeting traces
                     [v1, v2] = max(data(mi1:mi2, tpn));

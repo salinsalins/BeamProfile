@@ -344,8 +344,13 @@ public class ADAM {
 		
     public static double[] doubleFromString(String str) {
         if (str == null) return new double[0];
+        str = str.substring(1);
+        String str1 = str.replaceAll("\\+","; +");
+        String str2 = str1.replaceAll("-","; -");
+        if (str2.startsWith("; ")) str2 = str2.substring(2);
         int n = str.length();
-        double[] data = new double[(n-1)/7];
+        String[] strarr = str2.split("; ");
+        double[] data = new double[n/7];
         for (int i = 1; i < data.length; i++) {
             data[i] = -8888.8;
         }

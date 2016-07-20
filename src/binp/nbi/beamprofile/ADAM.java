@@ -343,24 +343,28 @@ public class ADAM {
     }
 		
     public static double[] doubleFromString(String str) {
-        if (str == null) return new double[0];
-        str = str.substring(1);
-        String str1 = str.replaceAll("\\+","; +");
-        String str2 = str1.replaceAll("-","; -");
-        if (str2.startsWith("; ")) str2 = str2.substring(2);
-        String[] strarr = str2.split("; ");
-        double[] data = new double[strarr.length];
-        int j = 0; 
-        for (String s : strarr) {
-            try {
-                data[j] = Double.parseDouble(s);
+        try {
+            str = str.substring(1);
+            String str1 = str.replaceAll("\\+","; +");
+            String str2 = str1.replaceAll("-","; -");
+            if (str2.startsWith("; ")) str2 = str2.substring(2);
+            String[] strarr = str2.split("; ");
+            double[] data = new double[strarr.length];
+            int j = 0; 
+            for (String s : strarr) {
+                try {
+                    data[j] = Double.parseDouble(s);
+                }
+                catch (NumberFormatException | NullPointerException ex) {
+                    data[j] = -8888.8;
+                }
+                j++;
             }
-            catch (NumberFormatException | NullPointerException ex) {
-                data[j] = -8888.8;
-            }
-            j++;
+            return data;
         }
-        return data;
+        catch (Exception ex) {
+            return new double[0];
+        }
     }
 
     public double[] read() {

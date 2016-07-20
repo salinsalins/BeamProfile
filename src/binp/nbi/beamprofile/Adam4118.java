@@ -146,7 +146,7 @@ public class Adam4118 extends ADAM {
                 str = str.replaceAll(",", ".");
                 result.append(str);
             }
-            if (index > 24)
+            if (index >= 24)
                 index = 0;
             //pause(0.01);
             logger.log(Level.FINEST, "File read: {0}", result.toString());

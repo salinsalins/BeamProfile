@@ -1293,7 +1293,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             out_fid.write(str, 0, str.length());
                             out_fid.flush();
                         } catch (IOException ex) {
-                            Logger.getLogger(BeamProfile.class.getName()).log(Level.SEVERE, null, ex);
+                            logger.log(Level.SEVERE, null, ex);
                         }
                     }
 

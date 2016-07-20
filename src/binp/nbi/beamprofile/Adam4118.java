@@ -109,9 +109,11 @@ public class Adam4118 extends ADAM {
                     line = reader.readLine();
                 } catch (IOException ex) {
                     try {
+                        logger.log(Level.FINE, "Reset reader.");
                         reader.reset();
                         line = reader.readLine();
                     } catch (IOException ex1) {
+                        logger.log(Level.INFO, "Line read error.");
                         return "";
                     }
                 }
@@ -128,21 +130,26 @@ public class Adam4118 extends ADAM {
             for (int i = 0; i < 8; i++)
             {
                 if (index >= columns.length) 
-                    str = "+00.000";
+                    str = "+000.00";
                 else
                     str = columns[index].trim();
                 index++;
-                if (!"+".equals(str.substring(0, 1))) result.append("+");
-                result.append(str);
-                if (str.length() < 6) 
-                {
-                    result.append("000000".substring(0,6-str.length()));
+                
+                double d;
+                try {
+                    d = Double.parseDouble(str);
                 }
+                catch (NumberFormatException | NullPointerException ex) {
+                    d = -888.88;
+                }
+                str = String.format("%+07.2f", d);
+                str = str.replaceAll(",", ".");
+                result.append(str);
             }
             if (index > 24)
                 index = 0;
             //pause(0.01);
-            logger.log(Level.FINE, "File read: {0}", result.toString());
+            logger.log(Level.FINEST, "File read: {0}", result.toString());
             return result.toString();
         } 
         else {

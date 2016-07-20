@@ -348,19 +348,14 @@ public class ADAM {
         String str1 = str.replaceAll("\\+","; +");
         String str2 = str1.replaceAll("-","; -");
         if (str2.startsWith("; ")) str2 = str2.substring(2);
-        int n = str.length();
         String[] strarr = str2.split("; ");
-        double[] data = new double[n/7];
-        for (int i = 1; i < data.length; i++) {
-            data[i] = -8888.8;
-        }
+        double[] data = new double[strarr.length];
         int j = 0; 
-        for (int i = 1; i < n-6; i+=7) {
+        for (String s : strarr) {
             try {
-                String s = str.substring(i, i+6);
-                data[j] = Double.parseDouble(str.substring(i, i+6));
+                data[j] = Double.parseDouble(s);
             }
-            catch (NumberFormatException ex) {
+            catch (NumberFormatException | NullPointerException ex) {
                 data[j] = -8888.8;
             }
             j++;

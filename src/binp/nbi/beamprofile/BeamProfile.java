@@ -947,17 +947,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
     }
 
-    void scroll_log(int h, String instr) {
-    /*    
-        s = get(h, "String");
-        for i=2:numel(s)
-            s{i-1} = s{i};
-        end
-        s{numel(s)} = instr;
-        set(h, "String", s);
-    */
-    }
-
     public boolean isWriteEnabled() {
         return jCheckBox2.isSelected();
     }

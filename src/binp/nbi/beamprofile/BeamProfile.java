@@ -204,9 +204,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
 
         chart1 = new ChartPanel(ChartFactory.createXYLineChart(
-                "Line Chart 1", // chart title
-                "Time, ms", // x axis label
-                "Signal, V", // y axis label
+                "Temperature Traces", // chart title
+                "Time, s", // x axis label
+                "Temperature, degC", // y axis label
                 new XYSeriesCollection(), // data
                 PlotOrientation.VERTICAL,
                 false, // include legend
@@ -214,6 +214,19 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 false // urls
             ), true);
         chart1.setPreferredSize(new Dimension(100, 100));
+        chart1.getChart().getTitle().setFont(new Font("SansSerif", Font.PLAIN, 12));
+        XYPlot plot = chart1.getChart().getXYPlot();
+        //Color backgroundColor = new Color(28, 100, 140);
+        //plot.setBackgroundPaint(backgroundColor);
+        plot.setAxisOffset(RectangleInsets.ZERO_INSETS);
+        plot.getRangeAxis().setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
+        plot.getDomainAxis().setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
+        //plot.setDomainGridlinePaint(Color.white); // x grid lines color
+        //plot.setRangeGridlinePaint(Color.white);  // y grid lines color
+        // Set trace colors
+        //setLineColor(Color.red, Color.blue, Color.green, Color.gray);
+        // Disable tooltips
+        //getChart().getXYPlot().getRenderer().setBaseToolTipGenerator(null);
 
         chart2 = new ChartPanel(ChartFactory.createXYLineChart(
                 "Line Chart 2", // chart title
@@ -1306,11 +1319,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     data[nx-1] = temp;
 
                     // Calculate minimum values
-                    if (max(dmin) <= 0 ) {
+                    if (data[0][0] <= 0 ) {
 			// First reading, fill arrays with defaults
-                        System.arraycopy(data[nx-1], 0, dmin, 0, dmin.length);
-			for (int i = 0; i < data[0].length-1; i++) {
-                            System.arraycopy(data[data.length-1], 0, data[i], 0, dmin.length);
+                        System.arraycopy(temp, 0, dmin, 0, dmin.length);
+			for (int i = 0; i < data.length-1; i++) {
+                            //System.arraycopy(data[data.length-1], 0, data[i], 0, dmin.length);
+                            data[i] = data[nx-1];
                             //data(ii, :) = data(nx, :);
 			}
                     }
@@ -1320,23 +1334,26 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     }
 		
                     // Update data traces for trn(:) channels
-                    XYPlot plot = chart1.getChart().getXYPlot();
-                    boolean savedNotify = plot.isNotify();
-                    // Stop refreshing the plot
-                    plot.setNotify(false);
-                    XYSeriesCollection dataset = (XYSeriesCollection) plot.getDataset();
-                    dataset.removeAllSeries();
-                    for (int i = 0; i < trn.length; i++) { 
-                        XYSeries series0 = new XYSeries("Signal " + i);
-                    for (int j = 0; j < data.length; j++) {
-                            double x = j;
-                            //double y = Math.sin(Math.PI*j/500.0);
-                            double y = data[j][trn[i]];
-                            series0.add(x, y);
-                    }
-                    dataset.addSeries(series0);
-                    // Restore refreshing state
-                    plot.setNotify(savedNotify);
+                    synchronized(chart1) {
+                        XYPlot plot = chart1.getChart().getXYPlot();
+                        boolean savedNotify = plot.isNotify();
+                        // Stop refreshing the plot
+                        plot.setNotify(false);
+                        XYSeriesCollection dataset = (XYSeriesCollection) plot.getDataset();
+                        dataset.removeAllSeries();
+                        for (int i = 0; i < trn.length; i++) { 
+                            XYSeries series0 = new XYSeries("Signal " + i);
+                        for (int j = 0; j < data.length; j++) {
+                                //double x = j;
+                                double x = (data[j][0] - data[0][0])/1000.0;
+                                //double y = Math.sin(Math.PI*j/500.0);
+                                double y = data[j][trn[i]];
+                                series0.add(x, y);
+                            }
+                            dataset.addSeries(series0);
+                            // Restore refreshing state
+                            plot.setNotify(savedNotify);
+                        }
                     }
 
 //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
@@ -1504,5 +1521,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         public void done() {
             //taskOutput.app}("Done!\n");
         }
+    }
+    
+    class SyncronizeChart {
+        
     }
 }

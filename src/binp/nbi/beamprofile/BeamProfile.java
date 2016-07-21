@@ -1333,10 +1333,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             //double y = Math.sin(Math.PI*j/500.0);
                             double y = data[j][trn[i]];
                             series0.add(x, y);
-                        }
-                        dataset.addSeries(series0);
-                        // Restore refreshing state
-                        plot.setNotify(savedNotify);
+                    }
+                    dataset.addSeries(series0);
+                    // Restore refreshing state
+                    plot.setNotify(savedNotify);
                     }
 
 //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">

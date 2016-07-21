@@ -149,7 +149,7 @@ public class Adam4118 extends ADAM {
             if (index >= 24)
                 index = 0;
             //pause(0.01);
-            logger.log(Level.FINEST, "File read: {0}", result.toString());
+            //logger.log(Level.FINEST, "File read: {0}", result.toString());
             return result.toString();
         } 
         else {

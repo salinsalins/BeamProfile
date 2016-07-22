@@ -1603,6 +1603,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
          */
         public SyncronizedXYSeriesCollection(XYSeries series) {
             this.data = new java.util.ArrayList();
+            //this.data = new java.util.concurrent.CopyOnWriteArrayList();
             this.intervalDelegate = new IntervalXYDelegate(this, false);
             addChangeListener(this.intervalDelegate);
             if (series != null) {

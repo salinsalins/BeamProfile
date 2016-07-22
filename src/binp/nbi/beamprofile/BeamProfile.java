@@ -52,6 +52,7 @@ import jssc.SerialPortList;
 import java.net.*;
 import java.io.*;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
@@ -79,6 +80,7 @@ import org.jfree.data.general.Series;
 import org.jfree.data.xy.AbstractIntervalXYDataset;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.IntervalXYDelegate;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.util.ObjectUtilities;
 import org.jfree.util.PublicCloneable;
@@ -254,7 +256,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         boolean savedNotify = plot.isNotify();
         // Stop refreshing the plot
         plot.setNotify(false);
-        SyncronizedXYSeriesCollection dataset = new SyncronizedXYSeriesCollection();
+        //SyncronizedXYSeriesCollection dataset = new SyncronizedXYSeriesCollection();
+        XYSeriesCollection dataset = new XYSeriesCollection();
         plot.setDataset(dataset);
         //XYSeriesCollection dataset = (XYSeriesCollection) plot.getDataset();
         dataset.removeAllSeries();
@@ -1249,6 +1252,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     class Task extends SwingWorker<Void, Void> {
 
         BeamProfile bp;
+        XYSeriesCollection dataset;
         
         Task(BeamProfile bp) {
             this.bp = bp;
@@ -1378,33 +1382,33 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 			// Calculate minimum
 			dmin = min(data);
                     }
-		
+                    
+                    process(new ArrayList<Void>());
+
+/*                    
                     // Update data traces for trn(:) channels
                     XYPlot plot = chart1.getChart().getXYPlot();
                     boolean savedNotify = plot.isNotify();
                     // Stop refreshing the plot
                     plot.setNotify(false);
-                    SyncronizedXYSeriesCollection dataset = (SyncronizedXYSeriesCollection) plot.getDataset();
-                    //XYSeriesCollection dataset = (XYSeriesCollection) plot.getDataset();
+*/
+                    //SyncronizedXYSeriesCollection dataset = (SyncronizedXYSeriesCollection) plot.getDataset();
+                    dataset = new XYSeriesCollection();
                     //dataset.removeAllSeries();
                     for (int i = 0; i < trn.length; i++) { 
-                        XYSeries series = new XYSeries("Signal " + i, false, true);
-                        //XYSeries series = dataset.getSeries(i);
-                        System.out.println(i);
+                        XYSeries series = new XYSeries("Signal " + i);
                     for (int j = 0; j < data.length; j++) {
-                            //double x = j;
                             double x = (data[j][0] - data[0][0])/1000.0;
-                            //double y = Math.sin(Math.PI*j/500.0);
                             double y = data[j][trn[i]];
                             series.add(x, y);
-                            //series.updateByIndex(j, y);
                         }
-                        dataset.removeSeries(0);
                         dataset.addSeries(series);
                     }
+/*
                     // Restore refreshing state
                     plot.setNotify(savedNotify);
-
+*/
+                    
 //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
 /*
                     // Shift marker
@@ -1562,6 +1566,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             }
             return null;
         }
+        
+        @Override
+        protected void process(List<Void> chunks) {
+            XYPlot plot = chart1.getChart().getXYPlot();
+            boolean savedNotify = plot.isNotify();
+            // Stop refreshing the plot
+            plot.setNotify(false);
+            plot.setDataset(dataset);
+            // Restore refreshing state
+            plot.setNotify(savedNotify);
+        }
 
         /**
          * Executed in event dispatching thread
@@ -1579,9 +1594,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     public class SyncronizedXYSeriesCollection extends AbstractIntervalXYDataset
             implements IntervalXYDataset, DomainInfo, RangeInfo, 
             VetoableChangeListener, PublicCloneable, Serializable {
-
-        /** For serialization. */
-        private static final long serialVersionUID = -7590013825931496766L;
 
         /** The series that are included in the collection. */
         private List data;

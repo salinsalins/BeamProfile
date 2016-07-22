@@ -1388,7 +1388,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     //XYSeriesCollection dataset = (XYSeriesCollection) plot.getDataset();
                     //dataset.removeAllSeries();
                     for (int i = 0; i < trn.length; i++) { 
-                        XYSeries series = new XYSeries("Signal " + i);
+                        XYSeries series = new XYSeries("Signal " + i, false, true);
                         //XYSeries series = dataset.getSeries(i);
                         System.out.println(i);
                     for (int j = 0; j < data.length; j++) {

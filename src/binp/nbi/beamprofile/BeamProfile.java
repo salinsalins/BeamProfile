@@ -1264,318 +1264,313 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         @Override
         public Void doInBackground() {
             logger.fine("Background task started");
-            while(!flag_stop) {
-                logger.finest("LOOP");
-                // If input was changed
-                if(in_flag) {
-                    logger.fine("Input changed");
-                    // Reset flag
-                    in_flag = false;
-                    // Close input file
-                    deleteADAMs();
-                    // Create ADAMs
-                    createADAMs();
-                }
-                
-                // If output was changed
-                if(outFlag) {
-                    logger.fine("Output changed");
-                    // Reset flag
-                    outFlag = false;
-   
-                    // If write to output is enabled
-                    if (isWriteEnabled()) {
-                        // Close output file
-                        closeFile(out_fid);
-                        // Open new output file
-                        openOutputFile();
+            try {
+                while(!flag_stop) {
+                    //logger.finest("LOOP");
+                    // If input was changed
+                    if(in_flag) {
+                        logger.fine("Input changed");
+                        // Reset flag
+                        in_flag = false;
+                        // Close input file
+                        deleteADAMs();
+                        // Create ADAMs
+                        createADAMs();
                     }
-                }
-                
-                // If Start was pressed
-                if (jToggleButton1.isSelected()) {
-                    Date c = new Date();
-                
-                    // Change output file every hour
-                    if (flag_hour && (c.getHours() != c0.getHours())) {
-                        c0 = c;
-			outFlag = true;
-                    }
-                
-                    // Faded profiles - refresh every fpdt seconds
-                    if (Math.abs(c.getSeconds() - c1.getSeconds()) < fpdt) {
-                        for(int i = 0; i < fpi.length; i++) {
-                            fpi[i] = fpi[i] - 1;
+
+                    // If output was changed
+                    System.out.println(outFlag);
+                    if(outFlag) {
+                        logger.fine("Output changed");
+                        // Reset flag
+                        outFlag = false;
+
+                        // If write to output is enabled
+                        if (isWriteEnabled()) {
+                            // Close output file
+                            closeFile(out_fid);
+                            // Open new output file
+                            openOutputFile();
                         }
                     }
-                    else {
-                        for(int i = 0; i < fpi.length-1; i++) {
-                            fpi[i] = fpi[i+1];
+
+                    // If Start was pressed
+                    //System.out.println(jToggleButton1.isSelected());
+                    if (jToggleButton1.isSelected()) {
+                        Date c = new Date();
+
+                        // Change output file every hour
+                        if (flag_hour && (c.getHours() != c0.getHours())) {
+                            c0 = c;
+                            outFlag = true;
                         }
-                        fpi[fpi.length - 1] = nx;
-                        c1 = c;
-                    }
-		
-                    // Read data from ADAMs
-                    Date cr = new Date();
-                    
-                    double[] t3 = adams[0].readData();
-                    double[] t4 = adams[1].readData();
-                    double[] t2 = adams[3].readData();
 
-                    double[] temp = new double[data[0].length];
-                    System.arraycopy(data[nx-1], 0, temp, 0, temp.length);
-                    
-                    temp[0] = cr.getTime();
-                    System.arraycopy(t3, 0, temp, 1, 8);
-                    System.arraycopy(t4, 0, temp, 9, 8);
-                    System.arraycopy(t2, 0, temp, 17, 8);
-		
-                    // If temperature readings == 0 then use previous value
-                    for (int i = 0; i < temp.length; i++) {
-                        if (temp[i] == 0.0)
-                            temp[i] = data[nx-1][i];
-                    } 
+                        // Faded profiles - refresh every fpdt seconds
+                        if (Math.abs(c.getSeconds() - c1.getSeconds()) < fpdt) {
+                            for(int i = 0; i < fpi.length; i++) {
+                                fpi[i] = fpi[i] - 1;
+                            }
+                        }
+                        else {
+                            for(int i = 0; i < fpi.length-1; i++) {
+                                fpi[i] = fpi[i+1];
+                            }
+                            fpi[fpi.length - 1] = nx;
+                            c1 = c;
+                        }
 
-                    // Save line with data to output file if log writing is enabled
-                    if (isWriteEnabled() && (out_fid != null)) {
-                        try {
-                            // Write Time in milliseconds - not time HH:MM:SS.SS
-                            String str = String.format("%d; ", (long) temp[0]);
-                            out_fid.write(str, 0, str.length());
-                            // Data output format
-                            String fmt = "%+07.2f";
-                            // Separator is "; "
-                            String sep = "; ";
-                            // Write data array
-                            for (int i = 1; i < temp.length-1; i++) {
-                                str = String.format(fmt+sep, temp[i]);
+                        // Read data from ADAMs
+                        Date cr = new Date();
+
+                        double[] t3 = adams[0].readData();
+                        double[] t4 = adams[1].readData();
+                        double[] t2 = adams[3].readData();
+
+                        double[] temp = new double[data[0].length];
+                        System.arraycopy(data[nx-1], 0, temp, 0, temp.length);
+
+                        temp[0] = cr.getTime();
+                        System.arraycopy(t3, 0, temp, 1, t3.length);
+                        System.arraycopy(t4, 0, temp, 9, t4.length);
+                        System.arraycopy(t2, 0, temp, 17, t2.length);
+
+                        // If temperature readings == 0 then use previous value
+                        for (int i = 0; i < temp.length; i++) {
+                            if (temp[i] == 0.0)
+                                temp[i] = data[nx-1][i];
+                        } 
+
+                        // Save line with data to output file if log writing is enabled
+                        if (isWriteEnabled() && (out_fid != null)) {
+                            try {
+                                // Write Time in milliseconds - not time HH:MM:SS.SS
+                                String str = String.format("%d; ", (long) temp[0]);
                                 out_fid.write(str, 0, str.length());
+                                // Data output format
+                                String fmt = "%+07.2f";
+                                // Separator is "; "
+                                String sep = "; ";
+                                // Write data array
+                                for (int i = 1; i < temp.length-1; i++) {
+                                    str = String.format(fmt+sep, temp[i]);
+                                    out_fid.write(str, 0, str.length());
+                                }
+                                // Write last value with NL instead of sepearator
+                                str = String.format(fmt+"\n", temp[temp.length-1]);
+                                out_fid.write(str, 0, str.length());
+                                out_fid.flush();
+                            } catch (IOException ex) {
+                                logger.log(Level.SEVERE, null, ex);
                             }
-                            // Write last value with NL instead of sepearator
-                            str = String.format(fmt+"\n", temp[temp.length-1]);
-                            out_fid.write(str, 0, str.length());
-                            out_fid.flush();
-                        } catch (IOException ex) {
-                            logger.log(Level.SEVERE, null, ex);
                         }
-                    }
 
-                    // Shift data array
-                    for (int i = 0; i < data.length-1; i++) {
-                        data[i] = data[i+1];
-                    }
-                    // Fill last data point
-                    data[nx-1] = temp;
-
-                    // Calculate minimum values
-                    if (data[0][0] <= 0 ) {
-			// First reading, fill arrays with defaults
-                        System.arraycopy(temp, 0, dmin, 0, dmin.length);
-			for (int i = 0; i < data.length-1; i++) {
-                            //System.arraycopy(data[data.length-1], 0, data[i], 0, dmin.length);
-                            data[i] = data[nx-1];
-                            //data(ii, :) = data(nx, :);
-			}
-                    }
-                    else {
-			// Calculate minimum
-			dmin = min(data);
-                    }
-                    
-                    process(new ArrayList<Void>());
-
-/*                    
-                    // Update data traces for trn(:) channels
-                    XYPlot plot = chart1.getChart().getXYPlot();
-                    boolean savedNotify = plot.isNotify();
-                    // Stop refreshing the plot
-                    plot.setNotify(false);
-*/
-                    //SyncronizedXYSeriesCollection dataset = (SyncronizedXYSeriesCollection) plot.getDataset();
-                    dataset = new XYSeriesCollection();
-                    //dataset.removeAllSeries();
-                    for (int i = 0; i < trn.length; i++) { 
-                        XYSeries series = new XYSeries("Signal " + i);
-                    for (int j = 0; j < data.length; j++) {
-                            double x = (data[j][0] - data[0][0])/1000.0;
-                            double y = data[j][trn[i]];
-                            series.add(x, y);
+                        // Shift data array
+                        for (int i = 0; i < data.length-1; i++) {
+                            data[i] = data[i+1];
                         }
-                        dataset.addSeries(series);
-                    }
-/*
-                    // Restore refreshing state
-                    plot.setNotify(savedNotify);
-*/
-                    
-//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
-/*
-                    // Shift marker
-                    mi = mi - 1;
-                    if mi < 1
-			[~, mi] = max(current);
-                    }
-                    mi1 = max(mi - mw, 1);
-                    mi2 = min(mi + mw, nx);
-		
-                    // Determine index for targeting traces
-                    [v1, v2] = max(data(mi1:mi2, tpn));
-                    [~, v3] = max(v1);
-                    tpnm = v2(v3) + mi1;
-                    tpn2 = tpnm + tpw;
-                    if tpn2 > nx {
-			tpn2 = nx;
-			tpn1 = nx - 2*tpw - 1;
-                    }
-                    else {
-			tpn1 = tpnm - tpw;
-			if tpn1 < 1 {
-                            tpn1 = 1;
-                            tpn2 = 2*tpw + 2;
-			}
-                    }
-		
-                    // Determine beam durationi from targeting traces
-                    if (tpn1 > 1) && (tpn2 < nx) {
-			[v1, v2] = max(data(tpn1:tpn2, tpn));
-			[d1, v3] = max(v1);
-			d2 = min(data(tpn1:tpn2, tpn(v3)));
-			d3 = d2+(d1-d2)*0.5;
-			d4 = find(data(tpn1:tpn2, tpn(v3)) > d3) + tpn1;
-			if numel(d4) > 1 {
-                            cdt = etime(datevec(data(d4(}), 1)), datevec(data(d4(1), 1)));
-                            if ~isMax(hCbDuration) {
-                                // Replase with calculated value 
-                                set(hEdDuration, "String", sprintf("//4.2f", cdt));
-                                duration = cdt;
+                        // Fill last data point
+                        data[nx-1] = temp;
+
+                        // Calculate minimum values
+                        if (data[0][0] <= 0 ) {
+                            // First reading, fill arrays with defaults
+                            System.arraycopy(temp, 0, dmin, 0, dmin.length);
+                            for (int i = 0; i < data.length-1; i++) {
+                                //System.arraycopy(data[data.length-1], 0, data[i], 0, dmin.length);
+                                data[i] = data[nx-1];
+                                //data(ii, :) = data(nx, :);
                             }
-			}
-                    }
-		
-                    // Update targeting traces
-                    for ii = 1:numel(tpn) {
-			set(tph(ii), "Ydata", data(:, tpn(ii))-dmin(tpn(ii)));
-			set(hAxes4, "XLimMode", "manual", "XLim", [tpn1, tpn2]);
-			set(tph1(ii), "Xdata", tpn1:tpn2);
-			set(tph1(ii), "Ydata", data(tpn1:tpn2, tpn(ii))-dmin(tpn(ii)));
-                    }
+                        }
+                        else {
+                            // Calculate minimum
+                            dmin = min(data);
+                        }
 
-                    // Update acceleration grid traces
-                    for ii = 1:numel(agn) {
-			set(agh(ii), "Ydata", smooth(data(:, agn(ii)), 20)-dmin(agn(ii)));
-                    }
-		
-                    // Calculate and plot equivalent current
-                    // Calculate Delta T
-                    deltat = data(:, bctout)-data(:, bctin)-dmin(bctout)+dmin(bctin);  // C
-                    deltat = smooth(deltat,30);
-                    // Calculate measured flow
-                    cflow = data(:, bcflowchan);
-                    cflow(cflow <= 0.001) = 0.001;
-                    cflow = smooth(cflow,30);
-                    cflow = cflow*bcv2flow;
-                    if isMax(hCbFlow) {
-			cflow(:) = flow;
+
+                        dataset = new XYSeriesCollection();
+                        //dataset.removeAllSeries();
+                        for (int i = 0; i < trn.length; i++) { 
+                            XYSeries series = new XYSeries("Signal " + i, false, true);
+                        for (int j = 0; j < data.length; j++) {
+                                double x = (data[j][0] - data[0][0])/1000.0;
+                                double y = data[j][trn[i]];
+                                series.add(x, y);
+                            }
+                            dataset.addSeries(series);
+                        }
+                        process(new ArrayList<Void>());
+
+    //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
+    /*
+                        // Shift marker
+                        mi = mi - 1;
+                        if mi < 1
+                            [~, mi] = max(current);
+                        }
+                        mi1 = max(mi - mw, 1);
+                        mi2 = min(mi + mw, nx);
+
+                        // Determine index for targeting traces
+                        [v1, v2] = max(data(mi1:mi2, tpn));
+                        [~, v3] = max(v1);
+                        tpnm = v2(v3) + mi1;
+                        tpn2 = tpnm + tpw;
+                        if tpn2 > nx {
+                            tpn2 = nx;
+                            tpn1 = nx - 2*tpw - 1;
+                        }
+                        else {
+                            tpn1 = tpnm - tpw;
+                            if tpn1 < 1 {
+                                tpn1 = 1;
+                                tpn2 = 2*tpw + 2;
+                            }
+                        }
+
+                        // Determine beam durationi from targeting traces
+                        if (tpn1 > 1) && (tpn2 < nx) {
+                            [v1, v2] = max(data(tpn1:tpn2, tpn));
+                            [d1, v3] = max(v1);
+                            d2 = min(data(tpn1:tpn2, tpn(v3)));
+                            d3 = d2+(d1-d2)*0.5;
+                            d4 = find(data(tpn1:tpn2, tpn(v3)) > d3) + tpn1;
+                            if numel(d4) > 1 {
+                                cdt = etime(datevec(data(d4(}), 1)), datevec(data(d4(1), 1)));
+                                if ~isMax(hCbDuration) {
+                                    // Replase with calculated value 
+                                    set(hEdDuration, "String", sprintf("//4.2f", cdt));
+                                    duration = cdt;
+                                }
+                            }
+                        }
+
+                        // Update targeting traces
+                        for ii = 1:numel(tpn) {
+                            set(tph(ii), "Ydata", data(:, tpn(ii))-dmin(tpn(ii)));
+                            set(hAxes4, "XLimMode", "manual", "XLim", [tpn1, tpn2]);
+                            set(tph1(ii), "Xdata", tpn1:tpn2);
+                            set(tph1(ii), "Ydata", data(tpn1:tpn2, tpn(ii))-dmin(tpn(ii)));
+                        }
+
+                        // Update acceleration grid traces
+                        for ii = 1:numel(agn) {
+                            set(agh(ii), "Ydata", smooth(data(:, agn(ii)), 20)-dmin(agn(ii)));
+                        }
+
+                        // Calculate and plot equivalent current
+                        // Calculate Delta T
+                        deltat = data(:, bctout)-data(:, bctin)-dmin(bctout)+dmin(bctin);  // C
+                        deltat = smooth(deltat,30);
+                        // Calculate measured flow
+                        cflow = data(:, bcflowchan);
+                        cflow(cflow <= 0.001) = 0.001;
+                        cflow = smooth(cflow,30);
+                        cflow = cflow*bcv2flow;
+                        if isMax(hCbFlow) {
+                            cflow(:) = flow;
+                        }
+                        else {
+                            set(hEdFlow, "String", sprintf("//5.2f", cflow(})));
+                        }
+                        current = deltat.*cflow*Q/voltage;  //mA
+
+                        // Calculate current by intergal 
+                        [bcmax, ind] = max(current);
+                        bcw = mw;   // Intergation window is 2*bcw+1 points
+                        ind = mi;
+                        i2 = ind + bcw;
+                        if (i2 > nx) {
+                            i2 = nx;
+                            i1 = nx -2*bcw-1;
+                        }
+                        else {
+                            i1 = ind - bcw;
+                            if (i1 < 1) {
+                                i1 = 1;
+                                i2 = 2*bcw+1;
+                            }
+                        }
+                        if ((i1 > 1) && (i2 < nx)) {
+                            ctotal = sum(current(i1:i2));
+                            cdt = etime(datevec(data(i2, 1)), datevec(data(i1, 1)));
+                            ctotal = ctotal - (current(i1)+current(i2))/2*(2*bcw);
+                            cdt1 = cdt/(2*bcw);
+                            cbd = duration;   // sec Beam duration
+                            cti = ctotal*cdt1/cbd;
+                            set(hTxtCurrent, "String", sprintf("Current //5.1f mA", cti));
+                        }
+
+                        set(bcmaxh, "String", sprintf("//5.1f mA", bcmax));
+                        set(bcch, "String", sprintf("//5.1f mA", current(})));
+                        set(bch, "Ydata", current - min(current));
+                        set(mh, "Xdata", i1:i2);
+                        set(mh, "Ydata", current(i1:i2) - min(current));
+
+                        // Calculate profiles prof1 - vertical and prof2 - horizontal
+                        prof1 = data(nx, p1range) - dmin(p1range);
+                        prof2 = data(nx, p2range) - dmin(p2range);
+                        // Calculate maximal profile
+                        [dmax, imax] = max(data(:, p1range));
+                        [~, immax] = max(dmax);
+                        prof1max  = data(imax(immax), p1range) - dmin(p1range);
+                        prof2max  = data(imax(immax), p2range) - dmin(p2range);
+                        if (max(prof1max) < 1) {
+                            prof1max(:) = 1;
+                        }
+
+                        if (max(prof1max) > max(prof1max1)) {
+                            prof1max1  = prof1max;
+                        }
+
+                        // Plot profiles
+                        // Plot current vertical profile
+                        set(prof1h, "Ydata",  prof1);
+
+                        // Plot current horizontal profile
+                        set(prof2h, "Ydata",  prof2);
+
+                        // Plot faded profiles
+                        for (ii = 1:numel(fpi)) {
+                            prof1  = data(fpi(ii), p1range) - dmin(p1range);
+                            set(fph(ii), "Ydata",  prof1);
+                        }
+
+                        // Plot max1 profile
+                        if (get(hCbMax1Prof, "Value") == get(hCbMax1Prof, "Max")) {
+                            set(prof1max1h, "Ydata",  prof1max1);
+                        }
+
+                        // Plot max profile
+                        set(prof1maxh, "Ydata",  prof1max);
+                        set(prof2maxh, "Ydata",  prof2max);
+
+                        // Refresh Figure
+                        drawnow
                     }
                     else {
-			set(hEdFlow, "String", sprintf("//5.2f", cflow(})));
+                        // Refresh Figure
+                        drawnow
                     }
-                    current = deltat.*cflow*Q/voltage;  //mA
-		
-                    // Calculate current by intergal 
-                    [bcmax, ind] = max(current);
-                    bcw = mw;   // Intergation window is 2*bcw+1 points
-                    ind = mi;
-                    i2 = ind + bcw;
-                    if (i2 > nx) {
-                        i2 = nx;
-                        i1 = nx -2*bcw-1;
+    */
+    // </editor-fold> 
                     }
-                    else {
-                        i1 = ind - bcw;
-			if (i1 < 1) {
-                            i1 = 1;
-                            i2 = 2*bcw+1;
-			}
-                    }
-                    if ((i1 > 1) && (i2 < nx)) {
-			ctotal = sum(current(i1:i2));
-			cdt = etime(datevec(data(i2, 1)), datevec(data(i1, 1)));
-			ctotal = ctotal - (current(i1)+current(i2))/2*(2*bcw);
-			cdt1 = cdt/(2*bcw);
-			cbd = duration;   // sec Beam duration
-			cti = ctotal*cdt1/cbd;
-			set(hTxtCurrent, "String", sprintf("Current //5.1f mA", cti));
-                    }
-
-                    set(bcmaxh, "String", sprintf("//5.1f mA", bcmax));
-                    set(bcch, "String", sprintf("//5.1f mA", current(})));
-                    set(bch, "Ydata", current - min(current));
-                    set(mh, "Xdata", i1:i2);
-                    set(mh, "Ydata", current(i1:i2) - min(current));
-		
-                    // Calculate profiles prof1 - vertical and prof2 - horizontal
-                    prof1 = data(nx, p1range) - dmin(p1range);
-                    prof2 = data(nx, p2range) - dmin(p2range);
-                    // Calculate maximal profile
-                    [dmax, imax] = max(data(:, p1range));
-                    [~, immax] = max(dmax);
-                    prof1max  = data(imax(immax), p1range) - dmin(p1range);
-                    prof2max  = data(imax(immax), p2range) - dmin(p2range);
-                    if (max(prof1max) < 1) {
-			prof1max(:) = 1;
-                    }
-                    
-                    if (max(prof1max) > max(prof1max1)) {
-			prof1max1  = prof1max;
-                    }
-		
-                    // Plot profiles
-                    // Plot current vertical profile
-                    set(prof1h, "Ydata",  prof1);
-		
-                    // Plot current horizontal profile
-                    set(prof2h, "Ydata",  prof2);
-		
-                    // Plot faded profiles
-                    for (ii = 1:numel(fpi)) {
-			prof1  = data(fpi(ii), p1range) - dmin(p1range);
-			set(fph(ii), "Ydata",  prof1);
-                    }
-			
-                    // Plot max1 profile
-                    if (get(hCbMax1Prof, "Value") == get(hCbMax1Prof, "Max")) {
-			set(prof1max1h, "Ydata",  prof1max1);
-                    }
-			
-                    // Plot max profile
-                    set(prof1maxh, "Ydata",  prof1max);
-                    set(prof2maxh, "Ydata",  prof2max);
-                    
-                    // Refresh Figure
-                    drawnow
-                }
-                else {
-                    // Refresh Figure
-                    drawnow
-                }
-*/
-// </editor-fold> 
                 }
             }
+            catch (Exception ex) {
+                logger.log(Level.SEVERE, "Exception during doInBackground" , ex);
+           }
             return null;
         }
         
         @Override
         protected void process(List<Void> chunks) {
             XYPlot plot = chart1.getChart().getXYPlot();
-            boolean savedNotify = plot.isNotify();
+            //boolean savedNotify = plot.isNotify();
             // Stop refreshing the plot
-            plot.setNotify(false);
+            //plot.setNotify(false);
             plot.setDataset(dataset);
             // Restore refreshing state
-            plot.setNotify(savedNotify);
+            //plot.setNotify(savedNotify);
         }
 
         /**

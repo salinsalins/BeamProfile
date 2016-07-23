@@ -2,7 +2,9 @@
  */
 package binp.nbi.beamprofile;
 
+import static binp.nbi.beamprofile.BeamProfile.logger;
 import java.util.Date;
+import java.util.logging.Level;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
@@ -343,19 +345,20 @@ public class ADAM {
     }
 		
     public static double[] doubleFromString(String str) {
+        double[] data = new double[0];
         try {
             str = str.substring(1);
             String str1 = str.replaceAll("\\+","; +");
             String str2 = str1.replaceAll("-","; -");
             if (str2.startsWith("; ")) str2 = str2.substring(2);
             String[] strarr = str2.split("; ");
-            double[] data = new double[strarr.length];
+            data = new double[strarr.length];
             int j = 0; 
             for (String s : strarr) {
                 try {
                     data[j] = Double.parseDouble(s);
                 }
-                catch (NumberFormatException | NullPointerException ex) {
+                catch (Exception ex) {
                     data[j] = -8888.8;
                 }
                 j++;
@@ -363,7 +366,8 @@ public class ADAM {
             return data;
         }
         catch (Exception ex) {
-            return new double[0];
+            //logger.log(Level.INFO, "ADAM response conversion error.", ex);
+            return data;
         }
     }
 

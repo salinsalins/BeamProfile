@@ -103,8 +103,9 @@ public class Adam4118 extends ADAM {
 
     public String readString() {
         if (reader != null) {
+            // Reading from BufferedReader reader
             if (index <= 0) {
-                // Read line from file
+                // Read next line
                 try {
                     line = reader.readLine();
                 } catch (IOException ex) {
@@ -117,9 +118,18 @@ public class Adam4118 extends ADAM {
                         return "";
                     }
                 }
-                if (line == null)
-                    return "";
-
+                if (line == null) {
+                    try {
+                        logger.log(Level.FINE, "Reset reader.");
+                        reader.reset();
+                        line = reader.readLine();
+                    } catch (IOException ex1) {
+                        logger.log(Level.INFO, "Line read error.");
+                        return "";
+                    }
+                    if (line == null) 
+                        return "";
+                }
                 columns = line.split(";");
                 index = 1;
             }

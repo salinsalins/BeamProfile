@@ -128,16 +128,16 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 	
     // Profile arrays and their plot handles
     int[] p1range = {1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13}; // Channels for vertical profile
-    int[] p1x = {0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12};       // X values for prof1
+    int[] p1x =     {0, 2, 3, 4, 5, 6, 7,  8,  9, 10, 12}; // X values for vertical profile
     int[] p2range = {15, 6, 14};     // Channels for horizontal profile
-    int[] p2x = {2, 6, 10};          // X values for prof2
+    int[] p2x =     { 2, 6, 10};     // X values for horizontal profile
     double[] prof1  = new double[p1range.length];  // Vertical profile
-    int prof1h = 0;     //Handle
-    double[] prof2  = new double[p2range.length];  // Vertical profile
+    int prof1h = 0;         // handle
+    double[] prof2  = new double[p2range.length];  // Horizontal profile
     int	prof2h = 0;         // handle
-    double[] prof1max  = new double[prof1.length];      // Maximal vertical profile (over the plot)
+    double[] prof1max  = new double[prof1.length];     // Maximal vertical profile (over the plot)
     int	prof1maxh = 0;          // Maximal vertical profile handle
-    double[] prof1max1  = new double[prof1max.length];      // Maximal vertical profile from the program start
+    double[] prof1max1  = new double[prof1max.length]; // Maximal vertical profile from the program start
     int prof1max1h = 0;         // Handle
     double[] prof2max  = new double[prof2.length];      // Maximal vertical profile (over the plot)
     int prof2maxh = 0;
@@ -151,7 +151,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     // Traces to plot
     int[] trn = {6, 2, 10};     // Channel numbers of traces
     Color[] trc = {Color.RED, Color.GREEN, Color.BLUE};  // Colors of traces
-    int[] trh = new int[trn.length];          // Handles of traces
 	
     // Beam current calculations and plot
     double voltage = 80.0;   // keV Particles energy
@@ -180,11 +179,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int tpb = 19;
     int tpl = 20;
     int tpr = 21;
-    int[] tpn = {tpt, tpb, tpl, tpr};   // Channel numbers of traces
+    
+    // Traces
+    int[] tpn = {tpt, tpb, tpl, tpr};   // Channel numbers for Targeting plots
     Color[] tpc = {Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA};  // Colors of traces
-    int[] tph = new int[tpn.length];    // Handles of traces
-    int[] tph1 = new int[tpn.length];    // Handles of traces zoom
-    double tpw = 30.0;                     // +- Zoom window halfwidth
+    int[] tph1 = new int[tpn.length];   // Handles of traces zoom
+    double tpw = 30.0;                  // +- Zoom window halfwidth
 	
     // Error logging file
     String logFileName = LogFileName("D:\\" + progNameShort + progVersion, "log");
@@ -278,12 +278,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         // Restore refreshing state
         plot.setNotify(savedNotify);
 
-
-
         chart2 = new ChartPanel(ChartFactory.createXYLineChart(
-                "Line Chart 2", // chart title
-                "Time, ms", // x axis label
-                "Signal, V", // y axis label
+                "Profiles", // chart title
+                "Time, s", // x axis label
+                "Profile", // y axis label
                 new XYSeriesCollection(), // data
                 PlotOrientation.VERTICAL,
                 false, // include legend
@@ -291,6 +289,27 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 false // urls
             ), true);
         chart2.setPreferredSize(new Dimension(100, 100));
+        chart2.getChart().getTitle().setFont(new Font("SansSerif", Font.PLAIN, 12));
+        plot = chart2.getChart().getXYPlot();
+        plot.setAxisOffset(RectangleInsets.ZERO_INSETS);
+        plot.getRangeAxis().setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
+        plot.getDomainAxis().setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
+        savedNotify = plot.isNotify();
+        // Stop refreshing the plot
+        plot.setNotify(false);
+        plot.setDataset(dataset);
+        dataset.removeAllSeries();
+        for (int i = 0; i < trn.length; i++) { 
+            XYSeries series = new XYSeries("Signal " + i);
+            for (int j = 0; j < data.length; j++) {
+                double x = j;
+                double y = Math.sin(Math.PI*j/500.0);
+                series.add(x, y);
+            }
+            dataset.addSeries(series);
+        }
+        // Restore refreshing state
+        plot.setNotify(savedNotify);
 
         chartPanel = new JPanel();
         chartPanel.setLayout(new GridLayout(0, 1, 5, 5));
@@ -516,40 +535,45 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                     .add(jLabel10)
                                     .add(jLabel9))
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jPanel7Layout.createSequentialGroup()
-                                        .add(jLabel2)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(18, 18, 18)
-                                        .add(jLabel8)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                    .add(jPanel7Layout.createSequentialGroup()
-                                        .add(jLabel11)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jComboBox2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(18, 18, 18)
-                                        .add(jLabel12)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                    .add(jPanel7Layout.createSequentialGroup()
-                                        .add(jLabel14)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jComboBox3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(18, 18, 18)
-                                        .add(jLabel15)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
                                         .add(jLabel17)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jComboBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 140, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                        .add(18, 18, 18)
+                                        .add(jComboBox4, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
+                                        .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel7Layout.createSequentialGroup()
+                                            .add(jLabel14)
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                            .add(jComboBox3, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel7Layout.createSequentialGroup()
+                                            .add(jLabel11)
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                            .add(jComboBox2, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel7Layout.createSequentialGroup()
+                                            .add(jLabel2)
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                            .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                                .add(80, 80, 80)
+                                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                            .add(jPanel7Layout.createSequentialGroup()
+                                                .add(jLabel8)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                                                .add(jLabel12)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                                            .add(jLabel15)
+                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                            .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
                                         .add(jLabel18)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                         .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
-                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap(24, Short.MAX_VALUE))
                 );
                 jPanel7Layout.setVerticalGroup(
                     jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -629,7 +653,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         .add(jLabel19)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jComboBox5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 118, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 187, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 183, Short.MAX_VALUE)
                         .add(jButton4)
                         .add(42, 42, 42))
                 );
@@ -668,6 +692,28 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jTextArea3.setText("");
     }//GEN-LAST:event_jButton4ActionPerformed
 
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        // TODO add your handling code here:
+        jToggleButton1Selected = jToggleButton1.isSelected();
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter(
+            "Text File", "txt");
+        fileChooser.setFileFilter(filter);
+        fileChooser.setCurrentDirectory(outFile.getParentFile());
+        int result = fileChooser.showDialog(null, "Open Log File");
+        if (result == JFileChooser.APPROVE_OPTION) {
+            outFile = fileChooser.getSelectedFile();
+            outFilePath = outFile.getParent();
+            outFileName = outFile.getName();
+            logger.fine("Output file " + outFileName);
+            jTextField6.setText(outFile.getAbsolutePath());
+            outFlag = true;
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
+
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         JFileChooser fileChooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
@@ -687,23 +733,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-            "Text File", "txt");
-        fileChooser.setFileFilter(filter);
-        fileChooser.setCurrentDirectory(outFile.getParentFile());
-        int result = fileChooser.showDialog(null, "Open Log File");
-        if (result == JFileChooser.APPROVE_OPTION) {
-            outFile = fileChooser.getSelectedFile();
-            outFilePath = outFile.getParent();
-            outFileName = outFile.getName();
-            logger.fine("Output file " + outFileName);
-            jTextField6.setText(outFile.getAbsolutePath());
-            outFlag = true;
-        }
-    }//GEN-LAST:event_jButton3ActionPerformed
-
     private void jCheckBox1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jCheckBox1PropertyChange
         in_flag = true;
     }//GEN-LAST:event_jCheckBox1PropertyChange
@@ -712,11 +741,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         in_file = new File(jTextField6.getText());
         Adam4118.file = in_file;
     }//GEN-LAST:event_jTextField6ActionPerformed
-
-    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        // TODO add your handling code here:
-        jToggleButton1Selected = jToggleButton1.isSelected();
-    }//GEN-LAST:event_jToggleButton1ActionPerformed
     
     /**
      * @param args the command line arguments
@@ -1267,7 +1291,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         BeamProfile bp;
         //XYSeriesCollection dataset;
         DefaultXYDataset dataset;
-                
+        DefaultXYDataset PorfileDataset;
+        DefaultXYDataset vertPorfDataset;
+        
         Task(BeamProfile bp) {
             this.bp = bp;
         }
@@ -1399,27 +1425,88 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             dmin = min(data);
                         }
 
-
-                        //dataset = new XYSeriesCollection();
+                        // Plot traces
                         dataset = new DefaultXYDataset();
-                        for (int i = 0; i < trn.length; i++) { 
-//                            XYSeries series = new XYSeries("Signal " + i, false, true);
-//                        for (int j = 0; j < data.length; j++) {
-//                                double x = (data[j][0] - data[0][0])/1000.0;
-//                                double y = data[j][trn[i]];
-//                                series.add(x, y);
-//                           }
-                            double[][] plottedData = new double[2][nx];
+                        double[][] plottedData;
+                        for (int i: trn) { 
+                            plottedData = new double[2][nx];
                             for (int j = 0; j < data.length; j++) {
                                 plottedData[0][j] = (data[j][0] - data[0][0])/1000.0;
-                                plottedData[1][j] = data[j][trn[i]];
+                                plottedData[1][j] = data[j][i];
                             }
                             dataset.addSeries("Signal " + i, plottedData);
                         }
                         process(new ArrayList<Void>());
 
-    //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
+                        // Calculate and plot profiles prof1 - vertical and prof2 - horizontal
+                        for (int i =0; i < p1range.length; i++) {
+                            prof1[i] = data[nx-1][p1range[i]] - dmin[p1range[i]];
+                        }
+                        for (int i =0; i < p2range.length; i++) {
+                            prof2[i] = data[nx-1][p2range[i]] - dmin[p2range[i]];
+                        }
+                        // Culate datasets for profiles
+                        // Current horizontal profile
+                        PorfileDataset = new DefaultXYDataset();
+                        plottedData = new double[2][p1range.length];
+                        for (int j = 0; j < p1range.length; j++) {
+                            plottedData[0][j] = p1x[j];
+                            plottedData[1][j] = prof1[j];
+                        }
+                        PorfileDataset.addSeries("horizProf", plottedData);
+                        // Current vertical profile
+                        plottedData = new double[2][p2range.length];
+                        for (int j = 0; j < p2range.length; j++) {
+                            plottedData[0][j] = p2x[j];
+                            plottedData[1][j] = prof2[j];
+                        }
+                        //PorfileDataset.addSeries("vertProf", plottedData);
+                        
+                        // Calculate maximal profile
+                        int imax = 0;
+                        double dmax = -273.0;
+                        for (int i = 0; i < nx; i++) {
+                            for (int  j = 0; j < p1range.length; j++) {
+                                if (data[i][p1range[j]] >= dmax) {
+                                    dmax = data[i][p1range[j]];
+                                    imax = i;
+                                }
+                            }
+                        }
+                        for (int i =0; i < p1range.length; i++) {
+                            prof1max[i] = data[imax][p1range[i]] - dmin[p1range[i]];
+                        }
+                        if (max(prof1max) < 1) {
+                            for (int i =0; i < p1range.length; i++) {
+                                prof1max[i] = 1.0;
+                            }
+                        }
+                        plottedData = new double[2][p1range.length];
+                        for (int j = 0; j < p1range.length; j++) {
+                            plottedData[0][j] = p1x[j];
+                            plottedData[1][j] = prof1max[j];
+                        }
+                        PorfileDataset.addSeries("maxProf", plottedData);
+                        for (int i =0; i < p2range.length; i++) {
+                            prof2max[i] = data[imax][p2range[i]] - dmin[p2range[i]];
+                        }
+
+                        for (int i: tpn) { 
+                            plottedData = new double[2][nx];
+                            for (int j = 0; j < data.length; j++) {
+                                plottedData[0][j] = (data[j][0] - data[0][0])/1000.0;
+                                plottedData[1][j] = data[j][i];
+                            }
+                            dataset.addSeries("Targeting " + i, plottedData);
+                        }
+                        
+//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
     /*
+
+                        if (max(prof1max) > max(prof1max1)) {
+                            prof1max1  = prof1max;
+                        }
+
                         // Shift marker
                         mi = mi - 1;
                         if mi < 1
@@ -1524,29 +1611,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         set(mh, "Xdata", i1:i2);
                         set(mh, "Ydata", current(i1:i2) - min(current));
 
-                        // Calculate profiles prof1 - vertical and prof2 - horizontal
-                        prof1 = data(nx, p1range) - dmin(p1range);
-                        prof2 = data(nx, p2range) - dmin(p2range);
-                        // Calculate maximal profile
-                        [dmax, imax] = max(data(:, p1range));
-                        [~, immax] = max(dmax);
-                        prof1max  = data(imax(immax), p1range) - dmin(p1range);
-                        prof2max  = data(imax(immax), p2range) - dmin(p2range);
-                        if (max(prof1max) < 1) {
-                            prof1max(:) = 1;
-                        }
-
-                        if (max(prof1max) > max(prof1max1)) {
-                            prof1max1  = prof1max;
-                        }
-
-                        // Plot profiles
-                        // Plot current vertical profile
-                        set(prof1h, "Ydata",  prof1);
-
-                        // Plot current horizontal profile
-                        set(prof2h, "Ydata",  prof2);
-
                         // Plot faded profiles
                         for (ii = 1:numel(fpi)) {
                             prof1  = data(fpi(ii), p1range) - dmin(p1range);
@@ -1583,12 +1647,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         @Override
         protected void process(List<Void> chunks) {
             XYPlot plot = chart1.getChart().getXYPlot();
-            //boolean savedNotify = plot.isNotify();
-            // Stop refreshing the plot
-            //plot.setNotify(false);
             plot.setDataset(dataset);
-            // Restore refreshing state
-            //plot.setNotify(savedNotify);
+            chart2.getChart().getXYPlot().setDataset(PorfileDataset);
         }
 
         /**
@@ -1599,674 +1659,4 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             //taskOutput.app}("Done!\n");
         }
     }
-    
-    /**
-     * Represents a collection of {@link XYSeries} objects that can be used as a
-     * dataset.
-     */
-    public class SyncronizedXYSeriesCollection extends AbstractIntervalXYDataset
-            implements IntervalXYDataset, DomainInfo, RangeInfo, 
-            VetoableChangeListener, PublicCloneable, Serializable {
-
-        /** The series that are included in the collection. */
-        private List data;
-
-        /** The interval delegate (used to calculate the start and end x-values). */
-        private IntervalXYDelegate intervalDelegate;
-
-        /**
-         * Constructs an empty dataset.
-         */
-        public SyncronizedXYSeriesCollection() {
-            this(null);
-        }
-
-        /**
-         * Constructs a dataset and populates it with a single series.
-         *
-         * @param series  the series (<code>null</code> ignored).
-         */
-        public SyncronizedXYSeriesCollection(XYSeries series) {
-            this.data = new java.util.ArrayList();
-            this.intervalDelegate = new IntervalXYDelegate(this, false);
-            addChangeListener(this.intervalDelegate);
-            if (series != null) {
-                this.data.add(series);
-                series.addChangeListener(this);
-                series.addVetoableChangeListener(this);
-            }
-        }
-
-        /**
-         * Returns the order of the domain (X) values, if this is known.
-         *
-         * @return The domain order.
-         */
-        @Override
-        public synchronized DomainOrder getDomainOrder() {
-            int seriesCount = getSeriesCount();
-            for (int i = 0; i < seriesCount; i++) {
-                XYSeries s = getSeries(i);
-                if (!s.getAutoSort()) {
-                    return DomainOrder.NONE;  // we can't be sure of the order
-                }
-            }
-            return DomainOrder.ASCENDING;
-        }
-
-        /**
-         * Adds a series to the collection and sends a {@link DatasetChangeEvent}
-         * to all registered listeners.
-         *
-         * @param series  the series (<code>null</code> not permitted).
-         * 
-         * @throws IllegalArgumentException if the key for the series is null or
-         *     not unique within the dataset.
-         */
-        public synchronized void addSeries(XYSeries series) {
-            ParamChecks.nullNotPermitted(series, "series");
-            if (getSeriesIndex(series.getKey()) >= 0) {
-                throw new IllegalArgumentException(
-                    "This dataset already contains a series with the key " 
-                    + series.getKey());
-            }
-            this.data.add(series);
-            series.addChangeListener(this);
-            series.addVetoableChangeListener(this);
-            fireDatasetChanged();
-        }
-
-        /**
-         * Removes a series from the collection and sends a
-         * {@link DatasetChangeEvent} to all registered listeners.
-         *
-         * @param series  the series index (zero-based).
-         */
-        public synchronized void removeSeries(int series) {
-            if ((series < 0) || (series >= getSeriesCount())) {
-                throw new IllegalArgumentException("Series index out of bounds.");
-            }
-            XYSeries s = (XYSeries) this.data.get(series);
-            if (s != null) {
-                removeSeries(s);
-            }
-        }
-
-        /**
-         * Removes a series from the collection and sends a
-         * {@link DatasetChangeEvent} to all registered listeners.
-         *
-         * @param series  the series (<code>null</code> not permitted).
-         */
-        public synchronized void removeSeries(XYSeries series) {
-            ParamChecks.nullNotPermitted(series, "series");
-            if (this.data.contains(series)) {
-                series.removeChangeListener(this);
-                series.removeVetoableChangeListener(this);
-                this.data.remove(series);
-                fireDatasetChanged();
-            }
-        }
-
-        /**
-         * Removes all the series from the collection and sends a
-         * {@link DatasetChangeEvent} to all registered listeners.
-         */
-        public synchronized void removeAllSeries() {
-            // Unregister the collection as a change listener to each series in
-            // the collection.
-            for (int i = 0; i < this.data.size(); i++) {
-              XYSeries series = (XYSeries) this.data.get(i);
-              series.removeChangeListener(this);
-              series.removeVetoableChangeListener(this);
-            }
-
-            // Remove all the series from the collection and notify listeners.
-            this.data.clear();
-            fireDatasetChanged();
-        }
-
-        /**
-         * Returns the number of series in the collection.
-         *
-         * @return The series count.
-         */
-        @Override
-        public synchronized int getSeriesCount() {
-            return this.data.size();
-        }
-
-        /**
-         * Returns a list of all the series in the collection.
-         *
-         * @return The list (which is unmodifiable).
-         */
-        public synchronized List getSeries() {
-            return Collections.unmodifiableList(this.data);
-        }
-
-        /**
-         * Returns the index of the specified series, or -1 if that series is not
-         * present in the dataset.
-         *
-         * @param series  the series (<code>null</code> not permitted).
-         *
-         * @return The series index.
-         *
-         * @since 1.0.6
-         */
-        public synchronized int indexOf(XYSeries series) {
-            ParamChecks.nullNotPermitted(series, "series");
-            return this.data.indexOf(series);
-        }
-
-        /**
-         * Returns a series from the collection.
-         *
-         * @param series  the series index (zero-based).
-         *
-         * @return The series.
-         *
-         * @throws IllegalArgumentException if <code>series</code> is not in the
-         *     range <code>0</code> to <code>getSeriesCount() - 1</code>.
-         */
-        public synchronized XYSeries getSeries(int series) {
-            if ((series < 0) || (series >= getSeriesCount())) {
-                throw new IllegalArgumentException("Series index out of bounds");
-            }
-            return (XYSeries) this.data.get(series);
-        }
-
-        /**
-         * Returns a series from the collection.
-         *
-         * @param key  the key (<code>null</code> not permitted).
-         *
-         * @return The series with the specified key.
-         *
-         * @throws UnknownKeyException if <code>key</code> is not found in the
-         *         collection.
-         *
-         * @since 1.0.9
-         */
-        public synchronized XYSeries getSeries(Comparable key) {
-            ParamChecks.nullNotPermitted(key, "key");
-            Iterator iterator = this.data.iterator();
-            while (iterator.hasNext()) {
-                XYSeries series = (XYSeries) iterator.next();
-                if (key.equals(series.getKey())) {
-                    return series;
-                }
-            }
-            throw new UnknownKeyException("Key not found: " + key);
-        }
-
-        /**
-         * Returns the key for a series.
-         *
-         * @param series  the series index (in the range <code>0</code> to
-         *     <code>getSeriesCount() - 1</code>).
-         *
-         * @return The key for a series.
-         *
-         * @throws IllegalArgumentException if <code>series</code> is not in the
-         *     specified range.
-         */
-        @Override
-        public synchronized Comparable getSeriesKey(int series) {
-            // defer argument checking
-            return getSeries(series).getKey();
-        }
-
-        /**
-         * Returns the index of the series with the specified key, or -1 if no
-         * series has that key.
-         * 
-         * @param key  the key (<code>null</code> not permitted).
-         * 
-         * @return The index.
-         * 
-         * @since 1.0.14
-         */
-        public synchronized int getSeriesIndex(Comparable key) {
-            ParamChecks.nullNotPermitted(key, "key");
-            int seriesCount = getSeriesCount();
-            for (int i = 0; i < seriesCount; i++) {
-                XYSeries series = (XYSeries) this.data.get(i);
-                if (key.equals(series.getKey())) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        /**
-         * Returns the number of items in the specified series.
-         *
-         * @param series  the series (zero-based index).
-         *
-         * @return The item count.
-         *
-         * @throws IllegalArgumentException if <code>series</code> is not in the
-         *     range <code>0</code> to <code>getSeriesCount() - 1</code>.
-         */
-        @Override
-        public synchronized int getItemCount(int series) {
-            // defer argument checking
-            return getSeries(series).getItemCount();
-        }
-
-        /**
-         * Returns the x-value for the specified series and item.
-         *
-         * @param series  the series (zero-based index).
-         * @param item  the item (zero-based index).
-         *
-         * @return The value.
-         */
-        @Override
-        public synchronized Number getX(int series, int item) {
-            XYSeries s = (XYSeries) this.data.get(series);
-            return s.getX(item);
-        }
-
-        /**
-         * Returns the starting X value for the specified series and item.
-         *
-         * @param series  the series (zero-based index).
-         * @param item  the item (zero-based index).
-         *
-         * @return The starting X value.
-         */
-        @Override
-        public synchronized Number getStartX(int series, int item) {
-            return this.intervalDelegate.getStartX(series, item);
-        }
-
-        /**
-         * Returns the ending X value for the specified series and item.
-         *
-         * @param series  the series (zero-based index).
-         * @param item  the item (zero-based index).
-         *
-         * @return The ending X value.
-         */
-        @Override
-        public synchronized Number getEndX(int series, int item) {
-            return this.intervalDelegate.getEndX(series, item);
-        }
-
-        /**
-         * Returns the y-value for the specified series and item.
-         *
-         * @param series  the series (zero-based index).
-         * @param index  the index of the item of interest (zero-based).
-         *
-         * @return The value (possibly <code>null</code>).
-         */
-        @Override
-        public synchronized Number getY(int series, int index) {
-            XYSeries s = (XYSeries) this.data.get(series);
-            return s.getY(index);
-        }
-
-        /**
-         * Returns the starting Y value for the specified series and item.
-         *
-         * @param series  the series (zero-based index).
-         * @param item  the item (zero-based index).
-         *
-         * @return The starting Y value.
-         */
-        @Override
-        public synchronized Number getStartY(int series, int item) {
-            return getY(series, item);
-        }
-
-        /**
-         * Returns the ending Y value for the specified series and item.
-         *
-         * @param series  the series (zero-based index).
-         * @param item  the item (zero-based index).
-         *
-         * @return The ending Y value.
-         */
-        @Override
-        public synchronized Number getEndY(int series, int item) {
-            return getY(series, item);
-        }
-
-        /**
-         * Tests this collection for equality with an arbitrary object.
-         *
-         * @param obj  the object (<code>null</code> permitted).
-         *
-         * @return A boolean.
-         */
-        @Override
-        public synchronized boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (!(obj instanceof XYSeriesCollection)) {
-                return false;
-            }
-            SyncronizedXYSeriesCollection that = (SyncronizedXYSeriesCollection) obj;
-            if (!this.intervalDelegate.equals(that.intervalDelegate)) {
-                return false;
-            }
-            return ObjectUtilities.equal(this.data, that.data);
-        }
-
-        /**
-         * Returns a clone of this instance.
-         *
-         * @return A clone.
-         *
-         * @throws CloneNotSupportedException if there is a problem.
-         */
-        @Override
-        public synchronized Object clone() throws CloneNotSupportedException {
-            SyncronizedXYSeriesCollection clone = (SyncronizedXYSeriesCollection) super.clone();
-            clone.data = (List) ObjectUtilities.deepClone(this.data);
-            clone.intervalDelegate
-                    = (IntervalXYDelegate) this.intervalDelegate.clone();
-            return clone;
-        }
-
-        /**
-         * Returns a hash code.
-         *
-         * @return A hash code.
-         */
-        @Override
-        public synchronized int hashCode() {
-            int hash = 5;
-            hash = HashUtilities.hashCode(hash, this.intervalDelegate);
-            hash = HashUtilities.hashCode(hash, this.data);
-            return hash;
-        }
-
-        /**
-         * Returns the minimum x-value in the dataset.
-         *
-         * @param includeInterval  a flag that determines whether or not the
-         *                         x-interval is taken into account.
-         *
-         * @return The minimum value.
-         */
-        @Override
-        public synchronized double getDomainLowerBound(boolean includeInterval) {
-            if (includeInterval) {
-                return this.intervalDelegate.getDomainLowerBound(includeInterval);
-            }
-            double result = Double.NaN;
-            int seriesCount = getSeriesCount();
-            for (int s = 0; s < seriesCount; s++) {
-                XYSeries series = getSeries(s);
-                double lowX = series.getMinX();
-                if (Double.isNaN(result)) {
-                    result = lowX;
-                }
-                else {
-                    if (!Double.isNaN(lowX)) {
-                        result = Math.min(result, lowX);
-                    }
-                }
-            }
-            return result;
-        }
-
-        /**
-         * Returns the maximum x-value in the dataset.
-         *
-         * @param includeInterval  a flag that determines whether or not the
-         *                         x-interval is taken into account.
-         *
-         * @return The maximum value.
-         */
-        @Override
-        public synchronized double getDomainUpperBound(boolean includeInterval) {
-            if (includeInterval) {
-                return this.intervalDelegate.getDomainUpperBound(includeInterval);
-            }
-            else {
-                double result = Double.NaN;
-                int seriesCount = getSeriesCount();
-                for (int s = 0; s < seriesCount; s++) {
-                    XYSeries series = getSeries(s);
-                    double hiX = series.getMaxX();
-                    if (Double.isNaN(result)) {
-                        result = hiX;
-                    }
-                    else {
-                        if (!Double.isNaN(hiX)) {
-                            result = Math.max(result, hiX);
-                        }
-                    }
-                }
-                return result;
-            }
-        }
-
-        /**
-         * Returns the range of the values in this dataset's domain.
-         *
-         * @param includeInterval  a flag that determines whether or not the
-         *                         x-interval is taken into account.
-         *
-         * @return The range (or <code>null</code> if the dataset contains no
-         *     values).
-         */
-        @Override
-        public synchronized Range getDomainBounds(boolean includeInterval) {
-            if (includeInterval) {
-                return this.intervalDelegate.getDomainBounds(includeInterval);
-            }
-            else {
-                double lower = Double.POSITIVE_INFINITY;
-                double upper = Double.NEGATIVE_INFINITY;
-                int seriesCount = getSeriesCount();
-                for (int s = 0; s < seriesCount; s++) {
-                    XYSeries series = getSeries(s);
-                    double minX = series.getMinX();
-                    if (!Double.isNaN(minX)) {
-                        lower = Math.min(lower, minX);
-                    }
-                    double maxX = series.getMaxX();
-                    if (!Double.isNaN(maxX)) {
-                        upper = Math.max(upper, maxX);
-                    }
-                }
-                if (lower > upper) {
-                    return null;
-                }
-                else {
-                    return new Range(lower, upper);
-                }
-            }
-        }
-
-        /**
-         * Returns the interval width. This is used to calculate the start and end
-         * x-values, if/when the dataset is used as an {@link IntervalXYDataset}.
-         *
-         * @return The interval width.
-         */
-        public synchronized double getIntervalWidth() {
-            return this.intervalDelegate.getIntervalWidth();
-        }
-
-        /**
-         * Sets the interval width and sends a {@link DatasetChangeEvent} to all
-         * registered listeners.
-         *
-         * @param width  the width (negative values not permitted).
-         */
-        public synchronized void setIntervalWidth(double width) {
-            if (width < 0.0) {
-                throw new IllegalArgumentException("Negative 'width' argument.");
-            }
-            this.intervalDelegate.setFixedIntervalWidth(width);
-            fireDatasetChanged();
-        }
-
-        /**
-         * Returns the interval position factor.
-         *
-         * @return The interval position factor.
-         */
-        public synchronized double getIntervalPositionFactor() {
-            return this.intervalDelegate.getIntervalPositionFactor();
-        }
-
-        /**
-         * Sets the interval position factor. This controls where the x-value is in
-         * relation to the interval surrounding the x-value (0.0 means the x-value
-         * will be positioned at the start, 0.5 in the middle, and 1.0 at the end).
-         *
-         * @param factor  the factor.
-         */
-        public synchronized void setIntervalPositionFactor(double factor) {
-            this.intervalDelegate.setIntervalPositionFactor(factor);
-            fireDatasetChanged();
-        }
-
-        /**
-         * Returns whether the interval width is automatically calculated or not.
-         *
-         * @return Whether the width is automatically calculated or not.
-         */
-        public synchronized boolean isAutoWidth() {
-            return this.intervalDelegate.isAutoWidth();
-        }
-
-        /**
-         * Sets the flag that indicates whether the interval width is automatically
-         * calculated or not.
-         *
-         * @param b  a boolean.
-         */
-        public synchronized void setAutoWidth(boolean b) {
-            this.intervalDelegate.setAutoWidth(b);
-            fireDatasetChanged();
-        }
-
-        /**
-         * Returns the range of the values in this dataset's range.
-         *
-         * @param includeInterval  ignored.
-         *
-         * @return The range (or <code>null</code> if the dataset contains no
-         *     values).
-         */
-        @Override
-        public synchronized Range getRangeBounds(boolean includeInterval) {
-            double lower = Double.POSITIVE_INFINITY;
-            double upper = Double.NEGATIVE_INFINITY;
-            int seriesCount = getSeriesCount();
-            for (int s = 0; s < seriesCount; s++) {
-                XYSeries series = getSeries(s);
-                double minY = series.getMinY();
-                if (!Double.isNaN(minY)) {
-                    lower = Math.min(lower, minY);
-                }
-                double maxY = series.getMaxY();
-                if (!Double.isNaN(maxY)) {
-                    upper = Math.max(upper, maxY);
-                }
-            }
-            if (lower > upper) {
-                return null;
-            }
-            else {
-                return new Range(lower, upper);
-            }
-        }
-
-        /**
-         * Returns the minimum y-value in the dataset.
-         *
-         * @param includeInterval  a flag that determines whether or not the
-         *                         y-interval is taken into account.
-         *
-         * @return The minimum value.
-         */
-        @Override
-        public synchronized double getRangeLowerBound(boolean includeInterval) {
-            double result = Double.NaN;
-            int seriesCount = getSeriesCount();
-            for (int s = 0; s < seriesCount; s++) {
-                XYSeries series = getSeries(s);
-                double lowY = series.getMinY();
-                if (Double.isNaN(result)) {
-                    result = lowY;
-                }
-                else {
-                    if (!Double.isNaN(lowY)) {
-                        result = Math.min(result, lowY);
-                    }
-                }
-            }
-            return result;
-        }
-
-        /**
-         * Returns the maximum y-value in the dataset.
-         *
-         * @param includeInterval  a flag that determines whether or not the
-         *                         y-interval is taken into account.
-         *
-         * @return The maximum value.
-         */
-        @Override
-        public synchronized double getRangeUpperBound(boolean includeInterval) {
-            double result = Double.NaN;
-            int seriesCount = getSeriesCount();
-            for (int s = 0; s < seriesCount; s++) {
-                XYSeries series = getSeries(s);
-                double hiY = series.getMaxY();
-                if (Double.isNaN(result)) {
-                    result = hiY;
-                }
-                else {
-                    if (!Double.isNaN(hiY)) {
-                        result = Math.max(result, hiY);
-                    }
-                }
-            }
-            return result;
-        }
-
-        /**
-         * Receives notification that the key for one of the series in the 
-         * collection has changed, and vetos it if the key is already present in 
-         * the collection.
-         * 
-         * @param e  the event.
-         * 
-         * @since 1.0.14
-         */
-        @Override
-        public synchronized void vetoableChange(PropertyChangeEvent e)
-                throws PropertyVetoException {
-            // if it is not the series name, then we have no interest
-            if (!"Key".equals(e.getPropertyName())) {
-                return;
-            }
-
-            // to be defensive, let's check that the source series does in fact
-            // belong to this collection
-            Series s = (Series) e.getSource();
-            if (getSeriesIndex(s.getKey()) == -1) {
-                throw new IllegalStateException("Receiving events from a series " +
-                        "that does not belong to this collection.");
-            }
-            // check if the new series name already exists for another series
-            Comparable key = (Comparable) e.getNewValue();
-            if (getSeriesIndex(key) >= 0) {
-                throw new PropertyVetoException("Duplicate key2", e);
-            }
-        }
     }
-}

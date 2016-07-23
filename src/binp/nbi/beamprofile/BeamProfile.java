@@ -78,6 +78,7 @@ import org.jfree.data.RangeInfo;
 import org.jfree.data.UnknownKeyException;
 import org.jfree.data.general.Series;
 import org.jfree.data.xy.AbstractIntervalXYDataset;
+import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.data.xy.IntervalXYDelegate;
 import org.jfree.data.xy.XYDataset;
@@ -1264,8 +1265,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     class Task extends SwingWorker<Void, Void> {
 
         BeamProfile bp;
-        XYSeriesCollection dataset;
-        
+        //XYSeriesCollection dataset;
+        DefaultXYDataset dataset;
+                
         Task(BeamProfile bp) {
             this.bp = bp;
         }
@@ -1398,16 +1400,21 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         }
 
 
-                        dataset = new XYSeriesCollection();
-                        //dataset.removeAllSeries();
+                        //dataset = new XYSeriesCollection();
+                        dataset = new DefaultXYDataset();
                         for (int i = 0; i < trn.length; i++) { 
-                            XYSeries series = new XYSeries("Signal " + i, false, true);
-                        for (int j = 0; j < data.length; j++) {
-                                double x = (data[j][0] - data[0][0])/1000.0;
-                                double y = data[j][trn[i]];
-                                series.add(x, y);
+//                            XYSeries series = new XYSeries("Signal " + i, false, true);
+//                        for (int j = 0; j < data.length; j++) {
+//                                double x = (data[j][0] - data[0][0])/1000.0;
+//                                double y = data[j][trn[i]];
+//                                series.add(x, y);
+//                           }
+                            double[][] plottedData = new double[2][nx];
+                            for (int j = 0; j < data.length; j++) {
+                                plottedData[0][j] = (data[j][0] - data[0][0])/1000.0;
+                                plottedData[1][j] = data[j][trn[i]];
                             }
-                            dataset.addSeries(series);
+                            dataset.addSeries("Signal " + i, plottedData);
                         }
                         process(new ArrayList<Void>());
 

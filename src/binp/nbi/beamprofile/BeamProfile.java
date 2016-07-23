@@ -101,16 +101,16 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     String iniFileName = "BeamProfile" + progVersion + ".ini";
 
     // Input file
-    boolean in_flag = false;
+    volatile boolean in_flag = false;
     String in_file_name = "ADAMTempLog_2014-12-30-13-00-00.txt";
-    String in_file_path = ".\\2014-12-30\\";
+    File in_file_path = new File(".\\2014-12-30\\");
     File in_file = new File(in_file_path, in_file_name);
     BufferedReader in_fid = null;
 
     // Output file
-    boolean outFlag = true;
+    volatile boolean outFlag = true;
     String outFileName = LogFileName(progNameShort, "txt");
-    String outFilePath = "D:\\";
+    File outFilePath = new File("D:\\");
     File outFile = new File(outFilePath, outFileName);
     BufferedWriter out_fid = null;
 
@@ -201,6 +201,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     Date c1 = new Date();
     
     volatile public boolean jToggleButton1Selected = false;
+    volatile public boolean jCheckbox2Selected = false;
 
     /**
      * Creates new form BeamProfile
@@ -493,7 +494,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 }
             });
 
-            jCheckBox2.setText("Write to File: ");
+            jCheckBox2.setText("Write to Folder: ");
+            jCheckBox2.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jCheckBox2ActionPerformed(evt);
+                }
+            });
 
             jTextField7.setText("D:\\");
 
@@ -522,11 +528,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 .add(jButton2))
                             .add(jPanel7Layout.createSequentialGroup()
                                 .add(jCheckBox2)
-                                .add(18, 18, 18)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 252, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                 .add(jButton3)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                                 .add(jCheckBox3))
                             .add(jPanel7Layout.createSequentialGroup()
                                 .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -540,19 +546,18 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                         .add(jLabel17)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                         .add(jComboBox4, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING, false)
-                                        .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel7Layout.createSequentialGroup()
-                                            .add(jLabel14)
-                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                            .add(jComboBox3, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                        .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel7Layout.createSequentialGroup()
-                                            .add(jLabel11)
-                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                            .add(jComboBox2, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                        .add(org.jdesktop.layout.GroupLayout.LEADING, jPanel7Layout.createSequentialGroup()
-                                            .add(jLabel2)
-                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                            .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                                    .add(jPanel7Layout.createSequentialGroup()
+                                        .add(jLabel14)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(jComboBox3, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .add(jPanel7Layout.createSequentialGroup()
+                                        .add(jLabel11)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(jComboBox2, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                    .add(jPanel7Layout.createSequentialGroup()
+                                        .add(jLabel2)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                                 .add(80, 80, 80)
                                 .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -573,7 +578,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                         .add(jLabel18)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                                         .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
-                        .addContainerGap(24, Short.MAX_VALUE))
+                        .addContainerGap(22, Short.MAX_VALUE))
                 );
                 jPanel7Layout.setVerticalGroup(
                     jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -698,18 +703,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        JFileChooser fileChooser = new JFileChooser();
-        FileNameExtensionFilter filter = new FileNameExtensionFilter(
-            "Text File", "txt");
-        fileChooser.setFileFilter(filter);
-        fileChooser.setCurrentDirectory(outFile.getParentFile());
-        int result = fileChooser.showDialog(null, "Open Log File");
+        JFileChooser fc = new JFileChooser();
+        //FileNameExtensionFilter filter = new FileNameExtensionFilter(
+        //    "Text File", "txt");
+        //fc.setFileFilter(filter);
+        fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        fc.setCurrentDirectory(outFile.getParentFile());
+        int result = fc.showDialog(null, "Select save folder");
         if (result == JFileChooser.APPROVE_OPTION) {
-            outFile = fileChooser.getSelectedFile();
-            outFilePath = outFile.getParent();
-            outFileName = outFile.getName();
-            logger.fine("Output file " + outFileName);
-            jTextField6.setText(outFile.getAbsolutePath());
+            outFilePath = fc.getSelectedFile();
+            logger.fine("Save folder " + outFilePath.getName());
+            jTextField7.setText(outFilePath.getAbsolutePath());
             outFlag = true;
         }
     }//GEN-LAST:event_jButton3ActionPerformed
@@ -723,7 +727,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         int result = fileChooser.showDialog(null, "Open Input File");
         if (result == JFileChooser.APPROVE_OPTION) {
             in_file = fileChooser.getSelectedFile();
-            in_file_path = in_file.getParent();
+            in_file_path = in_file.getParentFile();
             in_file_name = in_file.getName();
             logger.log(Level.FINE, "Input file {0} selected", in_file_name);
             jTextField6.setText(in_file.getAbsolutePath());
@@ -741,6 +745,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         in_file = new File(jTextField6.getText());
         Adam4118.file = in_file;
     }//GEN-LAST:event_jTextField6ActionPerformed
+
+    private void jCheckBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox2ActionPerformed
+        jCheckbox2Selected = jCheckBox2.isSelected();
+    }//GEN-LAST:event_jCheckBox2ActionPerformed
     
     /**
      * @param args the command line arguments
@@ -967,7 +975,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }
 
     static String prefix, ext;
-    public static String LogFileName(String arg, String... strs) {
+    public static String LogFileName(String... strs) {
 	if (prefix==null || "".equals(prefix)) {
             prefix = "LogFile_";
         }
@@ -983,7 +991,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         Date now = new Date();
         SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 	String timeStr = fmt.format(now);
-	return prefix + arg + "_" + timeStr + "." + ext;
+	return prefix + timeStr + "." + ext;
     }
 
 //=================================================
@@ -1028,7 +1036,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             // Close file if it was opened
             file.close();
             logger.fine("Output file has been closed.");
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             logger.log(Level.SEVERE, "Output file close error.");
         }
     }
@@ -1037,8 +1045,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         outFileName = LogFileName(progNameShort, "txt");
         outFile = new File(outFilePath, outFileName);
         try {
-            out_fid = new BufferedWriter(new FileWriter(outFile));
-            jTextField7.setText(outFileName);
+            out_fid = new BufferedWriter(new FileWriter(outFile, true));
+            //jTextField7.setText(outFileName);
             logger.log(Level.FINE, "Output file {0} has been opened.", outFileName);
         } catch (IOException ex) {
             // Disable output writing
@@ -1325,7 +1333,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         outFlag = false;
 
                         // If write to output is enabled
-                        if (isWriteEnabled()) {
+                        if (jCheckbox2Selected) {
                             // Close output file
                             closeFile(out_fid);
                             // Open new output file
@@ -1659,4 +1667,4 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             //taskOutput.app}("Done!\n");
         }
     }
-    }
+}

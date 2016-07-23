@@ -198,6 +198,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     // Clocks
     Date c0 = new Date();
     Date c1 = new Date();
+    
+    volatile public boolean jToggleButton1Selected = false;
 
     /**
      * Creates new form BeamProfile
@@ -381,6 +383,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jPanel6.setBorder(javax.swing.BorderFactory.createTitledBorder("Plot"));
 
         jToggleButton1.setText("START");
+        jToggleButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jToggleButton1ActionPerformed(evt);
+            }
+        });
 
         org.jdesktop.layout.GroupLayout jPanel6Layout = new org.jdesktop.layout.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -704,6 +711,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         in_file = new File(jTextField6.getText());
         Adam4118.file = in_file;
     }//GEN-LAST:event_jTextField6ActionPerformed
+
+    private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
+        // TODO add your handling code here:
+        jToggleButton1Selected = jToggleButton1.isSelected();
+    }//GEN-LAST:event_jToggleButton1ActionPerformed
     
     /**
      * @param args the command line arguments
@@ -1279,7 +1291,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     }
 
                     // If output was changed
-                    System.out.println(outFlag);
                     if(outFlag) {
                         logger.fine("Output changed");
                         // Reset flag
@@ -1296,7 +1307,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                     // If Start was pressed
                     //System.out.println(jToggleButton1.isSelected());
-                    if (jToggleButton1.isSelected()) {
+                    if (jToggleButton1Selected) {
                         Date c = new Date();
 
                         // Change output file every hour

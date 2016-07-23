@@ -120,8 +120,9 @@ public class Adam4118 extends ADAM {
                 }
                 if (line == null) {
                     try {
-                        logger.log(Level.FINE, "Reset reader.");
-                        reader.reset();
+                        closeFile();
+                        openFile();
+                        logger.log(Level.FINE, "Reopen file.");
                         line = reader.readLine();
                     } catch (IOException ex1) {
                         logger.log(Level.INFO, "Line read error.");

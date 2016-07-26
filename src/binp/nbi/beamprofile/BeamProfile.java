@@ -1088,6 +1088,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     public static void configLogger() {
         try {
+            //Logger gl = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+            
             // Load a properties file from class path that way can't be achieved with java.util.logging.config.file
             /*
             final LogManager logManager = LogManager.getLogManager();

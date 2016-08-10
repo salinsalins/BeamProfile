@@ -103,9 +103,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     // Input file
     volatile boolean inputChanged = false;
+    volatile boolean readFromFile = true;
     String in_file_name = "ADAMTempLog_2014-12-30-13-00-00.txt";
-    //File in_file_path = new File(".\\2014-12-30\\");
-    File inputFile = new File(in_file_name);
+    File inputFile = new File("BeamProfile.txt");
     BufferedReader in_fid = null;
 
     // Output file
@@ -482,9 +482,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
             jCheckBox1.setSelected(true);
             jCheckBox1.setText("Read From File: ");
-            jCheckBox1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-                public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                    jCheckBox1PropertyChange(evt);
+            jCheckBox1.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jCheckBox1ActionPerformed(evt);
                 }
             });
 
@@ -736,10 +736,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void jCheckBox1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jCheckBox1PropertyChange
-        inputChanged = true;
-    }//GEN-LAST:event_jCheckBox1PropertyChange
-
     private void jTextField6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField6ActionPerformed
         File newInputFile = new File(jTextField6.getText());
         openInputFile(newInputFile);
@@ -748,6 +744,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private void jCheckBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox2ActionPerformed
         jCheckbox2Selected = jCheckBox2.isSelected();
     }//GEN-LAST:event_jCheckBox2ActionPerformed
+
+    private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
+        readFromFile = jCheckBox1.isSelected();
+        inputChanged = true;
+    }//GEN-LAST:event_jCheckBox1ActionPerformed
     
     /**
      * @param args the command line arguments
@@ -865,6 +866,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }
 
     private void openInputFile(File newInputFile) {                                            
+        if (newInputFile == null) return;
+        if (inputFile != null && newInputFile.getAbsolutePath().equals(inputFile.getAbsolutePath())) return;
         if (newInputFile.canRead()) {
             inputFile = newInputFile;
             logger.log(Level.FINE, "Input file changed to {0}", inputFile.getName());

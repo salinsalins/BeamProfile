@@ -39,6 +39,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.RectangleInsets;
 
 import binp.nbi.tango.util.datafile.DataFile;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
@@ -731,10 +732,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         if (result == JFileChooser.APPROVE_OPTION) {
             File newInputFile = fileChooser.getSelectedFile();
             logger.log(Level.FINE, "Input file {0} selected", newInputFile.getName());
-            jTextField6.setText(newInputFile.getAbsolutePath());
-            //Adam4118.file = inputFile;
-            //jCheckBox1.setSelected(true);
-            //inputChanged = true;
+            openInputFile(newInputFile);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
@@ -744,16 +742,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     private void jTextField6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField6ActionPerformed
         File newInputFile = new File(jTextField6.getText());
-        if (newInputFile.canRead()) {
-            inputFile = newInputFile;
-            logger.log(Level.FINE, "Input file changed to {0}", newInputFile.getName());
-            //in_file_path = inputFile.getParentFile();
-            in_file_name = inputFile.getName();
-            Adam4118.file = inputFile;
-            inputChanged = true;
-        } else {
-            jTextField6.setText(inputFile.getAbsolutePath());
-        }
+        openInputFile(newInputFile);
     }//GEN-LAST:event_jTextField6ActionPerformed
 
     private void jCheckBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox2ActionPerformed
@@ -874,6 +863,19 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     @Override
     public void windowDeactivated(WindowEvent e) {
     }
+
+    private void openInputFile(File newInputFile) {                                            
+        if (newInputFile.canRead()) {
+            inputFile = newInputFile;
+            logger.log(Level.FINE, "Input file changed to {0}", inputFile.getName());
+            jTextField6.setText(inputFile.getAbsolutePath());
+            Adam4118.file = inputFile;
+            inputChanged = true;
+        } else {
+            logger.log(Level.WARNING, "Input file {0} can't be opened", newInputFile.getName());
+            jTextField6.setText(inputFile.getAbsolutePath());
+        }
+    }                                           
 
     private void restoreConfig() {
 //        String logFileName = null;

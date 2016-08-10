@@ -104,12 +104,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     // Input file
     volatile boolean inputChanged = false;
     volatile boolean readFromFile = true;
-    String in_file_name = "ADAMTempLog_2014-12-30-13-00-00.txt";
     File inputFile = new File("BeamProfile.txt");
     BufferedReader in_fid = null;
 
     // Output file
     volatile boolean outputChanged = true;
+    volatile boolean writeToFile = true;
     String outFileName = LogFileName(progNameShort, "txt");
     File outFilePath = new File("D:\\");
     File outFile = new File(outFilePath, outFileName);
@@ -699,7 +699,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        // TODO add your handling code here:
         jToggleButton1Selected = jToggleButton1.isSelected();
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
@@ -743,6 +742,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     private void jCheckBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox2ActionPerformed
         jCheckbox2Selected = jCheckBox2.isSelected();
+        writeToFile = jCheckBox2.isSelected();
+        outputChanged = true;
     }//GEN-LAST:event_jCheckBox2ActionPerformed
 
     private void jCheckBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox1ActionPerformed
@@ -876,7 +877,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             inputChanged = true;
         } else {
             logger.log(Level.WARNING, "Input file {0} can't be opened", newInputFile.getName());
-            jTextField6.setText(inputFile.getAbsolutePath());
+            if (inputFile != null) 
+                jTextField6.setText(inputFile.getAbsolutePath());
+            else 
+                jTextField6.setText("");
         }
     }                                           
 

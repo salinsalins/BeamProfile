@@ -102,14 +102,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     String iniFileName = "BeamProfile" + progVersion + ".ini";
 
     // Input file
-    volatile boolean inputChanged = false;
+    volatile boolean inputChanged = true;
     volatile boolean readFromFile = true;
     File inputFile = new File("BeamProfile.txt");
-    BufferedReader in_fid = null;
 
     // Output file
     volatile boolean outputChanged = true;
-    volatile boolean writeToFile = true;
+    volatile boolean writeToFile = false;
     String outFileName = LogFileName(progNameShort, "txt");
     File outFilePath = new File("D:\\");
     File outFile = new File(outFilePath, outFileName);
@@ -202,7 +201,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     Date c1 = new Date();
     
     volatile public boolean jToggleButton1Selected = false;
-    volatile public boolean jCheckbox2Selected = false;
 
     /**
      * Creates new form BeamProfile
@@ -741,7 +739,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }//GEN-LAST:event_jTextField6ActionPerformed
 
     private void jCheckBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox2ActionPerformed
-        jCheckbox2Selected = jCheckBox2.isSelected();
         writeToFile = jCheckBox2.isSelected();
         outputChanged = true;
     }//GEN-LAST:event_jCheckBox2ActionPerformed
@@ -885,42 +882,20 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }                                           
 
     private void restoreConfig() {
-//        String logFileName = null;
-//        List<String> columnNames = new LinkedList<>();
         try {
             ObjectInputStream objIStrm = new ObjectInputStream(new FileInputStream("config.dat"));
-//
-//            Rectangle bounds = (Rectangle) objIStrm.readObject();
-//            frame.setBounds(bounds);
-//
             String str = (String) objIStrm.readObject();
             jTextField6.setText(str);
-//            txtFileName.setText(logFileName);
-//            fileLog = new File(logFileName);
-//
-//            String str = (String) objIStrm.readObject();
-//            folder = str;
-//
-//            str = (String) objIStrm.readObject();
-//            txtarExcludedColumns.setText(str);
-//
-//            str = (String) objIStrm.readObject();
-//            txtarIncludedColumns.setText(str);
-//
-//            boolean sm = (boolean) objIStrm.readObject();
-//            chckbxShowMarkers.setSelected(sm);
-//
-//            boolean sp = (boolean) objIStrm.readObject();
-//            chckbxShowPreviousShot.setSelected(sp);
-//            
-//            columnNames = (List<String>) objIStrm.readObject();
-//
-//            objIStrm.close();
-//
-            logger.fine("Config restored.");
         } catch (IOException | ClassNotFoundException e) {
-            logger.log(Level.WARNING, "Config read error {0}", e);
+            logger.log(Level.WARNING, "Config file read error {0}", e);
         }
+        // read state of default properties
+        jTextField6ActionPerformed(null);
+        jCheckBox2ActionPerformed(null);
+        jCheckBox1ActionPerformed(null);
+        jToggleButton1ActionPerformed(null);
+
+        logger.fine("Config restored.");
 //        timer.cancel();
 //        timer = new Timer();
 //        timerTask = new DirWatcher(window);
@@ -1351,7 +1326,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         outputChanged = false;
 
                         // If write to output is enabled
-                        if (jCheckbox2Selected) {
+                        if (writeToFile) {
                             // Close output file
                             closeFile(out_fid);
                             // Open new output file

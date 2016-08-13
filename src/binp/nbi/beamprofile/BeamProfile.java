@@ -99,7 +99,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     String progName = "Calorimeter Beam Profile";
     String progNameShort = "BeamProfile_";
     String progVersion = "20";
-    String iniFileName = "BeamProfile" + progVersion + ".ini";
+    String iniFileName = progNameShort + progVersion + ".ini";
 
     // Input file
     volatile boolean inputChanged = true;
@@ -109,14 +109,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     // Output file
     volatile boolean outputChanged = true;
     volatile boolean writeToFile = false;
-    String outFileName = LogFileName(progNameShort, "txt");
-    File outFilePath = new File("D:\\");
-    File outFile = new File(outFilePath, outFileName);
-    BufferedWriter out_fid = null;
+    volatile boolean splitOutputFile = true;
+    String outputFileName = LogFileName(progNameShort, "txt");
+    File outputFilePath = new File("D:\\");
+    File outputFile = new File(outputFilePath, outputFileName);
+    BufferedWriter outputWriter = null;
 
     // Logical flags
     volatile boolean runMeasurements = true;
-    volatile boolean flag_hour = true;
 	
     // Data arrays for traces
     int nx = 2000;    // number of trace points
@@ -511,6 +511,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                 jCheckBox3.setSelected(true);
                 jCheckBox3.setText("Split");
+                jCheckBox3.addActionListener(new java.awt.event.ActionListener() {
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        jCheckBox3ActionPerformed(evt);
+                    }
+                });
 
                 org.jdesktop.layout.GroupLayout jPanel7Layout = new org.jdesktop.layout.GroupLayout(jPanel7);
                 jPanel7.setLayout(jPanel7Layout);
@@ -706,12 +711,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         //    "Text File", "txt");
         //fc.setFileFilter(filter);
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        fc.setCurrentDirectory(outFile.getParentFile());
+        fc.setCurrentDirectory(outputFile.getParentFile());
         int result = fc.showDialog(null, "Select save folder");
         if (result == JFileChooser.APPROVE_OPTION) {
-            outFilePath = fc.getSelectedFile();
-            logger.log(Level.FINE, "Save folder {0}", outFilePath.getName());
-            jTextField7.setText(outFilePath.getAbsolutePath());
+            outputFilePath = fc.getSelectedFile();
+            logger.log(Level.FINE, "Save folder {0}", outputFilePath.getName());
+            jTextField7.setText(outputFilePath.getAbsolutePath());
             outputChanged = true;
         }
     }//GEN-LAST:event_jButton3ActionPerformed
@@ -747,6 +752,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         readFromFile = jCheckBox1.isSelected();
         inputChanged = true;
     }//GEN-LAST:event_jCheckBox1ActionPerformed
+
+    private void jCheckBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox3ActionPerformed
+        splitOutputFile = jCheckBox3.isSelected();
+    }//GEN-LAST:event_jCheckBox3ActionPerformed
     
     /**
      * @param args the command line arguments
@@ -1033,21 +1042,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }
 
     public void openOutputFile() {
-        outFileName = LogFileName(progNameShort, "txt");
-        outFile = new File(outFilePath, outFileName);
+        outputFileName = LogFileName(progNameShort, "txt");
+        outputFile = new File(outputFilePath, outputFileName);
         try {
-            out_fid = new BufferedWriter(new FileWriter(outFile, true));
+            outputWriter = new BufferedWriter(new FileWriter(outputFile, true));
             //jTextField7.setText(outFileName);
-            logger.log(Level.FINE, "Output file {0} has been opened.", outFileName);
+            logger.log(Level.FINE, "Output file {0} has been opened.", outputFileName);
         } catch (IOException ex) {
             // Disable output writing
             jCheckBox2.setSelected(false);
-            logger.log(Level.SEVERE, "Output file {0} open error.", outFileName);
+            logger.log(Level.SEVERE, "Output file {0} open error.", outputFileName);
         }
-    }
-
-    public boolean isWriteEnabled() {
-        return jCheckBox2.isSelected();
     }
 
     public boolean isReadFromFile() {
@@ -1328,7 +1333,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         // If write to output is enabled
                         if (writeToFile) {
                             // Close output file
-                            closeFile(out_fid);
+                            closeFile(outputWriter);
                             // Open new output file
                             openOutputFile();
                         }
@@ -1340,7 +1345,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         Date c = new Date();
 
                         // Change output file every hour
-                        if (flag_hour && (c.getHours() != c0.getHours())) {
+                        if (splitOutputFile && (c.getHours() != c0.getHours())) {
                             c0 = c;
                             outputChanged = true;
                         }
@@ -1381,11 +1386,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         } 
 
                         // Save line with data to output file if log writing is enabled
-                        if (isWriteEnabled() && (out_fid != null)) {
+                        if (writeToFile && (outputWriter != null)) {
                             try {
                                 // Write Time in milliseconds - not time HH:MM:SS.SS
                                 String str = String.format("%d; ", (long) temp[0]);
-                                out_fid.write(str, 0, str.length());
+                                outputWriter.write(str, 0, str.length());
                                 // Data output format
                                 String fmt = "%+07.2f";
                                 // Separator is "; "
@@ -1393,12 +1398,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 // Write data array
                                 for (int i = 1; i < temp.length-1; i++) {
                                     str = String.format(fmt+sep, temp[i]);
-                                    out_fid.write(str, 0, str.length());
+                                    outputWriter.write(str, 0, str.length());
                                 }
                                 // Write last value with NL instead of sepearator
                                 str = String.format(fmt+"\n", temp[temp.length-1]);
-                                out_fid.write(str, 0, str.length());
-                                out_fid.flush();
+                                outputWriter.write(str, 0, str.length());
+                                outputWriter.flush();
                             } catch (IOException ex) {
                                 logger.log(Level.SEVERE, null, ex);
                             }

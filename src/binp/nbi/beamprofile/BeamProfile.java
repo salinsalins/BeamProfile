@@ -97,9 +97,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     Task task;
 
     String progName = "Calorimeter Beam Profile";
-    String progNameShort = "BeamProfile_";
+    String progNameShort = "Beam_Profile";
     String progVersion = "20";
-    String iniFileName = progNameShort + progVersion + ".ini";
+    String iniFileName = progNameShort + "_" + progVersion + ".ini";
 
     // Input file
     volatile boolean inputChanged = true;
@@ -115,8 +115,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     File outputFile = new File(outputFilePath, outputFileName);
     BufferedWriter outputWriter = null;
 
-    // Logical flags
-    volatile boolean runMeasurements = true;
+    // Run measurements button
+    volatile boolean loopDoInBackground = true;
+    volatile boolean runMeasurements = false;
 	
     // Data arrays for traces
     int nx = 2000;    // number of trace points
@@ -199,8 +200,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     // Clocks
     Date c0 = new Date();
     Date c1 = new Date();
-    
-    volatile public boolean jToggleButton1Selected = false;
 
     /**
      * Creates new form BeamProfile
@@ -501,6 +500,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             });
 
             jTextField7.setText("D:\\");
+                jTextField7.addActionListener(new java.awt.event.ActionListener() {
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        jTextField7ActionPerformed(evt);
+                    }
+                });
 
                 jButton3.setText("...");
                 jButton3.addActionListener(new java.awt.event.ActionListener() {
@@ -702,20 +706,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }//GEN-LAST:event_jButton4ActionPerformed
 
     private void jToggleButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jToggleButton1ActionPerformed
-        jToggleButton1Selected = jToggleButton1.isSelected();
+        runMeasurements = jToggleButton1.isSelected();
     }//GEN-LAST:event_jToggleButton1ActionPerformed
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         JFileChooser fc = new JFileChooser();
-        //FileNameExtensionFilter filter = new FileNameExtensionFilter(
-        //    "Text File", "txt");
-        //fc.setFileFilter(filter);
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fc.setCurrentDirectory(outputFile.getParentFile());
-        int result = fc.showDialog(null, "Select save folder");
+        int result = fc.showDialog(null, "Select save to folder");
         if (result == JFileChooser.APPROVE_OPTION) {
             outputFilePath = fc.getSelectedFile();
-            logger.log(Level.FINE, "Save folder {0}", outputFilePath.getName());
+            logger.log(Level.FINE, "Save to folder {0} selected", outputFilePath.getName());
             jTextField7.setText(outputFilePath.getAbsolutePath());
             outputChanged = true;
         }
@@ -726,10 +727,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         FileNameExtensionFilter filter = new FileNameExtensionFilter(
             "Text File", "txt");
         fileChooser.setFileFilter(filter);
-        fileChooser.setCurrentDirectory(inputFile.getParentFile());
-        System.out.println(inputFile.getName());
-        System.out.println(inputFile.getParentFile().getName());
-        System.out.println(fileChooser.getCurrentDirectory().getName());
+        if (inputFile != null) fileChooser.setCurrentDirectory(inputFile.getParentFile());
         int result = fileChooser.showDialog(this, "Open Input File");
         if (result == JFileChooser.APPROVE_OPTION) {
             File newInputFile = fileChooser.getSelectedFile();
@@ -756,6 +754,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private void jCheckBox3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox3ActionPerformed
         splitOutputFile = jCheckBox3.isSelected();
     }//GEN-LAST:event_jCheckBox3ActionPerformed
+
+    private void jTextField7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField7ActionPerformed
+        outputFilePath = new File(jTextField7.getText());
+        outputChanged = true;
+    }//GEN-LAST:event_jTextField7ActionPerformed
     
     /**
      * @param args the command line arguments
@@ -892,86 +895,46 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     private void restoreConfig() {
         try {
-            ObjectInputStream objIStrm = new ObjectInputStream(new FileInputStream("config.dat"));
+            ObjectInputStream objIStrm = new ObjectInputStream(new FileInputStream(iniFileName));
             String str = (String) objIStrm.readObject();
             jTextField6.setText(str);
+            boolean b = (boolean) objIStrm.readObject();
+            jCheckBox1.setSelected(b);
+            str = (String) objIStrm.readObject();
+            jTextField7.setText(str);
+            b = (boolean) objIStrm.readObject();
+            jCheckBox2.setSelected(b);
+            b = (boolean) objIStrm.readObject();
+            jCheckBox3.setSelected(b);
         } catch (IOException | ClassNotFoundException e) {
             logger.log(Level.WARNING, "Config file read error {0}", e);
         }
-        // read state of default properties
+        // Read and set state of volatile variables
         jTextField6ActionPerformed(null);
         jCheckBox2ActionPerformed(null);
+        jTextField7ActionPerformed(null);
         jCheckBox1ActionPerformed(null);
+        jCheckBox3ActionPerformed(null);
         jToggleButton1ActionPerformed(null);
-
         logger.fine("Config restored.");
-//        timer.cancel();
-//        timer = new Timer();
-//        timerTask = new DirWatcher(window);
-//        timer.schedule(timerTask, 2000, 1000);
-//
-//        logViewTable.readFile(logFileName);
-//        logViewTable.setColumnNames(columnNames);
-//        columnNames = logViewTable.getColumnNames();
-//        // Add event listener for logview table
-//        ListSelectionModel rowSM = logViewTable.getSelectionModel();
-//        rowSM.addListSelectionListener(new ListSelectionListener() {
-//            @Override
-//            public void valueChanged(ListSelectionEvent event) {
-//                //Ignore extra messages.
-//                if (event.getValueIsAdjusting()) {
-//                    return;
-//                }
-//
-//                ListSelectionModel lsm = (ListSelectionModel) event.getSource();
-//                if (lsm.isSelectionEmpty()) {
-//                    //System.out.System.out.printfn("No rows selected.");
-//                } else {
-//                    int selectedRow = lsm.getMaxSelectionIndex();
-//                    //System.out.System.out.printfn("Row " + selectedRow + " is now selected.");
-//                    //String fileName = folder + "\\" + logViewTable.files.get(selectedRow);
-//                    try {
-//                        File zipFile = logViewTable.files.get(selectedRow);
-//                        readZipFile(zipFile);
-//                        if (timerTask != null && timerTask.timerCount > 0) {
-//                            dimLineColor();
-//                        }
-//                    } catch (Exception e) {
-//                        logger.log(Level.WARNING, "Selection change exception ", e);
-//                        //panel.removeAll();
-//                    }
-//                }
-//            }
-//        });
-//        logViewTable.clearSelection();
-//        logViewTable.changeSelection(logViewTable.getRowCount()-1, 0, false, false);
    }
 
     private void saveConfig() {
-//        timerkimer.cancel();
-//
-//        Rectangle bounds = frame.getBounds();
-//        txt = fileLog.getAbsolutePath();
-//        String txt1 = txtarExcludedColumns.getText();
-//        String txt2 = txtarIncludedColumns.getText();
-//        boolean sm = chckbxShowMarkers.isSelected();
-//        boolean sp = chckbxShowPreviousShot.isSelected();
-//        List<String> columnNames = logViewTable.getColumnNames();
-        try {
-            ObjectOutputStream objOStrm = new ObjectOutputStream(new FileOutputStream("config.dat"));
+        try (ObjectOutputStream objOStrm = new ObjectOutputStream(new FileOutputStream(iniFileName))) {
             String txt = jTextField6.getText();
             objOStrm.writeObject(txt);
-//            objOStrm.writeObject(folder);
-//            objOStrm.writeObject(txt1);
-//            objOStrm.writeObject(txt2);
-//            objOStrm.writeObject(sm);
-//            objOStrm.writeObject(sp);
-//            objOStrm.writeObject(columnNames);
-//            objOStrm.close();
-            logger.fine("Config saved.");
-        } catch (IOException e) {
-            logger.log(Level.WARNING, "Config write error ", e);
+            boolean b = jCheckBox1.isSelected();
+            objOStrm.writeObject(b);
+            txt = jTextField7.getText();
+            objOStrm.writeObject(txt);
+            b = jCheckBox2.isSelected();
+            objOStrm.writeObject(b);
+            b = jCheckBox3.isSelected();
+            objOStrm.writeObject(b);
+        } catch (IOException ex) {
+            logger.log(Level.WARNING, "Config write error ", ex);
         }
+        logger.fine("Config saved.");
     }
 
     static String prefix, ext;
@@ -991,7 +954,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         Date now = new Date();
         SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
 	String timeStr = fmt.format(now);
-	return prefix + timeStr + "." + ext;
+	return prefix + "_" + timeStr + "." + ext;
     }
 
 //=================================================
@@ -1031,13 +994,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         logger.fine("ADAMs deleted.");
     }
 
-    public void closeFile(Closeable file) {
+    public void closeOutputFile() {
         try {
             // Close file if it was opened
-            file.close();
-            logger.fine("Output file has been closed.");
+            if (outputWriter != null) outputWriter.close();
+            logger.fine("Output file has been closed");
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Output file close error.");
+            logger.log(Level.SEVERE, "Output file close error ", ex);
         }
     }
 
@@ -1051,6 +1014,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         } catch (IOException ex) {
             // Disable output writing
             jCheckBox2.setSelected(false);
+            writeToFile = false;
             logger.log(Level.SEVERE, "Output file {0} open error.", outputFileName);
         }
     }
@@ -1311,7 +1275,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         public Void doInBackground() {
             logger.fine("Background task started");
             try {
-                while(runMeasurements) {
+                //logger.finest("Try");
+                while(loopDoInBackground) {
                     //logger.finest("LOOP");
                     // If input was changed
                     if(inputChanged) {
@@ -1329,22 +1294,18 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         logger.fine("Output changed");
                         // Reset flag
                         outputChanged = false;
-
-                        // If write to output is enabled
+                        closeOutputFile();
+                        // If write to output file is enabled
                         if (writeToFile) {
-                            // Close output file
-                            closeFile(outputWriter);
-                            // Open new output file
                             openOutputFile();
                         }
                     }
 
                     // If Start was pressed
-                    //System.out.println(jToggleButton1.isSelected());
-                    if (jToggleButton1Selected) {
+                    if (runMeasurements) {
                         Date c = new Date();
 
-                        // Change output file every hour
+                        // Split output file every hour
                         if (splitOutputFile && (c.getHours() != c0.getHours())) {
                             c0 = c;
                             outputChanged = true;

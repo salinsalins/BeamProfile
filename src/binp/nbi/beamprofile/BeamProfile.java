@@ -207,8 +207,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     public BeamProfile() {
         addWindowListener(this);
         initComponents();
-        
-        
+
         logger.addHandler(new ConsoleHandler() {
             @Override
             public void publish(LogRecord record) {
@@ -252,16 +251,16 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         // Disable tooltips
         //getChart().getXYPlot().getRenderer().setBaseToolTipGenerator(null);
 
-//        SyncronizedXYSeriesCollection dataset = new SyncronizedXYSeriesCollection();
-//        plot.setDataset(dataset);
+//        SyncronizedXYSeriesCollection tracesDataset = new SyncronizedXYSeriesCollection();
+//        plot.setDataset(tracesDataset);
 
         boolean savedNotify = plot.isNotify();
         // Stop refreshing the plot
         plot.setNotify(false);
-        //SyncronizedXYSeriesCollection dataset = new SyncronizedXYSeriesCollection();
+        //SyncronizedXYSeriesCollection tracesDataset = new SyncronizedXYSeriesCollection();
         XYSeriesCollection dataset = new XYSeriesCollection();
         plot.setDataset(dataset);
-        //XYSeriesCollection dataset = (XYSeriesCollection) plot.getDataset();
+        //XYSeriesCollection tracesDataset = (XYSeriesCollection) plot.getDataset();
         dataset.removeAllSeries();
         for (int i = 0; i < trn.length; i++) { 
             XYSeries series = new XYSeries("Signal " + i);
@@ -330,10 +329,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         for (int i = 0; i < fpi.length; i++) {
             fpi[i] = nx;
         }
-//    log_fid = fopen(logFileName, "at+", "n", "windows-1251");
-//	if log_fid < 0
-//		log_fid = 1;
-//	}
 
         // Create ADAMs
 //        for(int i = 0; i < adams.length; i++) {
@@ -342,7 +337,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         c0 = new Date();
         c1 = new Date();
-
 //-----------------------------------------------
     }    
     
@@ -960,7 +954,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 //=================================================
     Adam4118[] adams;
     int[] addr = {6, 7, 8, 9};
-    String[] ports = new String[4];
+    String[] ports = new String[addr.length];
 
     public void createADAMs() {
         // Create ADAM objects
@@ -977,19 +971,24 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         
         adams = new Adam4118[4];
         
-        if (isReadFromFile()) {
+        if (readFromFile) {
             // Open input file
             Adam4118.openFile(jTextField6.getText());
         }
         for (int i = 0; i < addr.length; i++) {
             adams[i] = new Adam4118(ports[i], addr[i]);
         }
+        logger.fine("ADAMs created.");
     }
 
     public void deleteADAMs() {
         if (adams == null) return;
         for (Adam4118 adam : adams) {
-            adam.closeFile();
+            adam.delete();
+        }
+        if (readFromFile) {
+            // Open input file
+            Adam4118.closeFile();
         }
         logger.fine("ADAMs deleted.");
     }
@@ -1019,10 +1018,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
     }
 
-    public boolean isReadFromFile() {
-        return jCheckBox1.isSelected();
-    }
-    
     public double max(double[] array) {
         double result = array[0];
         for (double d: array)
@@ -1043,6 +1038,31 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         for (int j = 0; j < ny; j++)
             for (int i = 0; i < nx; i++)
                 result[j] = Math.min(array[i][j], result[j]);
+        return result;
+    }
+    public int maxIndex(double[] array) {
+        int index = 0;
+        double max = array[0];
+        for (int i=0; i<array.length; i++) {
+            if (array[i] > max) {
+                index = i;
+                max = array[i];
+            }
+        }
+        return index;
+    }
+    public double[] maxAndIndex(double[] array) {
+        double index = 0.0;
+        double max = array[0];
+        for (int i=0; i<array.length; i++) {
+            if (array[i] > max) {
+                index = i;
+                max = array[i];
+            }
+        }
+        double[] result = new double[2];
+        result[0] = max;
+        result[1] = index;
         return result;
     }
 
@@ -1117,41 +1137,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         mi = mi + mi1;
     end
 
-    function cbOutSelect(~, ~)
-        [file_name, file_path] = uiputfile([out_file_path LogFileName()], 'Save Log to File');
-        if ~isequal(file_name, 0)
-            out_file_path = file_path;
-            out_file_name = file_name;
-            out_file = [out_file_path, out_file_name];
-            set(hTxt2,  'String', out_file_name);
-            outputChanged = true;
-        end
-    end
-
-    function cbInSelect(~, ~)
-        [file_name, file_path] = uigetfile([in_file_path in_file_name],'Read from File');
-        if ~isequal(file_name, 0)
-            in_file_path = file_path;
-            in_file_name = file_name;
-            inputFile = [in_file_path, in_file_name];
-            set(hEd1, 'String', in_file_name);
-            inputChanged = true;
-        end
-    end
-
     function cbMax1Prof(hObj, ~)
         if get(hObj, 'Value') == get(hObj, 'Min')
             set(prof1max1h, 'Visible', 'off');
         else
             set(prof1max1h, 'Visible', 'on');
-        end
-    end
-
-    function cbSplitOut(hObj, ~)
-        if get(hObj, 'Value') == get(hObj, 'Min')
-            flag_hour = false;
-        else
-            flag_hour = true;
         end
     end
 
@@ -1174,10 +1164,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             set(hEd1, 'Visible', 'off');
             set(hBtn3, 'Visible', 'off');
         end
-    end
-
-    function cbCb2(~, ~)
-        outputChanged = true;
     end
 
     function cbStart(hObj, ~)
@@ -1259,10 +1245,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     class Task extends SwingWorker<Void, Void> {
 
         BeamProfile bp;
-        //XYSeriesCollection dataset;
-        DefaultXYDataset dataset;
-        DefaultXYDataset PorfileDataset;
-        DefaultXYDataset vertPorfDataset;
+        DefaultXYDataset tracesDataset;
+        DefaultXYDataset profileDataset;
+        DefaultXYDataset vertProfileDataset;
         
         Task(BeamProfile bp) {
             this.bp = bp;
@@ -1283,9 +1268,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         logger.fine("Input changed");
                         // Reset flag
                         inputChanged = false;
-                        // Close input file
                         deleteADAMs();
-                        // Create ADAMs
                         createADAMs();
                     }
 
@@ -1295,7 +1278,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         // Reset flag
                         outputChanged = false;
                         closeOutputFile();
-                        // If write to output file is enabled
+                        // If write to output file was enabled
                         if (writeToFile) {
                             openOutputFile();
                         }
@@ -1393,7 +1376,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         }
 
                         // Plot traces
-                        dataset = new DefaultXYDataset();
+                        tracesDataset = new DefaultXYDataset();
                         double[][] plottedData;
                         for (int i: trn) { 
                             plottedData = new double[2][nx];
@@ -1401,9 +1384,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 plottedData[0][j] = (data[j][0] - data[0][0])/1000.0;
                                 plottedData[1][j] = data[j][i];
                             }
-                            dataset.addSeries("Signal " + i, plottedData);
+                            tracesDataset.addSeries("Signal " + i, plottedData);
                         }
-                        process(new ArrayList<Void>());
 
                         // Calculate and plot profiles prof1 - vertical and prof2 - horizontal
                         for (int i =0; i < p1range.length; i++) {
@@ -1412,15 +1394,15 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         for (int i =0; i < p2range.length; i++) {
                             prof2[i] = data[nx-1][p2range[i]] - dmin[p2range[i]];
                         }
-                        // Culate datasets for profiles
+                        // Calculate datasets for profiles
                         // Current horizontal profile
-                        PorfileDataset = new DefaultXYDataset();
+                        profileDataset = new DefaultXYDataset();
                         plottedData = new double[2][p1range.length];
                         for (int j = 0; j < p1range.length; j++) {
                             plottedData[0][j] = p1x[j];
                             plottedData[1][j] = prof1[j];
                         }
-                        PorfileDataset.addSeries("horizProf", plottedData);
+                        profileDataset.addSeries("horizProf", plottedData);
                         // Current vertical profile
                         plottedData = new double[2][p2range.length];
                         for (int j = 0; j < p2range.length; j++) {
@@ -1453,7 +1435,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             plottedData[0][j] = p1x[j];
                             plottedData[1][j] = prof1max[j];
                         }
-                        PorfileDataset.addSeries("maxProf", plottedData);
+                        profileDataset.addSeries("maxProf", plottedData);
                         for (int i =0; i < p2range.length; i++) {
                             prof2max[i] = data[imax][p2range[i]] - dmin[p2range[i]];
                         }
@@ -1464,23 +1446,21 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 plottedData[0][j] = (data[j][0] - data[0][0])/1000.0;
                                 plottedData[1][j] = data[j][i];
                             }
-                            dataset.addSeries("Targeting " + i, plottedData);
+                            tracesDataset.addSeries("Targeting " + i, plottedData);
                         }
                         
-//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
-    /*
-
                         if (max(prof1max) > max(prof1max1)) {
                             prof1max1  = prof1max;
                         }
-
+//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
+    /*
                         // Shift marker
                         mi = mi - 1;
-                        if mi < 1
-                            [~, mi] = max(current);
+                        if (mi < 1) {
+                            mi = maxIndex(current);
                         }
-                        mi1 = max(mi - mw, 1);
-                        mi2 = min(mi + mw, nx);
+                        mi1 = Math.max(mi - mw, 0);
+                        mi2 = Math.min(mi + mw, nx-1);
 
                         // Determine index for targeting traces
                         [v1, v2] = max(data(mi1:mi2, tpn));
@@ -1593,15 +1573,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         set(prof1maxh, "Ydata",  prof1max);
                         set(prof2maxh, "Ydata",  prof2max);
 
+    */
+    // </editor-fold> 
                         // Refresh Figure
-                        drawnow
+                        process(new ArrayList<Void>());
                     }
                     else {
                         // Refresh Figure
-                        drawnow
-                    }
-    */
-    // </editor-fold> 
+                        //process(new ArrayList<Void>());
                     }
                 }
             }
@@ -1613,9 +1592,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         
         @Override
         protected void process(List<Void> chunks) {
-            XYPlot plot = chart1.getChart().getXYPlot();
-            plot.setDataset(dataset);
-            chart2.getChart().getXYPlot().setDataset(PorfileDataset);
+            chart1.getChart().getXYPlot().setDataset(tracesDataset);
+            chart2.getChart().getXYPlot().setDataset(profileDataset);
         }
 
         /**

@@ -45,7 +45,7 @@ public class BeamProfileTest {
         System.out.println("-- Start --");
 
         String[] ports = SerialPortList.getPortNames();
-        String portName = "";
+        String portName = "COM12";
 
         if (ports.length > 0) {
             portName = ports[0];

@@ -127,20 +127,30 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double[] dmin = new double[ny];         // minimal temperatures
     double[] dmax = new double[ny];         // maximal temperatures
 	
+    // Traces to plot
+    int[] trn = {6, 2, 10};     // Channel numbers of traces
+    Color[] trc = {Color.RED, Color.GREEN, Color.BLUE};  // Colors of traces
+	
     // Profile arrays and their plot handles
-    int[] p1range = {1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13}; // Channels for vertical profile
-    int[] p1x =     {0, 2, 3, 4, 5, 6, 7,  8,  9, 10, 12}; // X values for vertical profile
-    int[] p2range = {15, 6, 14};     // Channels for horizontal profile
-    int[] p2x =     { 2, 6, 10};     // X values for horizontal profile
-    double[] prof1  = new double[p1range.length];  // Vertical profile
+    // Vertical profile
+    int[] p1range = {1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13};  // Channels for vertical profile
+    int[] p1x =     {0, 2, 3, 4, 5, 6, 7,  8,  9, 10, 12};  // X values for vertical profile
+    double[] prof1  = new double[p1range.length];           // Vertical profile
     int prof1h = 0;         // handle
-    double[] prof2  = new double[p2range.length];  // Horizontal profile
-    int	prof2h = 0;         // handle
+
     double[] prof1max  = new double[prof1.length];     // Maximal vertical profile (over the plot)
     int	prof1maxh = 0;          // Maximal vertical profile handle
+
     double[] prof1max1  = new double[prof1max.length]; // Maximal vertical profile from the program start
     int prof1max1h = 0;         // Handle
-    double[] prof2max  = new double[prof2.length];      // Maximal vertical profile (over the plot)
+
+    // Horizontal profile
+    int[] p2range = {15, 6, 14};     // Channels for horizontal profile
+    int[] p2x =     { 2, 6, 10};     // X values for horizontal profile
+    double[] prof2  = new double[p2range.length];  // Horizontal profile
+    int	prof2h = 0;         // handle
+
+    double[] prof2max  = new double[prof2.length];      // Maximal horizontal profile (over the plot)
     int prof2maxh = 0;
 
     // Faded profiles
@@ -149,10 +159,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int[] fph = new int[fpn];   // Faded pofile plot handles
     double fpdt = 0.5;          // Faded pofile time inteval [s]
 
-    // Traces to plot
-    int[] trn = {6, 2, 10};     // Channel numbers of traces
-    Color[] trc = {Color.RED, Color.GREEN, Color.BLUE};  // Colors of traces
-	
     // Beam current calculations and plot
     double voltage = 80.0;   // keV Particles energy
     double duration = 2.0;     // s Beam duration
@@ -188,15 +194,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double tpw = 30.0;                  // +- Zoom window halfwidth
 	
     // Error logging file
-    String logFileName = LogFileName("D:\\" + progNameShort + progVersion, "log");
-    int	log_fid = 0;
+    String logFileName = LogFileName(progNameShort + "_" + progVersion, "log");
 	
-    // Colors
-    Color cWHITE = new Color(1.0f, 1.0f, 1.0f);
-    Color cBLACK = new Color(0.0f, 0.0f, 0.0f);
-    Color cGREY  = new Color(0.3f, 0.3f, 0.3f);
-    Color cGREEN = new Color(0.0f, 0.8f, 0.0f);
-
     // Clocks
     Date c0 = new Date();
     Date c1 = new Date();
@@ -1121,8 +1120,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
 /*
 %% Callback functions
-
-    function bdAxes3(h, ~)
+    // Click in plot
+    function bdAxes3(h, ~) 
         cpoint = get(hAxes3, 'CurrentPoint');
         mi = fix(cpoint(1,1));
         mi1 = mi-mw;
@@ -1137,6 +1136,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         mi = mi + mi1;
     end
 
+    
     function cbMax1Prof(hObj, ~)
         if get(hObj, 'Value') == get(hObj, 'Min')
             set(prof1max1h, 'Visible', 'off');
@@ -1263,6 +1263,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 //logger.finest("Try");
                 while(loopDoInBackground) {
                     //logger.finest("LOOP");
+
                     // If input was changed
                     if(inputChanged) {
                         logger.fine("Input changed");
@@ -1375,7 +1376,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             dmin = min(data);
                         }
 
-                        // Plot traces
+                        // Prepare traces data set
                         tracesDataset = new DefaultXYDataset();
                         double[][] plottedData;
                         for (int i: trn) { 
@@ -1385,9 +1386,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 plottedData[1][j] = data[j][i];
                             }
                             tracesDataset.addSeries("Signal " + i, plottedData);
+                            //chart1.getChart().setLineColor(Color.red, Color.blue, Color.green, Color.gray);
+                            //tracesDataset.Series("Signal " + i, plottedData);
                         }
 
-                        // Calculate and plot profiles prof1 - vertical and prof2 - horizontal
+                        // Calculate profiles prof1 - vertical and prof2 - horizontal
                         for (int i =0; i < p1range.length; i++) {
                             prof1[i] = data[nx-1][p1range[i]] - dmin[p1range[i]];
                         }
@@ -1395,23 +1398,24 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             prof2[i] = data[nx-1][p2range[i]] - dmin[p2range[i]];
                         }
                         // Calculate datasets for profiles
-                        // Current horizontal profile
+                        // Horizontal profile
                         profileDataset = new DefaultXYDataset();
                         plottedData = new double[2][p1range.length];
                         for (int j = 0; j < p1range.length; j++) {
                             plottedData[0][j] = p1x[j];
                             plottedData[1][j] = prof1[j];
                         }
-                        profileDataset.addSeries("horizProf", plottedData);
-                        // Current vertical profile
+                        profileDataset.addSeries("vertProf", plottedData);
+                        // Vertical profile
                         plottedData = new double[2][p2range.length];
                         for (int j = 0; j < p2range.length; j++) {
                             plottedData[0][j] = p2x[j];
                             plottedData[1][j] = prof2[j];
                         }
-                        //PorfileDataset.addSeries("vertProf", plottedData);
+                        profileDataset.addSeries("horizProf", plottedData);
                         
-                        // Calculate maximal profile
+                        // Calculate maximal horizontal and vertical profiles
+                        // Find index for maximal vertical profile
                         int imax = 0;
                         double dmax = -273.0;
                         for (int i = 0; i < nx; i++) {
@@ -1422,12 +1426,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 }
                             }
                         }
+                        // Maximal vertical profiles
                         for (int i =0; i < p1range.length; i++) {
                             prof1max[i] = data[imax][p1range[i]] - dmin[p1range[i]];
                         }
-                        if (max(prof1max) < 1) {
+                        // DeltaTemperature for max profile should be > 0.5 deg C to exclude noise
+                        if (max(prof1max) < 0.5) {
                             for (int i =0; i < p1range.length; i++) {
-                                prof1max[i] = 1.0;
+                                prof1max[i] = 0.5;
                             }
                         }
                         plottedData = new double[2][p1range.length];
@@ -1435,23 +1441,48 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             plottedData[0][j] = p1x[j];
                             plottedData[1][j] = prof1max[j];
                         }
-                        profileDataset.addSeries("maxProf", plottedData);
+                        profileDataset.addSeries("maxVertProf", plottedData);
+                        // Horizontal profile
                         for (int i =0; i < p2range.length; i++) {
                             prof2max[i] = data[imax][p2range[i]] - dmin[p2range[i]];
                         }
+                        plottedData = new double[2][p2range.length];
+                        for (int j = 0; j < p2range.length; j++) {
+                            plottedData[0][j] = p2x[j];
+                            plottedData[1][j] = prof2max[j];
+                        }
+                        profileDataset.addSeries("maxHorizProf", plottedData);
+                        // Maximal vertical profile from the program start
+                        if (max(prof1max) > max(prof1max1)) {
+                            prof1max1  = prof1max;
+                        }
+                        if (true) { // ToDo read checkBox for max1 profile
+                            plottedData = new double[2][p1range.length];
+                            for (int j = 0; j < p1range.length; j++) {
+                                plottedData[0][j] = p1x[j];
+                                plottedData[1][j] = prof1max1[j];
+                            }
+                            profileDataset.addSeries("maxAllVertProf", plottedData);
+                        }
 
+                        // Trageting traces
                         for (int i: tpn) { 
                             plottedData = new double[2][nx];
                             for (int j = 0; j < data.length; j++) {
                                 plottedData[0][j] = (data[j][0] - data[0][0])/1000.0;
-                                plottedData[1][j] = data[j][i];
+                                plottedData[1][j] = data[j][i] - dmin[i];
                             }
                             tracesDataset.addSeries("Targeting " + i, plottedData);
                         }
-                        
-                        if (max(prof1max) > max(prof1max1)) {
-                            prof1max1  = prof1max;
+                        /*
+                        // Update targeting traces
+                        for ii = 1:numel(tpn) {
+                            set(tph1(ii), "Xdata", tpn1:tpn2);
+                            set(tph1(ii), "Ydata", data(tpn1:tpn2, tpn(ii))-dmin(tpn(ii)));
                         }
+                        */
+
+                        
 //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
     /*
                         // Shift marker
@@ -1494,14 +1525,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                     duration = cdt;
                                 }
                             }
-                        }
-
-                        // Update targeting traces
-                        for ii = 1:numel(tpn) {
-                            set(tph(ii), "Ydata", data(:, tpn(ii))-dmin(tpn(ii)));
-                            set(hAxes4, "XLimMode", "manual", "XLim", [tpn1, tpn2]);
-                            set(tph1(ii), "Xdata", tpn1:tpn2);
-                            set(tph1(ii), "Ydata", data(tpn1:tpn2, tpn(ii))-dmin(tpn(ii)));
                         }
 
                         // Update acceleration grid traces
@@ -1563,15 +1586,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             prof1  = data(fpi(ii), p1range) - dmin(p1range);
                             set(fph(ii), "Ydata",  prof1);
                         }
-
-                        // Plot max1 profile
-                        if (get(hCbMax1Prof, "Value") == get(hCbMax1Prof, "Max")) {
-                            set(prof1max1h, "Ydata",  prof1max1);
-                        }
-
-                        // Plot max profile
-                        set(prof1maxh, "Ydata",  prof1max);
-                        set(prof2maxh, "Ydata",  prof2max);
 
     */
     // </editor-fold> 

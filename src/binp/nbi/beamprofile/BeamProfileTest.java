@@ -7,6 +7,7 @@ package binp.nbi.beamprofile;
 
 import java.util.logging.Logger;
 import jssc.SerialPort;
+import static jssc.SerialPort.FLOWCONTROL_NONE;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
 import jssc.SerialPortTimeoutException;
@@ -74,12 +75,18 @@ public class BeamProfileTest {
             System.out.println("Set parameters for " + portName);
             serialPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8,
                     SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+            serialPort.setFlowControlMode(FLOWCONTROL_NONE);
             
-            //boolean stat = serialPort.writeByte((byte) 0x0D);
-            //System.out.println("WriteByte((byte)0x0D) " + stat);
+            boolean stat = serialPort.writeString("$08M");
+            System.out.println("WriteString $08M " + stat);
+            String str = serialPort.readString();
+            System.out.println("readString() " + str);
+
+            stat = serialPort.writeByte((byte) 0x0A);
+            System.out.println("WriteByte((byte)0x0A) " + stat);
             
-            //String str = serialPort.readString();
-            //System.out.println("readString() " + str);
+            str = serialPort.readString();
+            System.out.println("readString() " + str);
 
             //byte[] bytes = serialPort.readBytes(1, 3000);
             //System.out.println("readBytes(1, 3000) " + bytes.length);

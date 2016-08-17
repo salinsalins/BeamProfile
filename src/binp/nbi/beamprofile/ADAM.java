@@ -113,11 +113,6 @@ public class ADAM {
         setPort(newPort);
     }
 
-    public void setBaudRate(int baud) throws SerialPortException {
-        port.setParams(baud, SerialPort.DATABITS_8, 
-                SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-    }
-    
     public void setAddr(int address) throws ADAMException {
         addr = -1;
         if (address < 0 || address > 127) {
@@ -127,6 +122,7 @@ public class ADAM {
     }
 
     public void delete() {
+        //port = null;
         addr = -1;
         name = "";
         firmware = "";

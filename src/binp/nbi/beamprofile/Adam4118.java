@@ -22,12 +22,13 @@ import jssc.SerialPort;
 
 public class Adam4118 extends ADAM {
     static public File file;
-    static public BufferedReader reader;
+    static public BufferedReader reader = null;
     static public String line;
     static public String[] columns;
     static public int index;
 
     Adam4118(SerialPort comport, int addr) {
+        logger.log(Level.FINE, "Adam4118 creatiing1 ", ""+reader);
         if (reader == null ) {
             try {
                 setPort(comport);
@@ -36,18 +37,18 @@ public class Adam4118 extends ADAM {
                 name = read_name();
                 firmware = read_firmware();
                 serial = read_serial();
-
+                logger.log(Level.FINE, "Adam4118 created at " + comport + " addr:" + addr);
             }
             catch (Exception ex) {
-                if (log) {
-                    System.out.printf("%s\n", ex.getMessage());
-                    ex.printStackTrace();
-                }
+                logger.log(Level.FINE, "Adam4118 creation exception ", ex);
+                //System.out.printf("%s\n", ex.getMessage());
+                //ex.printStackTrace();
             }
         }
     }
     
     Adam4118(String comport, int addr) {
+        logger.log(Level.FINE, "Adam4118 creatiing2 ", ""+reader);
         if (reader == null ) {
             try {
                 setPort(comport);
@@ -56,14 +57,12 @@ public class Adam4118 extends ADAM {
                 name = read_name();
                 firmware = read_firmware();
                 serial = read_serial();
-
+                logger.log(Level.FINE, "Adam4118 created at " + comport + " addr:" + addr);
             }
             catch (Exception ex) {
-                if (log) {
-                    System.out.printf("%s\n", ex.getMessage());
-                    ex.printStackTrace();
-                }
-
+                logger.log(Level.FINE, "Adam4118 creation exception ", ex);
+                //System.out.printf("%s\n", ex.getMessage());
+                //ex.printStackTrace();
             }
         }
     }
@@ -166,10 +165,12 @@ public class Adam4118 extends ADAM {
         else {
             String command = String.format("#%02X", addr);
             String resp = execute(command);
-            logger.log(Level.INFO, "4118 Read: ", resp);
-            if (resp.substring(0,1).equals(">"))
+            if ( resp != null && resp.length()>0 && resp.substring(0,1).equals(">")) {
+                logger.log(Level.INFO, "4118 readString: ", resp);
                 return resp;
+            }
             //throw new ADAMException("Wrong reading response.");
+            logger.log(Level.INFO, "4118 readString: Wrong response ", resp);
             return "";
         }
     }

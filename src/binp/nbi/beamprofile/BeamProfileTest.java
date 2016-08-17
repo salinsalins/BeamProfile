@@ -42,38 +42,59 @@ public class BeamProfileTest {
     }
 
     void process() throws SerialPortException, SerialPortTimeoutException {
-        System.out.println("-- Start --");
+            System.out.println("-- Start --");
+        try {            
+            String[] ports = SerialPortList.getPortNames();
+            String portName = "COM12";
+            boolean exists = false;
+            
+            if (ports.length > 0) {
+                portName = ports[0];
+                System.out.println("Found ports:");
+                for (String port : ports) {
+                    System.out.print(port);
+                    if (port.equals(portName)) {
+                        System.out.println(" - exists!");
+                        exists = true;
+                    }
+                    else
+                        System.out.println("");
+                }
+            }
+            if (!exists) 
+                portName = ports[0];
+            
+            System.out.println("Create " + portName);
+            SerialPort serialPort = new SerialPort(portName);
+            System.out.println(serialPort.getPortName());
+            System.out.println("Open " + portName);
+            serialPort.openPort();
+            System.out.println("Is opened " + serialPort.isOpened());
+            System.out.println("Set parameters for " + portName);
+            serialPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8,
+                    SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+            
+            boolean stat = serialPort.writeByte((byte) 0x0D);
+            System.out.println("WriteByte((byte)0x0D) " + stat);
+            
+            String str = serialPort.readString();
+            System.out.println("readString() " + str);
 
-        String[] ports = SerialPortList.getPortNames();
-        String portName = "COM12";
+            //byte[] bytes = serialPort.readBytes(1, 3000);
+            //System.out.println("readBytes(1, 3000) " + bytes.length);
+            Adam4118 adam = new Adam4118(serialPort, 1);
+            System.out.println("new Adam4118 " + adam.name);
 
-        if (ports.length > 0) {
-            portName = ports[0];
-            System.out.println("Found ports:");
-            for(String port:ports)
-                System.out.println(port);
+            System.out.println("Reading data");
+            double[] data = adam.readData();
+            for(int i = 0; i <data.length; i++) {
+                System.out.println("" + i + " data: " + data[i]);
+            }
+            
         }
-        
-        System.out.println("Create " + portName);
-        SerialPort newPort = new SerialPort(portName);
-        System.out.println("Open " + portName);
-	newPort.openPort();
-        System.out.println("Set parameters for " + portName);
-        newPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8, 
-                SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-
-        boolean stat = newPort.writeByte((byte)0x0D);
-        System.out.println("WriteByte((byte)0x0D) " + stat);
-
-        String str = newPort.readString();
-        System.out.println("readString() " + str);
-
-        //byte[] bytes = newPort.readBytes(1, 3000);
-        //System.out.println("readBytes(1, 3000) " + bytes.length);
-        
-        ADAM adam = new ADAM(newPort, 1);
-        System.out.println("new ADAM " + adam.name);
-        
+        catch(Exception ex) {
+            ex.printStackTrace();
+        } 
         System.out.println("-- Finish --");
     }
     

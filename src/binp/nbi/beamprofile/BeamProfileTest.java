@@ -6,8 +6,11 @@
 package binp.nbi.beamprofile;
 
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import jssc.SerialPort;
 import static jssc.SerialPort.FLOWCONTROL_NONE;
+import jssc.SerialPortEvent;
+import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
 import jssc.SerialPortTimeoutException;
@@ -19,6 +22,7 @@ import jssc.SerialPortTimeoutException;
 public class BeamProfileTest {
     String host = "";
     int count = 0;
+    public SerialPort serialPort;
 //    static final Logger logger = Logger.getLogger(BeamProfile.class.getPackage().getName());
 
     /**
@@ -66,27 +70,45 @@ public class BeamProfileTest {
             if (!exists) 
                 portName = ports[0];
             
+            boolean stat;
             System.out.println("Create " + portName);
-            SerialPort serialPort = new SerialPort(portName);
-            System.out.println(serialPort.getPortName());
-            System.out.println("Open " + portName);
-            serialPort.openPort();
-            System.out.println("Is opened = " + serialPort.isOpened());
-            System.out.println("Set parameters for " + portName);
-            serialPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8,
+            serialPort = new SerialPort(portName);
+            System.out.println("Opening " + serialPort.getPortName());
+            stat = serialPort.openPort();
+            System.out.println("Is opened " + serialPort.isOpened());
+            stat = serialPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8,
                     SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-            serialPort.setFlowControlMode(FLOWCONTROL_NONE);
+            System.out.println("Set parameters " + stat);
+            stat = serialPort.setFlowControlMode(FLOWCONTROL_NONE);
+            System.out.println("setFlowControlMode NONE " + stat);
+/*
+            serialPort.addEventListener(new Reader(), SerialPort.MASK_RXCHAR |
+                                                      SerialPort.MASK_RXFLAG |
+                                                      SerialPort.MASK_CTS |
+                                                      SerialPort.MASK_DSR |
+                                                      SerialPort.MASK_RLSD);
+*/            
             
-            boolean stat = serialPort.writeString("$08M");
-            System.out.println("WriteString $08M " + stat);
-            String str = serialPort.readString();
-            System.out.println("readString() " + str);
-
-            stat = serialPort.writeByte((byte) 0x0A);
-            System.out.println("WriteByte((byte)0x0A) " + stat);
+            String str = "$08M";
+            byte[] bytes = new byte[str.length()+1];
+            for (int i=0; i < str.length(); i++) {
+                bytes[i] = str.substring(i, i+1).getBytes()[0];
+            }
+            bytes[bytes.length-1] = 0x0A;
             
-            str = serialPort.readString();
-            System.out.println("readString() " + str);
+            //stat = serialPort.writeString("$08M\n");
+            //System.out.println("writeString $08M " + stat);
+            //System.out.println("Output count = " + serialPort.getOutputBufferBytesCount());
+            //System.out.println("Input count =  " + serialPort.getInputBufferBytesCount());
+            //str = serialPort.readString(1,1000);
+            //System.out.println("readString() " + str);
+            
+            stat = serialPort.writeBytes(bytes);
+            System.out.println("writeBytes " + stat);
+            System.out.println(serialPort.getInputBufferBytesCount());
+            System.out.println(serialPort.getOutputBufferBytesCount());
+            bytes = serialPort.readBytes(1, 1000);
+            System.out.println("readBytes " + bytes.length);
 
             //byte[] bytes = serialPort.readBytes(1, 3000);
             //System.out.println("readBytes(1, 3000) " + bytes.length);
@@ -106,5 +128,51 @@ public class BeamProfileTest {
         } 
         System.out.println("-- Finish --");
     }
-    
+    private class Reader implements SerialPortEventListener {
+
+        public String str = "";
+
+        @Override
+        public void serialEvent(SerialPortEvent spe) {
+            if(spe.isRXCHAR() || spe.isRXFLAG()){
+                if(spe.getEventValue() > 0){
+                    try {
+                        str = "";
+                        byte[] buffer = serialPort.readBytes(spe.getEventValue());
+                        System.out.println("Reader: " + buffer.length + " bytes");
+                        str = new String(buffer);
+                        System.out.println("Reader: " + str);
+                    }
+                    catch (Exception ex) {
+                        //Do nothing
+                    }
+                }
+            }
+            else if(spe.isCTS()){
+                if(spe.getEventValue() == 1){
+                    System.out.println("Reader: CTS == 1");
+                }
+                else {
+                    System.out.println("Reader: CTS != 1");
+                }
+            }
+            else if(spe.isDSR()){
+                if(spe.getEventValue() == 1){
+                    System.out.println("Reader: DSR == 1");
+                }
+                else {
+                    System.out.println("Reader: DSR != 1");
+                }
+            }
+            else if(spe.isRLSD()){
+                if(spe.getEventValue() == 1){
+                    System.out.println("Reader: RLSD == 1");
+                }
+                else {
+                    System.out.println("Reader: RLSD != 1");
+                }
+            }
+        }
+    }
+
 }

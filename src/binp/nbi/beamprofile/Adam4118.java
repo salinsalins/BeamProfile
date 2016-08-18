@@ -93,11 +93,12 @@ public class Adam4118 extends ADAM {
         if (reader != null) {
             try {
                 reader.close();
-            } catch (IOException ex) {
+           } catch (IOException ex) {
                 Logger.getLogger(Adam4118.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
         reader = null;
+        logger.fine("Adam4118 file closed");
     }
 
     public String readString() {

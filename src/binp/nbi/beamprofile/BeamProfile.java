@@ -928,6 +928,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         if (readFromFile) {
             // Open input file
             Adam4118.openFile(jTextField6.getText());
+            logger.fine("Adam4118 is reading from file " + jTextField6.getText());
         }
         for (int i = 0; i < addr.length; i++) {
             adams[i] = new Adam4118(ports[i], addr[i]);

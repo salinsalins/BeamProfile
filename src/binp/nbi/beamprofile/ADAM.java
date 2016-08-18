@@ -202,7 +202,7 @@ public class ADAM {
         if (isSuspended()) return false;
 
         command = command.trim();
-        if (!command.substring(command.length()-2).equals("\n")) command += "\n";
+        //if (!command.substring(command.length()-2).equals("\n")) command += "\n";
 
         boolean status = false;
         last_command = command;
@@ -215,6 +215,7 @@ public class ADAM {
             
             // Write command
             status = port.writeString(command);
+            status = port.writeByte((byte)0x0D);
         }
         catch (Exception ex) {
             ex.printStackTrace();

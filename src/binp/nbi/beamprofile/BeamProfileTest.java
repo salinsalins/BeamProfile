@@ -81,6 +81,11 @@ public class BeamProfileTest {
             System.out.println("Set parameters " + stat);
             stat = serialPort.setFlowControlMode(FLOWCONTROL_NONE);
             System.out.println("setFlowControlMode NONE " + stat);
+            stat = serialPort.setRTS(false);
+            System.out.println("setRTS false " + stat);
+            //stat = serialPort.setDTR(true);
+            stat = serialPort.setDTR(false);
+            System.out.println("setDTR false " + stat);
 /*
             serialPort.addEventListener(new Reader(), SerialPort.MASK_RXCHAR |
                                                       SerialPort.MASK_RXFLAG |
@@ -89,25 +94,25 @@ public class BeamProfileTest {
                                                       SerialPort.MASK_RLSD);
 */            
             
-            String str = "$08M";
+            String str = "#08";
             byte[] bytes = new byte[str.length()+1];
             for (int i=0; i < str.length(); i++) {
                 bytes[i] = str.substring(i, i+1).getBytes()[0];
             }
-            bytes[bytes.length-1] = 0x0A;
+            bytes[bytes.length-1] = 0x0D;
             
-            //stat = serialPort.writeString("$08M\n");
+            //stat = serialPort.writeString("#08\n");
             //System.out.println("writeString $08M " + stat);
             //System.out.println("Output count = " + serialPort.getOutputBufferBytesCount());
             //System.out.println("Input count =  " + serialPort.getInputBufferBytesCount());
-            //str = serialPort.readString(1,1000);
+            //str = serialPort.readString(1, 1000);
             //System.out.println("readString() " + str);
             
             stat = serialPort.writeBytes(bytes);
             System.out.println("writeBytes " + stat);
             System.out.println(serialPort.getInputBufferBytesCount());
             System.out.println(serialPort.getOutputBufferBytesCount());
-            bytes = serialPort.readBytes(1, 1000);
+            bytes = serialPort.readBytes(15, 1000);
             System.out.println("readBytes " + bytes.length);
 
             //byte[] bytes = serialPort.readBytes(1, 3000);

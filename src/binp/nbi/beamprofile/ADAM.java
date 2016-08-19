@@ -28,7 +28,7 @@ public class ADAM {
     String last_response = "";
 
     int timeout = 500;
-    int to_min = 200;
+    int to_min = 500;
     int to_max = 2000;
     int to_retries = 3;
     boolean toAuto = true;
@@ -275,6 +275,7 @@ public class ADAM {
             
     public  String readResponse(SerialPort port, int timeout)  
             throws SerialPortException, SerialPortTimeoutException, ADAMException {
+/*
         byte[] b;
         StringBuilder sb = new StringBuilder();
         long startTime = System.currentTimeMillis();
@@ -286,6 +287,8 @@ public class ADAM {
             sb.append(b[0]);
         }
         throw new ADAMException(timeout);
+*/
+        return readStringToCR(timeout);
     }
 
     public void increaseTimeout() {
@@ -398,7 +401,31 @@ public class ADAM {
                 return false;
             }
     }
-		
+
+    boolean writeStringWithCR(String str) throws SerialPortException {
+        if (str == null || str.length() <= 0) return true;
+        byte[] bytes = new byte[str.length()+1];
+        for (int i=0; i < str.length(); i++) {
+            bytes[i] = str.substring(i, i+1).getBytes()[0];
+        }
+        bytes[bytes.length-1] = 0x0D;
+        return port.writeBytes(bytes);
+    }
+    String readStringToCR(int timeout) throws SerialPortTimeoutException, SerialPortException  {
+        long t0 = new Date().getTime();
+        long t1 = t0;
+        byte[] bytes = new byte[256];
+        for (int i = 0; i < bytes.length; i++) {
+            t1 = new Date().getTime();
+            timeout = timeout - (int)(t1-t0);
+            bytes[i] = port.readBytes(1, timeout)[0];
+            if (bytes[i] == 0x0D)
+                return new String(bytes, 0, i);
+        }
+        throw new SerialPortTimeoutException(port.getPortName(), "readStringToCR", bytes.length);
+    }
+
+    
 //************************************************************
     public class ADAMException extends Exception {
 

@@ -5,6 +5,7 @@
  */
 package binp.nbi.beamprofile;
 
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
@@ -76,17 +77,16 @@ public class BeamProfileTest {
             serialPort = new SerialPort(portName);
             System.out.println("Opening " + serialPort.getPortName());
             stat = serialPort.openPort();
-            System.out.println("Is opened " + serialPort.isOpened());
+            System.out.println("Is opened = " + serialPort.isOpened());
             stat = serialPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8,
                     SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-            System.out.println("Set parameters " + stat);
-            stat = serialPort.setFlowControlMode(FLOWCONTROL_NONE);
-            System.out.println("setFlowControlMode NONE " + stat);
-            stat = serialPort.setRTS(false);
-            System.out.println("setRTS false " + stat);
-            //stat = serialPort.setDTR(true);
-            stat = serialPort.setDTR(false);
-            System.out.println("setDTR false " + stat);
+            System.out.println("Set parameters = " + stat);
+            //stat = serialPort.setFlowControlMode(FLOWCONTROL_NONE);
+            //System.out.println("setFlowControlMode NONE = " + stat);
+            //stat = serialPort.setRTS(false);
+            //System.out.println("setRTS false = " + stat);
+            //stat = serialPort.setDTR(false);
+            //System.out.println("setDTR false = " + stat);
 /*
             serialPort.addEventListener(new Reader(), SerialPort.MASK_RXCHAR |
                                                       SerialPort.MASK_RXFLAG |
@@ -99,25 +99,19 @@ public class BeamProfileTest {
             serialPort.readString();
             // write command ReadAllChannels for ADAM at addr 08
             String str = "#08";
+            long t0 = new Date().getTime();
             stat = writeStringWithCR(str);
+            long t1 = new Date().getTime();
             System.out.println("writeStringWithCR " + str + " = " + stat);
+            System.out.println("Elapsed " + (t1-t0) + "ms");
             System.out.println("Output count = " + serialPort.getOutputBufferBytesCount());
             System.out.println("Input count =  " + serialPort.getInputBufferBytesCount());
-            //str = serialPort.readString(1, 1000);
-            //System.out.println("readString() " + str);
-            // Read string until CR = 0x0D with timeout 1000ms
+            // Read ADAM responce 
             str = readStringToCR(1000);
-            System.out.println("readStringToCR() " + str);
+            long t2 = new Date().getTime();
+            System.out.println("readStringToCR() " +str.length() + " bytes = " + str);
+            System.out.println("Elapsed " + (t2-t1) + "ms");
             
-            //stat = serialPort.writeBytes(bytes);
-            //System.out.println("writeBytes " + stat);
-            //System.out.println(serialPort.getInputBufferBytesCount());
-            //System.out.println(serialPort.getOutputBufferBytesCount());
-            //bytes = serialPort.readBytes(15, 1000);
-            //System.out.println("readBytes " + bytes.length);
-
-            //byte[] bytes = serialPort.readBytes(1, 3000);
-            //System.out.println("readBytes(1, 3000) " + bytes.length);
             System.out.println("Creating Adam4118");
             Adam4118 adam = new Adam4118(serialPort, 8);
             System.out.println("new Adam4118 " + adam.name);

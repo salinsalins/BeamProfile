@@ -21,6 +21,7 @@ import jssc.SerialPort;
  */
 
 public class Adam4118 extends ADAM {
+    static final Logger logger = Logger.getLogger(BeamProfile.class.getPackage().getName());
     static public File file;
     static public BufferedReader reader = null;
     static public String line;
@@ -28,7 +29,7 @@ public class Adam4118 extends ADAM {
     static public int index;
 
     Adam4118(SerialPort comport, int addr) {
-        logger.log(Level.FINE, "Adam4118 creatiing1 ", ""+reader);
+        //logger.log(Level.FINE, "Adam4118 creatiing1 ", ""+reader);
         if (reader == null ) {
             try {
                 setPort(comport);
@@ -40,7 +41,7 @@ public class Adam4118 extends ADAM {
                 logger.log(Level.FINE, "Adam4118 created at " + comport + " addr:" + addr);
             }
             catch (Exception ex) {
-                logger.log(Level.FINE, "Adam4118 creation exception ", ex);
+                logger.log(Level.INFO, "Adam4118 creation exception ", ex);
                 //System.out.printf("%s\n", ex.getMessage());
                 //ex.printStackTrace();
             }

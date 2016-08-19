@@ -5,6 +5,7 @@
  */
 package binp.nbi.beamprofile;
 
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import jssc.SerialPort;
@@ -94,26 +95,26 @@ public class BeamProfileTest {
                                                       SerialPort.MASK_RLSD);
 */            
             
+            // Clear input buffer
+            serialPort.readString();
+            // write command ReadAllChannels for ADAM at addr 08
             String str = "#08";
-            byte[] bytes = new byte[str.length()+1];
-            for (int i=0; i < str.length(); i++) {
-                bytes[i] = str.substring(i, i+1).getBytes()[0];
-            }
-            bytes[bytes.length-1] = 0x0D;
-            
-            //stat = serialPort.writeString("#08\n");
-            //System.out.println("writeString $08M " + stat);
-            //System.out.println("Output count = " + serialPort.getOutputBufferBytesCount());
-            //System.out.println("Input count =  " + serialPort.getInputBufferBytesCount());
+            stat = writeStringWithCR(str);
+            System.out.println("writeStringWithCR " + str + " = " + stat);
+            System.out.println("Output count = " + serialPort.getOutputBufferBytesCount());
+            System.out.println("Input count =  " + serialPort.getInputBufferBytesCount());
             //str = serialPort.readString(1, 1000);
             //System.out.println("readString() " + str);
+            // Read string until CR = 0x0D with timeout 1000ms
+            str = readStringToCR(1000);
+            System.out.println("readStringToCR() " + str);
             
-            stat = serialPort.writeBytes(bytes);
-            System.out.println("writeBytes " + stat);
-            System.out.println(serialPort.getInputBufferBytesCount());
-            System.out.println(serialPort.getOutputBufferBytesCount());
-            bytes = serialPort.readBytes(15, 1000);
-            System.out.println("readBytes " + bytes.length);
+            //stat = serialPort.writeBytes(bytes);
+            //System.out.println("writeBytes " + stat);
+            //System.out.println(serialPort.getInputBufferBytesCount());
+            //System.out.println(serialPort.getOutputBufferBytesCount());
+            //bytes = serialPort.readBytes(15, 1000);
+            //System.out.println("readBytes " + bytes.length);
 
             //byte[] bytes = serialPort.readBytes(1, 3000);
             //System.out.println("readBytes(1, 3000) " + bytes.length);
@@ -133,6 +134,25 @@ public class BeamProfileTest {
         } 
         System.out.println("-- Finish --");
     }
+    boolean writeStringWithCR(String str) throws SerialPortException {
+        if (str == null || str.length() <= 0) return true;
+        byte[] bytes = new byte[str.length()+1];
+        for (int i=0; i < str.length(); i++) {
+            bytes[i] = str.substring(i, i+1).getBytes()[0];
+        }
+        bytes[bytes.length-1] = 0x0D;
+        return serialPort.writeBytes(bytes);
+    }
+    String readStringToCR(int timeout) throws SerialPortTimeoutException, SerialPortException  {
+        byte[] bytes = new byte[256];
+        for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = serialPort.readBytes(1, timeout)[0];
+            if (bytes[i] == 0x0D)
+                return new String(bytes, 0, i);
+        }
+        throw new SerialPortTimeoutException(serialPort.getPortName(), "readStringToCR", bytes.length);
+    }
+
     private class Reader implements SerialPortEventListener {
 
         public String str = "";

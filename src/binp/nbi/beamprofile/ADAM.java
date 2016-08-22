@@ -2,12 +2,10 @@
  */
 package binp.nbi.beamprofile;
 
-import static binp.nbi.beamprofile.BeamProfile.logger;
 import java.util.Date;
-import java.util.logging.Level;
+import java.util.logging.Logger;
 import jssc.SerialPort;
 import jssc.SerialPortException;
-import jssc.SerialPortList;
 import jssc.SerialPortTimeoutException;
 
 /**
@@ -15,7 +13,8 @@ import jssc.SerialPortTimeoutException;
  * @author Sanin
  */
 public class ADAM {
-    //Class for ADAM4xxx series devices
+    //Common class for ADAM4xxx series devices
+    static final Logger logger = Logger.getLogger(ADAM.class.getName());
 
     public SerialPort port;
     public int addr = -1;
@@ -25,15 +24,27 @@ public class ADAM {
     long to_w = 0;
 
     String last_command = "";
-    String last_response = "";
-
+    int readBufferSize = 256;
+    byte[] readBuffer = new byte[readBufferSize];
+    int readBufferIndex = 0;
+    long readByteCount;
+    String readResponse = "";
+    
+    // Timeouts
     int timeout = 500;
-    int to_min = 200;
+    int to_min = 250;
     int to_max = 2000;
     int to_retries = 3;
     boolean toAuto = true;
     double to_fp = 2.0;
-    double to_fm = 1.0/2.0;
+    double to_fm = 0.5;
+    int minByteReadTimeout = 2;
+    long byteReadTime = 0;
+    double byteReadCount = 0;
+    double averageByteReadTime = 0;
+    long firstByteReadTime = 0;
+    double firstByteReadCount = 0;
+    double averageFirstByteReadTime = 0;
 
     boolean to_susp = false;
     long to_susp_start = 0;
@@ -230,7 +241,7 @@ public class ADAM {
     public String read_response() {
         // Read response form ADAM module
         String resp = "";
-        last_response = "";
+        readResponse = "";
         if (isSuspended()) return resp;
 
         // Perform n reties to read response
@@ -240,7 +251,7 @@ public class ADAM {
             try {
                 resp = readResponse(port, timeout);
                 decreaseTimeout();
-                last_response = resp;
+                readResponse = resp;
                 if (log) {
                     System.out.printf("Response: %s\n", resp);
                 }
@@ -259,7 +270,7 @@ public class ADAM {
         to_susp_start = (new Date()).getTime();
         to_susp = true;
         resp = "";
-        last_response = resp;
+        readResponse = resp;
         return resp;
     }
     
@@ -278,14 +289,33 @@ public class ADAM {
         byte[] b;
         StringBuilder sb = new StringBuilder();
         long startTime = System.currentTimeMillis();
-        long currentTime;
-        while (((currentTime = System.currentTimeMillis()) - startTime) < timeout) {
-            b = port.readBytes(1, timeout - (int) (currentTime - startTime));
+        long currentTime = startTime;
+        readBufferIndex = 0;
+        while ((currentTime  - startTime) <= timeout) {
+            int nextByteTimeout = timeout - (int) (currentTime - startTime);
+            if (nextByteTimeout < minByteReadTimeout) nextByteTimeout = minByteReadTimeout;
+            b = port.readBytes(1, nextByteTimeout);
+            currentTime = System.currentTimeMillis();
+            readByteCount++;
+            if (readBufferIndex <= 0) {
+                firstByteReadTime = currentTime - startTime;
+                averageFirstByteReadTime = (averageFirstByteReadTime*firstByteReadCount++ 
+                        + firstByteReadTime)/firstByteReadCount;
+            }
+            else {
+                byteReadTime = currentTime - startTime;
+                averageByteReadTime = (averageByteReadTime*byteReadCount++ 
+                        + byteReadTime)/byteReadCount;
+            }
+            if (readBufferIndex < readBufferSize) readBuffer[readBufferIndex++] = b[0];
             if (b[0] == 13 )            // wait for CR = 0x0D = 13. 
                 return sb.toString();
             sb.append(b[0]);
+            readResponse = sb.toString();
+            currentTime = System.currentTimeMillis();
         }
-        throw new ADAMException(timeout);
+        readResponse = sb.toString();
+        throw new ADAMException("timeout " + timeout + " ms");
     }
 
     public void increaseTimeout() {
@@ -402,12 +432,16 @@ public class ADAM {
 //************************************************************
     public class ADAMException extends Exception {
 
+        public ADAMException(String description, int parameter) {
+            super("ADAM exception: " + description + parameter);
+        }
+
         public ADAMException(int timeout) {
             super("ADAM operation timeout " + timeout + " ms.");
         }
 
         public ADAMException(String str) {
-            super("ADAM exception: " + str + ".");
+            super("ADAM exception: " + str);
         }
 
         public ADAMException() {

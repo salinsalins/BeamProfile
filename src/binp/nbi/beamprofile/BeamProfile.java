@@ -51,21 +51,21 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     JPanel chartPanel;
     Task task;
 
-    String progName = "Calorimeter Beam Profile";
-    String progNameShort = "Beam_Profile";
-    String progVersion = "20";
+    static String progName = "Calorimeter Beam Profile";
+    static String progNameShort = "Beam_Profile";
+    static String progVersion = "21";
     String iniFileName = progNameShort + "_" + progVersion + ".ini";
 
     // Input file
     volatile boolean inputChanged = true;
     volatile boolean readFromFile = true;
-    File inputFile = new File("BeamProfile.txt");
+    File inputFile = new File("Beam_Profile.txt");
 
     // Output file
     volatile boolean outputChanged = true;
     volatile boolean writeToFile = false;
     volatile boolean splitOutputFile = true;
-    String outputFileName = LogFileName(progNameShort, "txt");
+    String outputFileName = OutputFileName(progNameShort, "txt");
     File outputFilePath = new File("D:\\");
     File outputFile = new File(outputFilePath, outputFileName);
     BufferedWriter outputWriter = null;
@@ -149,7 +149,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double tpw = 30.0;                  // +- Zoom window halfwidth
 	
     // Error logging file
-    String logFileName = LogFileName(progNameShort + "_" + progVersion, "log");
+    String logFileName = OutputFileName(progNameShort + "_" + progVersion, "log");
 	
     // Clocks
     Date c0 = new Date();
@@ -886,9 +886,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }
 
     static String prefix, ext;
-    public static String LogFileName(String... strs) {
+    public static String OutputFileName(String... strs) {
 	if (prefix==null || "".equals(prefix)) {
-            prefix = "LogFile_";
+            prefix = progNameShort;
         }
 	if (ext==null || "".equals(ext)) {
 		ext = "txt";
@@ -899,10 +899,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 	if (strs.length >= 2) {
             ext = strs[1];
         }
+	String formatString = "_yyyy-MM-dd-HH-mm-ss";
+        if (strs.length >= 3) {
+            formatString = strs[2];
+        }        
         Date now = new Date();
-        SimpleDateFormat fmt = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
-	String timeStr = fmt.format(now);
-	return prefix + "_" + timeStr + "." + ext;
+        SimpleDateFormat fmt = new SimpleDateFormat(formatString);
+	String timeString = fmt.format(now);
+	return prefix + timeString + "." + ext;
     }
 
 //=================================================
@@ -959,7 +963,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }
 
     public void openOutputFile() {
-        outputFileName = LogFileName(progNameShort, "txt");
+        outputFileName = OutputFileName(progNameShort, "txt");
         outputFile = new File(outputFilePath, outputFileName);
         try {
             outputWriter = new BufferedWriter(new FileWriter(outputFile, true));

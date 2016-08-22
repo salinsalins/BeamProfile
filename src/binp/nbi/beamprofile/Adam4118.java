@@ -21,6 +21,7 @@ import jssc.SerialPort;
  */
 
 public class Adam4118 extends ADAM {
+    static final Logger logger = Logger.getLogger(Adam4118.class.getName());
     static public File file;
     static public BufferedReader reader = null;
     static public String line;
@@ -75,8 +76,8 @@ public class Adam4118 extends ADAM {
                 reader = new BufferedReader(new FileReader(file));
                 logger.log(Level.FINE, "File {0} has been opened.", file.getName());
             } catch (FileNotFoundException ex) {
-                reader = null;
                 logger.log(Level.WARNING, "File {0} not found.", file.getName());
+                closeFile();
             }
         }
     }
@@ -93,12 +94,12 @@ public class Adam4118 extends ADAM {
         if (reader != null) {
             try {
                 reader.close();
-           } catch (IOException ex) {
-                Logger.getLogger(Adam4118.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                logger.log(Level.WARNING, "Adam4118 input file close error ", ex);
             }
         }
         reader = null;
-        logger.fine("Adam4118 file closed");
+        logger.log(Level.FINE, "Adam4118 input file has been closed.");
     }
 
     public String readString() {

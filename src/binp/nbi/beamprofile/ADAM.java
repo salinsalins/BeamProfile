@@ -286,6 +286,7 @@ public class ADAM {
             
     public  String readResponse(SerialPort port, int timeout)  
             throws SerialPortException, SerialPortTimeoutException, ADAMException {
+/*
         byte[] b;
         StringBuilder sb = new StringBuilder();
         long startTime = System.currentTimeMillis();

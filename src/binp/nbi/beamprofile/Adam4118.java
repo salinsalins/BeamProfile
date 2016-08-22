@@ -29,7 +29,6 @@ public class Adam4118 extends ADAM {
     static public int index;
 
     Adam4118(SerialPort comport, int addr) {
-        //logger.log(Level.FINE, "Adam4118 creatiing1 ", ""+reader);
         if (reader == null ) {
             try {
                 setPort(comport);
@@ -41,30 +40,30 @@ public class Adam4118 extends ADAM {
                 logger.log(Level.FINE, "Adam4118 created at " + comport + " addr:" + addr);
             }
             catch (Exception ex) {
-                logger.log(Level.INFO, "Adam4118 creation exception ", ex);
+                logger.log(Level.WARNING, "Adam4118 creation exception ", ex);
                 //System.out.printf("%s\n", ex.getMessage());
                 //ex.printStackTrace();
             }
+        } else {
+            logger.log(Level.FINE, "Adam4118 created");
         }
     }
     
     Adam4118(String comport, int addr) {
-        logger.log(Level.FINE, "Adam4118 creatiing2 ", ""+reader);
         if (reader == null ) {
             try {
                 setPort(comport);
                 setAddr(addr);
-
                 name = read_name();
                 firmware = read_firmware();
                 serial = read_serial();
                 logger.log(Level.FINE, "Adam4118 created at " + comport + " addr:" + addr);
             }
             catch (Exception ex) {
-                logger.log(Level.FINE, "Adam4118 creation exception ", ex);
-                //System.out.printf("%s\n", ex.getMessage());
-                //ex.printStackTrace();
+                logger.log(Level.WARNING, "Adam4118 creation exception ", ex);
             }
+        } else {
+            logger.log(Level.FINE, "Adam4118 created");
         }
     }
     

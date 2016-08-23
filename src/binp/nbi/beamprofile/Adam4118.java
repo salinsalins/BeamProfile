@@ -34,9 +34,9 @@ public class Adam4118 extends ADAM {
                 setPort(comport);
                 setAddr(addr);
 
-                name = read_name();
-                firmware = read_firmware();
-                serial = read_serial();
+                name = readModuleName();
+                firmware = readFirmwareVersion();
+                serial = readSerialNumber();
                 logger.log(Level.FINE, "Adam4118 created at " + comport + " addr:" + addr);
             }
             catch (Exception ex) {
@@ -54,9 +54,9 @@ public class Adam4118 extends ADAM {
             try {
                 setPort(comport);
                 setAddr(addr);
-                name = read_name();
-                firmware = read_firmware();
-                serial = read_serial();
+                name = readModuleName();
+                firmware = readFirmwareVersion();
+                serial = readSerialNumber();
                 logger.log(Level.FINE, "Adam4118 created at " + comport + " addr:" + addr);
             }
             catch (Exception ex) {

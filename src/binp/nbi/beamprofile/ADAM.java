@@ -29,7 +29,7 @@ public class ADAM {
     byte[] readBuffer = new byte[readBufferSize];
     int readBufferIndex = 0;
     long byteReadCount;
-    String readResponse = "";
+    String response = "";
     
     // Timeouts
     int timeout = 500;
@@ -47,9 +47,9 @@ public class ADAM {
     double firstByteReadCount = 0;
     double averageFirstByteReadTime = 0;
 
-    boolean to_susp = false;
-    long to_susp_start = 0;
-    long to_susp_duration = 5000;
+    boolean suspended = false;
+    long suspStartTime = 0;
+    long suspDuration = 5000;
 
     String name = "";
     String firmware = "";
@@ -79,9 +79,9 @@ public class ADAM {
             setPort(comport);
             setAddr(addr);
 
-            name = read_name();
-            firmware = read_firmware();
-            serial = read_serial();
+            name = readModuleName();
+            firmware = readFirmwareVersion();
+            serial = readSerialNumber();
 
         }
         catch (Exception ex) {
@@ -98,9 +98,9 @@ public class ADAM {
             setPort(comport);
             setAddr(addr);
 
-            name = read_name();
-            firmware = read_firmware();
-            serial = read_serial();
+            name = readModuleName();
+            firmware = readFirmwareVersion();
+            serial = readSerialNumber();
 
         }
         catch (Exception ex) {
@@ -196,7 +196,7 @@ public class ADAM {
         if (isSuspended()) return false;
         try {
             if (!port.isOpened()) port.openPort();
-            String newName = read_name();
+            String newName = readModuleName();
             if (newName.equals(name)) {
                 return true;
             } else {
@@ -209,7 +209,7 @@ public class ADAM {
         }
     }
 
-    public boolean send_command(String command) {
+    public boolean sendCommand(String command) {
         // Send command to ADAM module
         if (isSuspended()) return false;
 
@@ -237,54 +237,9 @@ public class ADAM {
         return status;
     }
 
-    public String read_response() {
-        // Read response form ADAM module
-        String resp = "";
-        readResponse = "";
-        if (isSuspended()) return resp;
-
-        // Perform n reties to read response
-        int n = to_retries;
-        while (n-- > 0) {
-            to_r = -1;
-            try {
-                resp = readResponse(port, timeout);
-                decreaseTimeout();
-                readResponse = resp;
-                logger.log(Level.FINE, "Response: {0}\n", resp);
-                return resp;
-            }
-            catch (SerialPortTimeoutException | ADAMException ex) {
-                if (log) {
-                    System.out.printf("Response timeout %d\n", timeout);
-                }
-                increaseTimeout();
-            }
-            catch (SerialPortException ex) {
-                if (log) {
-                    System.out.printf("Exception during response\n");
-                }
-                increaseTimeout();
-            }
-        }
-        if (log) {
-            System.out.printf("No response %d times\n", to_retries);
-        }
-        to_susp_start = (new Date()).getTime();
-        to_susp = true;
-        resp = "";
-        readResponse = resp;
-        return resp;
-    }
-    
     public boolean isSuspended() {
-        if (!to_susp) return false;
-        long now = new Date().getTime();
-        if ((now - to_susp_start) >= to_susp_duration) {
-            to_susp = false;
-            return false;
-        }
-        return true;
+        long now = System.currentTimeMillis();
+        return ((now - suspStartTime) < suspDuration);
     }
             
     public  String readResponse(SerialPort port, int timeout)  
@@ -317,14 +272,65 @@ public class ADAM {
                 return new String(readBuffer, 0, readBufferIndex);
             sb.append(b[0]);
             //readResponse = sb.toString();
-            readResponse = new String(readBuffer, 0, readBufferIndex);
+            response = new String(readBuffer, 0, readBufferIndex);
             currentTime = System.currentTimeMillis();
         }
         //readResponse = sb.toString();
-        readResponse = new String(readBuffer, 0, readBufferIndex);
+        response = new String(readBuffer, 0, readBufferIndex);
         throw new ADAMException("timeout " + timeout + " ms");
     }
 
+    public String readResponse() {
+        // Read response form ADAM module
+        response = "";
+        // If comport suspended return ""
+        if (isSuspended()) return "";
+
+        // Perform n reties to read response
+        int n = to_retries;
+        while (n-- > 0) {
+            to_r = -1;
+            try {
+                response = ADAM.this.readResponse(port, timeout);
+                decreaseTimeout();
+                logger.log(Level.FINE, "Response: {0}\n", response);
+                return response;
+            }
+            catch (SerialPortTimeoutException | ADAMException ex) {
+                logger.log(Level.INFO, "Response timeout {0}\n", timeout);
+                if (log) {
+                    System.out.printf("Response timeout %d ms\n", timeout);
+                }
+                increaseTimeout();
+            }
+            catch (SerialPortException ex) {
+                logger.log(Level.WARNING, "Exception reading response ", ex);
+                if (log) {
+                    System.out.printf("Exception reading response\n");
+                }
+                increaseTimeout();
+            }
+        }
+        if (log) {
+            System.out.printf("No response %d times\n", to_retries);
+        }
+        suspStartTime = System.currentTimeMillis();
+        response = "";
+        return response;
+    }
+    
+    public String readResponse(String firstChar) {
+        String resp = readResponse();
+        if (resp==null || resp.length()<=0) {
+            logger.log(Level.INFO, "Null or empty response\n");
+            return "";
+        }
+        if (!resp.startsWith(firstChar)) {
+            logger.log(Level.INFO, "Unexpected response {0}\n", resp);
+        }
+        return resp.substring(firstChar.length());
+    }
+		
     public void increaseTimeout() {
         if (!toAuto) return;
         int newto = (int) (to_fp * timeout);
@@ -340,26 +346,28 @@ public class ADAM {
     public String execute(String command) {
         // Send command and read response form ADAM
         try {
-            send_command(command);
-            return read_response();
+            sendCommand(command);
+            return readResponse();
         }
         catch (Exception ME) {
             return "";
         }
     }
 
-    public String read_name() {
+    public String readModuleName() {
         // Read Module Name.  Command: $AAM
-        return execute(String.format("$%02XM", addr));
+        sendCommand(String.format("$%02XM", addr));
+        return readResponse("!");
     }
 		
-    public String read_serial() {
+    public String readSerialNumber() {
           return "Not implemented";
     }
 		
-    public String read_firmware() {
+    public String readFirmwareVersion() {
         // Read Module Firware Version.  Command: $AAF
-        return execute(String.format("$%02XF", addr));
+        sendCommand(String.format("$%02XF", addr));
+        return readResponse("!");
     }
 
     public double read(int chan) {
@@ -425,8 +433,8 @@ public class ADAM {
 
     public boolean write(String command, int param) throws SerialPortException {
         String cmd = String.format("%s %d", command, param);
-        send_command(cmd);
-        String resp = read_response();
+        sendCommand(cmd);
+        String resp = readResponse();
         if ("OK".equals(resp)) {
             return true;
         }

@@ -3,6 +3,7 @@
 package binp.nbi.beamprofile;
 
 import java.util.Date;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import jssc.SerialPort;
 import jssc.SerialPortException;
@@ -27,7 +28,7 @@ public class ADAM {
     int readBufferSize = 256;
     byte[] readBuffer = new byte[readBufferSize];
     int readBufferIndex = 0;
-    long readByteCount;
+    long byteReadCount;
     String readResponse = "";
     
     // Timeouts
@@ -40,7 +41,7 @@ public class ADAM {
     double to_fm = 0.5;
     int minByteReadTimeout = 2;
     long byteReadTime = 0;
-    double byteReadCount = 0;
+    double totalByteReadCount = 0;
     double averageByteReadTime = 0;
     long firstByteReadTime = 0;
     double firstByteReadCount = 0;
@@ -232,9 +233,7 @@ public class ADAM {
             ex.printStackTrace();
         }
         to_w = (new Date()).getTime() - start;
-        if (log) {
-            System.out.printf("COMMAND: %s\n", command);
-        }
+        logger.log(Level.FINE, "Command: {0}\n", command);
         return status;
     }
 
@@ -252,14 +251,18 @@ public class ADAM {
                 resp = readResponse(port, timeout);
                 decreaseTimeout();
                 readResponse = resp;
-                if (log) {
-                    System.out.printf("Response: %s\n", resp);
-                }
+                logger.log(Level.FINE, "Response: {0}\n", resp);
                 return resp;
             }
-            catch (Exception ex) {
+            catch (SerialPortTimeoutException | ADAMException ex) {
                 if (log) {
                     System.out.printf("Response timeout %d\n", timeout);
+                }
+                increaseTimeout();
+            }
+            catch (SerialPortException ex) {
+                if (log) {
+                    System.out.printf("Exception during response\n");
                 }
                 increaseTimeout();
             }
@@ -294,27 +297,31 @@ public class ADAM {
         while ((currentTime  - startTime) <= timeout) {
             int nextByteTimeout = timeout - (int) (currentTime - startTime);
             if (nextByteTimeout < minByteReadTimeout) nextByteTimeout = minByteReadTimeout;
+            long byteReadStartTime = System.currentTimeMillis();
             b = port.readBytes(1, nextByteTimeout);
             currentTime = System.currentTimeMillis();
-            readByteCount++;
+            byteReadCount++;
             if (readBufferIndex <= 0) {
-                firstByteReadTime = currentTime - startTime;
+                firstByteReadTime = currentTime - byteReadStartTime;
                 averageFirstByteReadTime = (averageFirstByteReadTime*firstByteReadCount++ 
                         + firstByteReadTime)/firstByteReadCount;
             }
             else {
-                byteReadTime = currentTime - startTime;
-                averageByteReadTime = (averageByteReadTime*byteReadCount++ 
-                        + byteReadTime)/byteReadCount;
+                byteReadTime = currentTime - byteReadStartTime;
+                averageByteReadTime = (averageByteReadTime*totalByteReadCount++ 
+                        + byteReadTime)/totalByteReadCount;
             }
             if (readBufferIndex < readBufferSize) readBuffer[readBufferIndex++] = b[0];
             if (b[0] == 13 )            // wait for CR = 0x0D = 13. 
-                return sb.toString();
+                //return sb.toString();
+                return new String(readBuffer, 0, readBufferIndex);
             sb.append(b[0]);
-            readResponse = sb.toString();
+            //readResponse = sb.toString();
+            readResponse = new String(readBuffer, 0, readBufferIndex);
             currentTime = System.currentTimeMillis();
         }
-        readResponse = sb.toString();
+        //readResponse = sb.toString();
+        readResponse = new String(readBuffer, 0, readBufferIndex);
         throw new ADAMException("timeout " + timeout + " ms");
     }
 
@@ -385,7 +392,7 @@ public class ADAM {
                 try {
                     data[j] = Double.parseDouble(s);
                 }
-                catch (Exception ex) {
+                catch (NumberFormatException ex) {
                     data[j] = -8888.8;
                 }
                 j++;
@@ -393,7 +400,7 @@ public class ADAM {
             return data;
         }
         catch (Exception ex) {
-            //logger.log(Level.INFO, "ADAM response conversion error.", ex);
+            logger.log(Level.INFO, "ADAM response conversion error.", ex);
             return data;
         }
     }
@@ -418,15 +425,15 @@ public class ADAM {
 
     public boolean write(String command, int param) throws SerialPortException {
         String cmd = String.format("%s %d", command, param);
-            send_command(cmd);
-            String resp = read_response();
-            if ("OK".equals(resp)) {
-                return true;
-            }
-            else{
-                System.out.println("Unexpected response. " + cmd + " -> " + resp);
-                return false;
-            }
+        send_command(cmd);
+        String resp = read_response();
+        if ("OK".equals(resp)) {
+            return true;
+        }
+        else{
+            System.out.println("Unexpected response. " + cmd + " -> " + resp);
+            return false;
+        }
     }
 
 //************************************************************

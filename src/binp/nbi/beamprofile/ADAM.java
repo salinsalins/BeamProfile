@@ -25,11 +25,17 @@ public class ADAM {
     long to_w = 0;
 
     String last_command = "";
+    String response = "";
+    // Reading response buffer, times and statistics
     int readBufferSize = 256;
     byte[] readBuffer = new byte[readBufferSize];
     int readBufferIndex = 0;
-    long byteReadCount;
-    String response = "";
+    long byteReadTime = 0;
+    double totalByteReadCount = 0;
+    double averageByteReadTime = 0;
+    long firstByteReadTime = 0;
+    double firstByteReadCount = 0;
+    double averageFirstByteReadTime = 0;
     
     // Timeouts
     int timeout = 500;
@@ -40,20 +46,12 @@ public class ADAM {
     double to_fp = 2.0;
     double to_fm = 0.5;
     int minByteReadTimeout = 2;
-    long byteReadTime = 0;
-    double totalByteReadCount = 0;
-    double averageByteReadTime = 0;
-    long firstByteReadTime = 0;
-    double firstByteReadCount = 0;
-    double averageFirstByteReadTime = 0;
 
-    boolean suspended = false;
     long suspStartTime = 0;
     long suspDuration = 5000;
 
     String name = "";
     String firmware = "";
-    String serial = "";
 		
     public boolean log = true;
 
@@ -61,38 +59,6 @@ public class ADAM {
     }
 
     ADAM (SerialPort comport, int addr) {
-
-/*
-        String[] ports = SerialPortList.getPortNames();
-        String portName;
-        if(ports.length > 0){
-            portName = ports[0];
-        }
-
-        SerialPort newPort = new SerialPort("COM6");
-        newPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8, 
-                SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-	newPort.openPort();
-*/
-
-        try {
-            setPort(comport);
-            setAddr(addr);
-
-            name = readModuleName();
-            firmware = readFirmwareVersion();
-
-        }
-        catch (Exception ex) {
-            if (log) {
-                System.out.printf("%s\n", ex.getMessage());
-                ex.printStackTrace();
-            }
-        }
-    }
-
-    ADAM (String comport, int addr) {
-
         try {
             setPort(comport);
             setAddr(addr);
@@ -112,15 +78,6 @@ public class ADAM {
         if (!serialPort.isOpened()) serialPort.openPort();
     }
     
-    public void setPort(String portName) throws SerialPortException {
-        SerialPort newPort = new SerialPort(portName);
-        port = newPort;
-        newPort.openPort();
-        newPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8, 
-                SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-        setPort(newPort);
-    }
-
     public void setAddr(int address) throws ADAMException {
         addr = -1;
         if (address < 0 || address > 127) {
@@ -134,7 +91,6 @@ public class ADAM {
         addr = -1;
         name = "";
         firmware = "";
-        serial = "";
     }
 
     public boolean detach_addr() {
@@ -251,7 +207,6 @@ public class ADAM {
             long byteReadStartTime = System.currentTimeMillis();
             b = port.readBytes(1, nextByteTimeout);
             currentTime = System.currentTimeMillis();
-            byteReadCount++;
             if (readBufferIndex <= 0) {
                 firstByteReadTime = currentTime - byteReadStartTime;
                 averageFirstByteReadTime = (averageFirstByteReadTime*firstByteReadCount++ 

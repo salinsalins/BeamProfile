@@ -5,7 +5,6 @@
  */
 package binp.nbi.beamprofile;
 
-import static binp.nbi.beamprofile.BeamProfile.logger;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -14,6 +13,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jssc.SerialPort;
+import static binp.nbi.beamprofile.BeamProfile.LOGGER;
 
 /**
  *
@@ -41,23 +41,6 @@ public class Adam4118 extends ADAM {
                 logger.log(Level.WARNING, "Adam4118 creation exception ", ex);
                 //System.out.printf("%s\n", ex.getMessage());
                 //ex.printStackTrace();
-            }
-        } else {
-            logger.log(Level.FINE, "Adam4118 created");
-        }
-    }
-    
-    Adam4118(String comport, int addr) {
-        if (reader == null ) {
-            try {
-                setPort(comport);
-                setAddr(addr);
-                name = readModuleName();
-                firmware = readFirmwareVersion();
-                logger.log(Level.FINE, "Adam4118 created at " + comport + " addr:" + addr);
-            }
-            catch (Exception ex) {
-                logger.log(Level.WARNING, "Adam4118 creation exception ", ex);
             }
         } else {
             logger.log(Level.FINE, "Adam4118 created");

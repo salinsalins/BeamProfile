@@ -34,17 +34,19 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import jssc.SerialPort;
+import jssc.SerialPortException;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYSeries;
- 
 
 public class BeamProfile extends javax.swing.JFrame implements WindowListener {
-    static final Logger logger = Logger.getLogger(BeamProfile.class.getPackage().getName());
+    static final Logger LOGGER = Logger.getLogger(BeamProfile.class.getPackage().getName());
     
     public ChartPanel chart1;
     public ChartPanel chart2;
@@ -162,7 +164,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         addWindowListener(this);
         initComponents();
 
-        logger.addHandler(new ConsoleHandler() {
+        LOGGER.addHandler(new ConsoleHandler() {
             @Override
             public void publish(LogRecord record) {
                 jTextArea3.append(getFormatter().format(record));
@@ -664,7 +666,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         int result = fc.showDialog(null, "Select save to folder");
         if (result == JFileChooser.APPROVE_OPTION) {
             outputFilePath = fc.getSelectedFile();
-            logger.log(Level.FINE, "Save to folder {0} selected", outputFilePath.getName());
+            LOGGER.log(Level.FINE, "Save to folder {0} selected", outputFilePath.getName());
             jTextField7.setText(outputFilePath.getAbsolutePath());
             outputChanged = true;
         }
@@ -679,7 +681,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         int result = fileChooser.showDialog(this, "Open Input File");
         if (result == JFileChooser.APPROVE_OPTION) {
             File newInputFile = fileChooser.getSelectedFile();
-            logger.log(Level.FINE, "Input file {0} selected", newInputFile.getName());
+            LOGGER.log(Level.FINE, "Input file {0} selected", newInputFile.getName());
             openInputFile(newInputFile);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -728,14 +730,15 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     break;
                 }
         } catch (ClassNotFoundException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
+            LOGGER.log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
+            LOGGER.log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
+            LOGGER.log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            logger.log(java.util.logging.Level.SEVERE, null, ex);
+            LOGGER.log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
@@ -828,12 +831,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         if (inputFile != null && newInputFile.getAbsolutePath().equals(inputFile.getAbsolutePath())) return;
         if (newInputFile.canRead()) {
             inputFile = newInputFile;
-            logger.log(Level.FINE, "Input file changed to {0}", inputFile.getName());
+            LOGGER.log(Level.FINE, "Input file changed to {0}", inputFile.getName());
             jTextField6.setText(inputFile.getAbsolutePath());
             Adam4118.file = inputFile;
             inputChanged = true;
         } else {
-            logger.log(Level.WARNING, "Input file {0} can't be opened", newInputFile.getName());
+            LOGGER.log(Level.WARNING, "Input file {0} can't be opened", newInputFile.getName());
             if (inputFile != null) 
                 jTextField6.setText(inputFile.getAbsolutePath());
             else 
@@ -855,7 +858,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             b = (boolean) objIStrm.readObject();
             jCheckBox3.setSelected(b);
         } catch (IOException | ClassNotFoundException e) {
-            logger.log(Level.WARNING, "Config file read error {0}", e);
+            LOGGER.log(Level.WARNING, "Config file read error {0}", e);
         }
         // Read and set state of volatile variables
         jTextField6ActionPerformed(null);
@@ -864,7 +867,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jCheckBox1ActionPerformed(null);
         jCheckBox3ActionPerformed(null);
         jToggleButton1ActionPerformed(null);
-        logger.fine("Config restored.");
+        LOGGER.fine("Config restored.");
    }
 
     private void saveConfig() {
@@ -880,9 +883,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             b = jCheckBox3.isSelected();
             objOStrm.writeObject(b);
         } catch (IOException ex) {
-            logger.log(Level.WARNING, "Config write error ", ex);
+            LOGGER.log(Level.WARNING, "Config write error ", ex);
         }
-        logger.fine("Config saved.");
+        LOGGER.fine("Config saved.");
     }
 
     static String prefix, ext;
@@ -913,31 +916,50 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     Adam4118[] adams;
     int[] addr = {6, 7, 8, 9};
     String[] ports = new String[addr.length];
+    List<SerialPort> portList = null;
 
     public void createADAMs() {
         // Create ADAM objects
-        addr = new int[4];
+        addr = new int[3];
         addr[0] = (int) jSpinner7.getValue();
         addr[1] = (int) jSpinner8.getValue();
         addr[2] = (int) jSpinner9.getValue();
-        addr[3] = (int) jSpinner10.getValue();
-        ports = new String[4];
+        //addr[3] = (int) jSpinner10.getValue();
+        ports = new String[3];
         ports[0] = (String) jComboBox1.getSelectedItem();
         ports[1] = (String) jComboBox2.getSelectedItem();
         ports[2] = (String) jComboBox3.getSelectedItem();
-        ports[3] = (String) jComboBox4.getSelectedItem();
+        //ports[3] = (String) jComboBox4.getSelectedItem();
         
-        adams = new Adam4118[4];
+        adams = new Adam4118[addr.length];
         
         if (readFromFile) {
             // Open input file
             Adam4118.openFile(jTextField6.getText());
-            logger.fine("Adam4118 is reading from file " + jTextField6.getText());
+            LOGGER.fine("Adam4118 is reading from file " + jTextField6.getText());
         }
+        if (portList == null) portList = new LinkedList<>();
         for (int i = 0; i < addr.length; i++) {
-            adams[i] = new Adam4118(ports[i], addr[i]);
+            adams[i] = null;
+            for (SerialPort p:portList) {
+                if (ports[i].equalsIgnoreCase(p.getPortName())) {
+                    adams[i] = new Adam4118(p, addr[i]);
+                    break;
+                }
+            }
+            if (adams[i] != null) continue;
+            
+            SerialPort serialPort = new SerialPort(ports[i]);
+            try {
+                if (!serialPort.isOpened()) serialPort.openPort();
+                serialPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8,
+                    SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+                portList.add(serialPort);
+                adams[i] = new Adam4118(serialPort, addr[i]);
+            } catch (SerialPortException ex) { 
+                LOGGER.log(Level.WARNING, "Serial port creation exception ", ex);
+            }
         }
-        logger.fine("ADAMs created.");
     }
 
     public void deleteADAMs() {
@@ -949,16 +971,16 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             // Open input file
             Adam4118.closeFile();
         }
-        logger.fine("ADAMs deleted.");
+        LOGGER.fine("ADAMs deleted.");
     }
 
     public void closeOutputFile() {
         try {
             // Close file if it was opened
             if (outputWriter != null) outputWriter.close();
-            logger.fine("Output file has been closed");
+            LOGGER.fine("Output file has been closed");
         } catch (Exception ex) {
-            logger.log(Level.SEVERE, "Output file close error ", ex);
+            LOGGER.log(Level.SEVERE, "Output file close error ", ex);
         }
     }
 
@@ -968,12 +990,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         try {
             outputWriter = new BufferedWriter(new FileWriter(outputFile, true));
             //jTextField7.setText(outFileName);
-            logger.log(Level.FINE, "Output file {0} has been opened.", outputFileName);
+            LOGGER.log(Level.FINE, "Output file {0} has been opened.", outputFileName);
         } catch (IOException ex) {
             // Disable output writing
             jCheckBox2.setSelected(false);
             writeToFile = false;
-            logger.log(Level.SEVERE, "Output file {0} open error.", outputFileName);
+            LOGGER.log(Level.SEVERE, "Output file {0} open error.", outputFileName);
         }
     }
 
@@ -1045,18 +1067,18 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             final ConsoleHandler consoleHandler = new ConsoleHandler();
             consoleHandler.setLevel(Level.FINEST);
             consoleHandler.setFormatter(new SimpleFormatter());
-            logger.setLevel(Level.FINEST);
-            logger.addHandler(consoleHandler);
-            logger.setUseParentHandlers(false);
+            LOGGER.setLevel(Level.FINEST);
+            LOGGER.addHandler(consoleHandler);
+            LOGGER.setUseParentHandlers(false);
 
             //final Logger app = Logger.getLogger("app");
             //app.setLevel(Level.FINEST);
             //app.addHandler(consoleHandler);
-            //System.out.println("logger = " + logger.getName());
+            //System.out.println("LOGGER = " + LOGGER.getName());
             //System.out.print("parent = ");
-            //System.out.println(logger.getParent());
-            //Logger parentLogger = logger.getParent();
-            //Handler[] hs = logger.getParent().getHandlers();
+            //System.out.println(LOGGER.getParent());
+            //Logger parentLogger = LOGGER.getParent();
+            //Handler[] hs = LOGGER.getParent().getHandlers();
             //System.out.println("Handlers " + hs.length);
             //for (Handler h: hs) {
             //    System.out.println(h);
@@ -1068,13 +1090,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
     }    
     static void testLogger(String s) {
-        logger.entering("Class", "testLogger " + s);
-        logger.severe("Test Severe " + s);
-        logger.warning("Test Warning" + s);
-        logger.info("Test Info" + s);
-        logger.fine("Test Fine" + s);
-        logger.finer("Test Finer" + s);
-        logger.finest("Test Finest" + s);
+        LOGGER.entering("Class", "testLogger " + s);
+        LOGGER.severe("Test Severe " + s);
+        LOGGER.warning("Test Warning" + s);
+        LOGGER.info("Test Info" + s);
+        LOGGER.fine("Test Fine" + s);
+        LOGGER.finer("Test Finer" + s);
+        LOGGER.finest("Test Finest" + s);
     }
 
 //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
@@ -1218,7 +1240,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
          */
         @Override
         public Void doInBackground() {
-            logger.fine("Background task started");
+            LOGGER.fine("Background task started");
             try {
                 //logger.finest("Try");
                 while(loopDoInBackground) {
@@ -1226,7 +1248,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                     // If input was changed
                     if(inputChanged) {
-                        logger.fine("Input changed");
+                        LOGGER.fine("Input changed");
                         // Reset flag
                         inputChanged = false;
                         deleteADAMs();
@@ -1235,7 +1257,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                     // If output was changed
                     if(outputChanged) {
-                        logger.fine("Output changed");
+                        LOGGER.fine("Output changed");
                         // Reset flag
                         outputChanged = false;
                         closeOutputFile();
@@ -1310,7 +1332,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 outputWriter.write(str, 0, str.length());
                                 outputWriter.flush();
                             } catch (IOException ex) {
-                                logger.log(Level.SEVERE, null, ex);
+                                LOGGER.log(Level.SEVERE, null, ex);
                             }
                         }
 
@@ -1559,7 +1581,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 }
             }
             catch (Exception ex) {
-                logger.log(Level.SEVERE, "Exception during doInBackground" , ex);
+                LOGGER.log(Level.SEVERE, "Exception during doInBackground" , ex);
            }
             return null;
         }

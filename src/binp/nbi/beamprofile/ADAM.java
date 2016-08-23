@@ -25,17 +25,17 @@ public class ADAM {
     long to_r = 0;
     long to_w = 0;
 
-    String last_command = "";
-    String response = "";
+    String command = "";
     // Reading response buffer, times and statistics
+    String response = "";
     static byte[] readBuffer = new byte[256];
     static int readBufferIndex = 0;
-    long byteReadTime = 0;
-    double totalByteReadCount = 0;
-    double averageByteReadTime = 0;
-    long firstByteReadTime = 0;
-    double firstByteReadCount = 0;
-    double averageFirstByteReadTime = 0;
+    long byteReadTime = 0L;
+    double totalByteReadCount = 0.0;
+    double averageByteReadTime = 0.0;
+    long firstByteReadTime = 0L;
+    double firstByteReadCount = 0.0;
+    double averageFirstByteReadTime = 0.0;
     
     // Timeouts
     int timeout = 500;
@@ -169,7 +169,7 @@ public class ADAM {
         //if (!command.substring(command.length()-2).equals("\n")) command += "\n";
 
         boolean status = false;
-        last_command = command;
+        this.command = command;
         to_w = -1;
 
         long start = (new Date()).getTime();

@@ -25,7 +25,7 @@ public class BeamProfileTest {
     String host = "";
     int count = 0;
     public SerialPort serialPort;
-//    static final Logger logger = Logger.getLogger(BeamProfileTest.class.getPackage().getName());
+//    static final Logger LOGGER = Logger.getLogger(BeamProfileTest.class.getPackage().getName());
 
     /**
      * @param args the command line arguments

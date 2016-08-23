@@ -117,10 +117,20 @@ public class BeamProfileTest {
             System.out.println("new Adam4118 " + adam.name);
 
             System.out.println("Reading data");
+            t0 = new Date().getTime();
             double[] data = adam.readData();
+            t1 = new Date().getTime();
+            System.out.println("Elapsed " + (t1-t0) + " ms");
+            System.out.println("byte count " + adam.totalByteReadCount);
+            System.out.println("avg first byte " + adam.averageFirstByteReadTime);
+            System.out.println("avg byte " + adam.averageByteReadTime);
             for(int i = 0; i <data.length; i++) {
                 System.out.println("" + i + " data: " + data[i]);
             }
+            data = adam.readData();
+            System.out.println("byte count " + adam.totalByteReadCount);
+            System.out.println("avg first byte " + adam.averageFirstByteReadTime);
+            System.out.println("avg byte " + adam.averageByteReadTime);
             
         }
         catch(Exception ex) {

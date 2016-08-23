@@ -81,7 +81,6 @@ public class ADAM {
 
             name = readModuleName();
             firmware = readFirmwareVersion();
-            serial = readSerialNumber();
 
         }
         catch (Exception ex) {
@@ -97,11 +96,8 @@ public class ADAM {
         try {
             setPort(comport);
             setAddr(addr);
-
             name = readModuleName();
             firmware = readFirmwareVersion();
-            serial = readSerialNumber();
-
         }
         catch (Exception ex) {
             if (log) {
@@ -358,10 +354,6 @@ public class ADAM {
         // Read Module Name.  Command: $AAM
         sendCommand(String.format("$%02XM", addr));
         return readResponse("!");
-    }
-		
-    public String readSerialNumber() {
-          return "Not implemented";
     }
 		
     public String readFirmwareVersion() {

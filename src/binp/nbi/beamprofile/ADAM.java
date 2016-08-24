@@ -278,6 +278,7 @@ public class ADAM {
         }
         if (!resp.startsWith(firstChar)) {
             LOGGER.log(Level.INFO, "Unexpected response {0}\n", resp);
+            return resp;
         }
         return resp.substring(firstChar.length());
     }

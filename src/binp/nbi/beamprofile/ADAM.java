@@ -79,7 +79,6 @@ public class ADAM {
     }
     
     public void setAddr(int address) throws ADAMException {
-        addr = -1;
         if (address < 0 || address > 127) {
             throw(new ADAMException("Wrong address " + address));
         }
@@ -244,11 +243,11 @@ public class ADAM {
             try {
                 response = ADAM.this.readResponse(port, timeout);
                 decreaseTimeout();
-                LOGGER.log(Level.FINE, "Response: {0}\n", response);
+                LOGGER.log(Level.FINE, "Response: {0}", response);
                 return response;
             }
             catch (SerialPortTimeoutException | ADAMException ex) {
-                LOGGER.log(Level.INFO, "Response timeout {0}\n", timeout);
+                LOGGER.log(Level.INFO, "Response timeout {0}", timeout);
                 if (log) {
                     System.out.printf("Response timeout %d ms\n", timeout);
                 }
@@ -273,11 +272,11 @@ public class ADAM {
     public String readResponse(String firstChar) {
         String resp = readResponse();
         if (resp==null || resp.length()<=0) {
-            LOGGER.log(Level.INFO, "Null or empty response\n");
+            LOGGER.log(Level.INFO, "Null or empty response");
             return "";
         }
         if (!resp.startsWith(firstChar)) {
-            LOGGER.log(Level.INFO, "Unexpected response {0}\n", resp);
+            LOGGER.log(Level.INFO, "Unexpected response {0}", resp);
             return resp;
         }
         return resp.substring(firstChar.length());

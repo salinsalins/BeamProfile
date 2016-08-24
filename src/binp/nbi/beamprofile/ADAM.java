@@ -322,8 +322,8 @@ public class ADAM {
             return -8888.8; //Float.NaN
         try {
             // Compose command to Read One Channel  #AAN
-            String command = String.format("#%02X%1X", addr, chan);
-            String resp = execute(command);
+            String cmd = String.format("#%02X%1X", addr, chan);
+            String resp = execute(cmd);
             if (!resp.substring(0, 0).equals(">"))
                 throw new ADAMException("Wrong reading response.");
             return Float.parseFloat(resp.substring(1));

@@ -250,7 +250,7 @@ public class ADAM {
             try {
                 response = ADAM.this.readResponse(port, timeout);
                 decreaseTimeout();
-                LOGGER.log(Level.FINE, "Response: {0}", response);
+                LOGGER.log(Level.FINEST, "Response: {0}", response);
                 return response;
             }
             catch (SerialPortTimeoutException | ADAMException ex) {

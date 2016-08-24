@@ -602,6 +602,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                 jComboBox5.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "SEVERE", "WARNING", "INFO", "CONFIG", "FINE", "FINER", "FINEST", "OFF", "ALL" }));
                 jComboBox5.setToolTipText("");
+                jComboBox5.addActionListener(new java.awt.event.ActionListener() {
+                    public void actionPerformed(java.awt.event.ActionEvent evt) {
+                        jComboBox5ActionPerformed(evt);
+                    }
+                });
 
                 org.jdesktop.layout.GroupLayout jPanel8Layout = new org.jdesktop.layout.GroupLayout(jPanel8);
                 jPanel8.setLayout(jPanel8Layout);
@@ -709,6 +714,38 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         outputFilePath = new File(jTextField7.getText());
         outputChanged = true;
     }//GEN-LAST:event_jTextField7ActionPerformed
+
+    private void jComboBox5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox5ActionPerformed
+        switch (jComboBox5.getSelectedIndex()) {
+            case 0:
+                LOGGER.setLevel(Level.SEVERE);
+                break;
+            case 1:
+                LOGGER.setLevel(Level.WARNING);
+                break;
+            case 2:
+                LOGGER.setLevel(Level.INFO);
+                break;
+            case 3:
+                LOGGER.setLevel(Level.CONFIG);
+                break;
+            case 4:
+                LOGGER.setLevel(Level.FINE);
+                break;
+            case 5:
+                LOGGER.setLevel(Level.FINER);
+                break;
+            case 6:
+                LOGGER.setLevel(Level.FINEST);
+                break;
+            case 7:
+                LOGGER.setLevel(Level.OFF);
+                break;
+            case 8:
+                LOGGER.setLevel(Level.ALL);
+                break;
+        }
+    }//GEN-LAST:event_jComboBox5ActionPerformed
     
     /**
      * @param args the command line arguments
@@ -849,23 +886,36 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             ObjectInputStream objIStrm = new ObjectInputStream(new FileInputStream(iniFileName));
             String str = (String) objIStrm.readObject();
             jTextField6.setText(str);
+            jTextField6ActionPerformed(null);
             boolean b = (boolean) objIStrm.readObject();
             jCheckBox1.setSelected(b);
+            jCheckBox1ActionPerformed(null);
             str = (String) objIStrm.readObject();
             jTextField7.setText(str);
+            jTextField7ActionPerformed(null);
             b = (boolean) objIStrm.readObject();
             jCheckBox2.setSelected(b);
+            jCheckBox2ActionPerformed(null);
             b = (boolean) objIStrm.readObject();
             jCheckBox3.setSelected(b);
+            jCheckBox3ActionPerformed(null);
+            // Restore log level
+            int i = (int) objIStrm.readObject();
+            jComboBox5.setSelectedIndex(i);
+            jComboBox5ActionPerformed(null);
+            // Restore addresses of ADAMs
+            i = (int) objIStrm.readObject();
+            jSpinner7.setValue(i);
+            i = (int) objIStrm.readObject();
+            jSpinner8.setValue(i);
+            i = (int) objIStrm.readObject();
+            jSpinner9.setValue(i);
+            i = (int) objIStrm.readObject();
+            jSpinner10.setValue(i);
         } catch (IOException | ClassNotFoundException e) {
             LOGGER.log(Level.WARNING, "Config file read error {0}", e);
         }
         // Read and set state of volatile variables
-        jTextField6ActionPerformed(null);
-        jCheckBox2ActionPerformed(null);
-        jTextField7ActionPerformed(null);
-        jCheckBox1ActionPerformed(null);
-        jCheckBox3ActionPerformed(null);
         jToggleButton1ActionPerformed(null);
         LOGGER.fine("Config restored.");
    }
@@ -882,6 +932,18 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             objOStrm.writeObject(b);
             b = jCheckBox3.isSelected();
             objOStrm.writeObject(b);
+            // Save log level
+            int i = jComboBox5.getSelectedIndex();
+            objOStrm.writeObject(i);
+            // Save addresses of ADAMs
+            i = (int) jSpinner7.getValue();
+            objOStrm.writeObject(i);
+            i = (int) jSpinner8.getValue();
+            objOStrm.writeObject(i);
+            i = (int) jSpinner9.getValue();
+            objOStrm.writeObject(i);
+            i = (int) jSpinner10.getValue();
+            objOStrm.writeObject(i);
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, "Config write error ", ex);
         }
@@ -1296,7 +1358,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                         double[] t3 = adams[0].readData();
                         double[] t4 = adams[1].readData();
-                        double[] t2 = adams[3].readData();
+                        double[] t2 = adams[2].readData();
 
                         double[] temp = new double[data[0].length];
                         System.arraycopy(data[nx-1], 0, temp, 0, temp.length);

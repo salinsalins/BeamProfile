@@ -160,31 +160,38 @@ public class ADAM {
         }
     }
 
-    public boolean sendCommand(String command) {
-        // Send command to ADAM module
+    public boolean sendCommand(String cmd) {
+        // Send cmd to ADAM module
         if (isSuspended()) return false;
 
-        command = command.trim();
-        //if (!command.substring(command.length()-2).equals("\n")) command += "\n";
+        cmd = cmd.trim();
 
         boolean status = false;
-        this.command = command;
+        command = cmd;
         to_w = -1;
 
-        long start = (new Date()).getTime();
+        long start = System.currentTimeMillis();
         try {
             // Clear com port buffer;
             port.readString();
-            
-            // Write command
-            status = port.writeString(command);
-            status = port.writeByte((byte)0x0D);
+            // Write cmd
+            byte[] bytes = cmd.getBytes();
+            status = port.writeBytes(bytes);
+            if (!status) {
+                LOGGER.log(Level.SEVERE, "Error writing bytes");
+                return status;
+            }
+            if (bytes[bytes.length-1] != (byte)0x0D) 
+                status = port.writeByte((byte)0x0D);
         }
         catch (Exception ex) {
-            ex.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Command send exception ", ex);
         }
-        to_w = (new Date()).getTime() - start;
-        LOGGER.log(Level.FINE, "Command: {0}\n", command);
+        to_w = System.currentTimeMillis() - start;
+        LOGGER.log(Level.FINE, "Command: {0}", cmd);
+        if (!status) {
+            LOGGER.log(Level.SEVERE, "Error writing bytes");
+        }
         return status;
     }
 

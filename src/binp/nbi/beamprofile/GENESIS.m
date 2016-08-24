@@ -321,15 +321,15 @@ classdef GENESIS < handle
 				obj.last_count = count;
 				obj.last_msg = message;
 				if ~strcmpi(message, '')
-					if obj.log
-						printl('MESSAGE: %s\n', message);
-					end
-					obj.msg = {obj.msg{:}, message};
-					obj.to_count = obj.to_count + 1;
-					if obj.to_count > obj.to_countmax
-						obj.to_tic = tic;
-						obj.to_suspend = true;
-					end
+                                    if obj.log
+                                            printl('MESSAGE: %s\n', message);
+                                    end
+                                    obj.msg = {obj.msg{:}, message};
+                                    obj.to_count = obj.to_count + 1;
+                                    if obj.to_count > obj.to_countmax
+                                            obj.to_tic = tic;
+                                            obj.to_suspend = true;
+                                    end
 				else
 					obj.to_count = 0;
 					obj.to_suspend = false;

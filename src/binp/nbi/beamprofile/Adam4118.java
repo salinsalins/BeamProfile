@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.logging.Level;
 import jssc.SerialPort;
+import jssc.SerialPortException;
 
 /**
  *
@@ -27,43 +28,36 @@ public class Adam4118 extends ADAM {
     static public String[] columns;
     static public int index;
 
-    Adam4118(SerialPort comport, int addr) {
+    Adam4118(SerialPort comport, int _addr) throws SerialPortException, ADAMException {
         if (reader == null ) {
-            try {
-                setPort(comport);
-                setAddr(addr);
-                name = readModuleName();
-                firmware = readFirmwareVersion();
-                LOGGER.log(Level.FINE, "Adam4118 created at " + comport + " addr:" + addr);
-            }
-            catch (Exception ex) {
-                LOGGER.log(Level.WARNING, "Adam4118 creation exception ", ex);
-                //System.out.printf("%s\n", ex.getMessage());
-                //ex.printStackTrace();
-            }
+            setPort(comport);
+            setAddr(_addr);
+            name = readModuleName();
+            firmware = readFirmwareVersion();
+            LOGGER.log(Level.FINEST, "Adam4118 created at {0} addr:{1}", 
+                    new Object[]{comport.getPortName(), _addr});
         } else {
-            LOGGER.log(Level.FINE, "Adam4118 created");
+            //port = null;
+            //addr = -1;
+            //name = "";
+            //firmware = "";
+            LOGGER.log(Level.FINEST, "Adam4118 created with reading from file");
         }
     }
     
-    public static void openFile() {
+    public static void openFile() throws FileNotFoundException {
         if (reader == null) {
-            try {
-                if (!file.canRead())
-                    throw new FileNotFoundException("File is unreadable.");
-                reader = new BufferedReader(new FileReader(file));
-                LOGGER.log(Level.FINE, "File {0} has been opened.", file.getName());
-            } catch (FileNotFoundException ex) {
-                LOGGER.log(Level.WARNING, "File {0} not found.", file.getName());
-                closeFile();
-            }
+            if (!file.canRead())
+                throw new FileNotFoundException("File is unreadable.");
+            reader = new BufferedReader(new FileReader(file));
+            LOGGER.log(Level.FINE, "File {0} has been opened.", file.getName());
         }
     }
-    public static void openFile(String fileName) {
+    public static void openFile(String fileName) throws FileNotFoundException {
         file = new File(fileName);
         openFile();
     }
-    public static void openFile(String filePath, String fileName) {
+    public static void openFile(String filePath, String fileName) throws FileNotFoundException {
         file = new File(filePath, fileName);
         openFile();
     }
@@ -72,12 +66,12 @@ public class Adam4118 extends ADAM {
         if (reader != null) {
             try {
                 reader.close();
+                LOGGER.log(Level.FINEST, "Adam4118 input file has been closed.");
             } catch (IOException ex) {
                 LOGGER.log(Level.WARNING, "Adam4118 input file close error ", ex);
             }
         }
         reader = null;
-        LOGGER.log(Level.FINE, "Adam4118 input file has been closed.");
     }
 
     public String readString() {
@@ -89,11 +83,11 @@ public class Adam4118 extends ADAM {
                     line = reader.readLine();
                 } catch (IOException ex) {
                     try {
-                        LOGGER.log(Level.FINE, "Reset reader.");
                         reader.reset();
+                        LOGGER.log(Level.FINEST, "Reader reset");
                         line = reader.readLine();
                     } catch (IOException ex1) {
-                        LOGGER.log(Level.WARNING, "Line read error.");
+                        LOGGER.log(Level.WARNING, "Line read error ", ex1);
                         return "";
                     }
                 }
@@ -104,7 +98,7 @@ public class Adam4118 extends ADAM {
                         LOGGER.log(Level.FINE, "Reopen file.");
                         line = reader.readLine();
                     } catch (IOException ex1) {
-                        LOGGER.log(Level.WARNING, "Line read error.");
+                        LOGGER.log(Level.WARNING, "Line read error ", ex1);
                         return "";
                     }
                     if (line == null) 
@@ -142,7 +136,8 @@ public class Adam4118 extends ADAM {
         } 
         else {
             String cmd = String.format("#%02X", addr);
-            String resp = execute(cmd);
+            sendCommand(cmd);
+            String resp = readResponse();
             if ( resp != null && resp.length()>0 && resp.substring(0,1).equals(">")) {
                 LOGGER.log(Level.FINEST, "4118 readString: ", resp);
                 return resp;
@@ -158,8 +153,6 @@ public class Adam4118 extends ADAM {
         closeFile();
         super.delete();
     }
-
-
     
     public double[] readData() {
         return doubleFromString(readString());

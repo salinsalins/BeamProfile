@@ -5,6 +5,7 @@
 
 package binp.nbi.beamprofile;
 
+import static binp.nbi.beamprofile.Adam4118.reader;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -843,12 +844,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         restoreConfig();
 
         task = new Task(this);
-        //task.addPropertyChangeListener(this);
         task.execute();
     }
     @Override
     public void windowClosing(WindowEvent e) {
         runMeasurements = false;
+        loopDoInBackground = false;
     }
     @Override
     public void windowIconified(WindowEvent e) {
@@ -884,14 +885,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private void restoreConfig() {
         try {
             ObjectInputStream objIStrm = new ObjectInputStream(new FileInputStream(iniFileName));
-            String str = (String) objIStrm.readObject();
-            jTextField6.setText(str);
+            String s = (String) objIStrm.readObject();
+            jTextField6.setText(s);
             jTextField6ActionPerformed(null);
             boolean b = (boolean) objIStrm.readObject();
             jCheckBox1.setSelected(b);
             jCheckBox1ActionPerformed(null);
-            str = (String) objIStrm.readObject();
-            jTextField7.setText(str);
+            s = (String) objIStrm.readObject();
+            jTextField7.setText(s);
             jTextField7ActionPerformed(null);
             b = (boolean) objIStrm.readObject();
             jCheckBox2.setSelected(b);
@@ -912,6 +913,15 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             jSpinner9.setValue(i);
             i = (int) objIStrm.readObject();
             jSpinner10.setValue(i);
+            // Restore COM ports
+            s = (String) objIStrm.readObject();
+            jComboBox1.setSelectedItem(s);
+            s = (String) objIStrm.readObject();
+            jComboBox2.setSelectedItem(s);
+            s = (String) objIStrm.readObject();
+            jComboBox3.setSelectedItem(s);
+            s = (String) objIStrm.readObject();
+            jComboBox4.setSelectedItem(s);
         } catch (IOException | ClassNotFoundException e) {
             LOGGER.log(Level.WARNING, "Config file read error {0}", e);
         }
@@ -922,12 +932,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     private void saveConfig() {
         try (ObjectOutputStream objOStrm = new ObjectOutputStream(new FileOutputStream(iniFileName))) {
-            String txt = jTextField6.getText();
-            objOStrm.writeObject(txt);
+            String s = jTextField6.getText();
+            objOStrm.writeObject(s);
             boolean b = jCheckBox1.isSelected();
             objOStrm.writeObject(b);
-            txt = jTextField7.getText();
-            objOStrm.writeObject(txt);
+            s = jTextField7.getText();
+            objOStrm.writeObject(s);
             b = jCheckBox2.isSelected();
             objOStrm.writeObject(b);
             b = jCheckBox3.isSelected();
@@ -944,6 +954,15 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             objOStrm.writeObject(i);
             i = (int) jSpinner10.getValue();
             objOStrm.writeObject(i);
+            // Save COM ports
+            s = (String) jComboBox1.getSelectedItem();
+            objOStrm.writeObject(s);
+            s = (String) jComboBox2.getSelectedItem();
+            objOStrm.writeObject(s);
+            s = (String) jComboBox3.getSelectedItem();
+            objOStrm.writeObject(s);
+            s = (String) jComboBox4.getSelectedItem();
+            objOStrm.writeObject(s);
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, "Config write error ", ex);
         }
@@ -981,46 +1000,59 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     List<SerialPort> portList = null;
 
     public void createADAMs() {
-        // Create ADAM objects
-        addr = new int[3];
-        addr[0] = (int) jSpinner7.getValue();
-        addr[1] = (int) jSpinner8.getValue();
-        addr[2] = (int) jSpinner9.getValue();
-        //addr[3] = (int) jSpinner10.getValue();
-        ports = new String[3];
-        ports[0] = (String) jComboBox1.getSelectedItem();
-        ports[1] = (String) jComboBox2.getSelectedItem();
-        ports[2] = (String) jComboBox3.getSelectedItem();
-        //ports[3] = (String) jComboBox4.getSelectedItem();
-        
-        adams = new Adam4118[addr.length];
-        
-        if (readFromFile) {
-            // Open input file
-            Adam4118.openFile(jTextField6.getText());
-            LOGGER.fine("Adam4118 is reading from file " + jTextField6.getText());
-        }
-        if (portList == null) portList = new LinkedList<>();
-        for (int i = 0; i < addr.length; i++) {
-            adams[i] = null;
-            for (SerialPort p:portList) {
-                if (ports[i].equalsIgnoreCase(p.getPortName())) {
-                    adams[i] = new Adam4118(p, addr[i]);
-                    break;
+        try {
+            // Create ADAM objects
+            addr = new int[4];
+            addr[0] = (int) jSpinner7.getValue();
+            addr[1] = (int) jSpinner8.getValue();
+            addr[2] = (int) jSpinner9.getValue();
+            addr[3] = (int) jSpinner10.getValue();
+            ports = new String[4];
+            ports[0] = (String) jComboBox1.getSelectedItem();
+            ports[1] = (String) jComboBox2.getSelectedItem();
+            ports[2] = (String) jComboBox3.getSelectedItem();
+            ports[3] = (String) jComboBox4.getSelectedItem();
+
+            adams = new Adam4118[3];
+
+            if (readFromFile) {
+                // Open input file
+                Adam4118.openFile(jTextField6.getText());
+                for (int i = 0; i < adams.length; i++) {
+                        adams[i] = new Adam4118(null, addr[i]);
                 }
+                return;
             }
-            if (adams[i] != null) continue;
-            
-            SerialPort serialPort = new SerialPort(ports[i]);
-            try {
+            if (portList == null) portList = new LinkedList<>();
+            for (int i = 0; i < adams.length; i++) {
+                adams[i] = null;
+                for (SerialPort p:portList) {
+                    if (ports[i].equalsIgnoreCase(p.getPortName())) {
+                        adams[i] = new Adam4118(p, addr[i]);
+                        break;
+                    }
+                }
+                if (adams[i] != null) continue;
+
+                SerialPort serialPort = new SerialPort(ports[i]);
                 if (!serialPort.isOpened()) serialPort.openPort();
                 serialPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8,
-                    SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+                        SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
                 portList.add(serialPort);
                 adams[i] = new Adam4118(serialPort, addr[i]);
-            } catch (SerialPortException ex) { 
-                LOGGER.log(Level.WARNING, "Serial port creation exception ", ex);
             }
+        } catch (FileNotFoundException ex) {
+            LOGGER.log(Level.WARNING, "Input file not found ", ex);
+            jCheckBox1.setSelected(false);
+            readFromFile = false;
+            jToggleButton1.setSelected(false);
+            runMeasurements = false;
+            LOGGER.log(Level.WARNING, "Measurements stopped");
+        } catch (SerialPortException | ADAM.ADAMException ex) { 
+            LOGGER.log(Level.WARNING, "ADAM creation error ", ex);
+            jToggleButton1.setSelected(false);
+            runMeasurements = false;
+            LOGGER.log(Level.WARNING, "Measurements stopped");
         }
     }
 
@@ -1033,7 +1065,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             // Open input file
             Adam4118.closeFile();
         }
-        LOGGER.fine("ADAMs deleted.");
+        LOGGER.finest("ADAMs deleted.");
     }
 
     public void closeOutputFile() {
@@ -1044,6 +1076,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         } catch (Exception ex) {
             LOGGER.log(Level.SEVERE, "Output file close error ", ex);
         }
+        outputWriter = null;
     }
 
     public void openOutputFile() {
@@ -1302,36 +1335,36 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
          */
         @Override
         public Void doInBackground() {
-            LOGGER.fine("Background task started");
+            LOGGER.finest("Background task started");
             try {
                 //logger.finest("Try");
                 while(loopDoInBackground) {
                     //logger.finest("LOOP");
 
-                    // If input was changed
-                    if(inputChanged) {
-                        LOGGER.fine("Input changed");
-                        // Reset flag
-                        inputChanged = false;
-                        deleteADAMs();
-                        createADAMs();
-                    }
-
-                    // If output was changed
-                    if(outputChanged) {
-                        LOGGER.fine("Output changed");
-                        // Reset flag
-                        outputChanged = false;
-                        closeOutputFile();
-                        // If write to output file was enabled
-                        if (writeToFile) {
-                            openOutputFile();
-                        }
-                    }
-
                     // If Start was pressed
                     if (runMeasurements) {
                         Date c = new Date();
+
+                        // If input was changed
+                        if(inputChanged) {
+                            LOGGER.fine("Input changed");
+                            // Reset flag
+                            inputChanged = false;
+                            deleteADAMs();
+                            createADAMs();
+                        }
+
+                        // If output was changed
+                        if(outputChanged) {
+                            LOGGER.fine("Output changed");
+                            // Reset flag
+                            outputChanged = false;
+                            closeOutputFile();
+                            // If write to output file was enabled
+                            if (writeToFile) {
+                                openOutputFile();
+                            }
+                        }
 
                         // Split output file every hour
                         if (splitOutputFile && (c.getHours() != c0.getHours())) {
@@ -1644,7 +1677,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             }
             catch (Exception ex) {
                 LOGGER.log(Level.SEVERE, "Exception during doInBackground" , ex);
-           }
+            }
             return null;
         }
         
@@ -1659,7 +1692,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
          */
         @Override
         public void done() {
-            //taskOutput.app}("Done!\n");
+            //taskOutput.append("Done!\n");
         }
     }
 }

@@ -303,13 +303,8 @@ public class ADAM {
   
     public String execute(String command) {
         // Send command and read response form ADAM
-        try {
-            sendCommand(command);
-            return readResponse();
-        }
-        catch (Exception ME) {
-            return "";
-        }
+        sendCommand(command);
+        return readResponse();
     }
 
     public String readModuleName() {

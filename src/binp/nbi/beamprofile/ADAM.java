@@ -73,9 +73,9 @@ public class ADAM {
         }
     }
 
-    public void setPort(SerialPort serialPort) throws SerialPortException {
-        port = serialPort;
-        if (!serialPort.isOpened()) serialPort.openPort();
+    public void setPort(SerialPort sp) throws SerialPortException {
+        if (!sp.isOpened()) sp.openPort();
+        port = sp;
     }
     
     public void setAddr(int address) throws ADAMException {
@@ -128,7 +128,7 @@ public class ADAM {
         return isaddrattached(port, addr);
     }
 		
-    public boolean isinitialized() {
+    public boolean isInitialized() {
         if (name == null || "".equals(name)) {
             return false;
         }
@@ -139,7 +139,7 @@ public class ADAM {
         isvalidport();
         isvalidaddr();
         isaddrattached();
-        isinitialized();
+        isInitialized();
         return true;
     }
 
@@ -178,19 +178,19 @@ public class ADAM {
             byte[] bytes = cmd.getBytes();
             status = port.writeBytes(bytes);
             if (!status) {
-                LOGGER.log(Level.SEVERE, "Error writing bytes");
+                LOGGER.log(Level.SEVERE, getInfo() + "Error writing bytes");
                 return status;
             }
             if (bytes[bytes.length-1] != (byte)0x0D) 
                 status = port.writeByte((byte)0x0D);
         }
         catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Command send exception ", ex);
+            LOGGER.log(Level.SEVERE, getInfo() + "Command send exception ", ex);
         }
         to_w = System.currentTimeMillis() - start;
-        LOGGER.log(Level.FINE, "Command: {0}", cmd);
+        LOGGER.log(Level.FINE, getInfo() + "Command: {0}", cmd);
         if (!status) {
-            LOGGER.log(Level.SEVERE, "Error writing bytes");
+            LOGGER.log(Level.SEVERE, getInfo() + "Error writing bytes");
         }
         return status;
     }
@@ -200,10 +200,10 @@ public class ADAM {
         return ((now - suspStartTime) < suspDuration);
     }
             
-    public  String readResponse(SerialPort port, int timeout)  
+    public  String readResponse(int timeout)  
             throws SerialPortException, SerialPortTimeoutException, ADAMException {
         byte[] b;
-        StringBuilder sb = new StringBuilder();
+        //StringBuilder sb = new StringBuilder();
         long startTime = System.currentTimeMillis();
         long currentTime = startTime;
         readBufferIndex = 0;
@@ -227,14 +227,14 @@ public class ADAM {
             if (b[0] == 13 )            // wait for CR = 0x0D = 13. 
                 //return sb.toString();
                 return new String(readBuffer, 0, readBufferIndex);
-            sb.append(b[0]);
-            //readResponse = sb.toString();
+            //sb.append(new String(b, 0, 1));
+            //response = sb.toString();
             response = new String(readBuffer, 0, readBufferIndex);
             currentTime = System.currentTimeMillis();
         }
-        //readResponse = sb.toString();
+        //response = sb.toString();
         response = new String(readBuffer, 0, readBufferIndex);
-        throw new ADAMException("timeout " + timeout + " ms");
+        throw new ADAMException("Read response timeout " + timeout + " ms");
     }
 
     public String readResponse() {
@@ -248,97 +248,111 @@ public class ADAM {
         while (n-- > 0) {
             to_r = -1;
             try {
-                response = ADAM.this.readResponse(port, timeout);
+                response = ADAM.this.readResponse(timeout);
                 decreaseTimeout();
-                LOGGER.log(Level.FINEST, "Response: {0}", response);
+                LOGGER.log(Level.FINEST, getInfo() + "Response: {0}", response);
                 return response;
             }
             catch (SerialPortTimeoutException | ADAMException ex) {
-                LOGGER.log(Level.INFO, "Response timeout {0}", timeout);
-                if (log) {
-                    System.out.printf("Response timeout %d ms\n", timeout);
-                }
+                LOGGER.log(Level.INFO, getInfo() + "Response timeout {0}", timeout);
                 increaseTimeout();
             }
             catch (SerialPortException ex) {
-                LOGGER.log(Level.WARNING, "Exception reading response ", ex);
-                if (log) {
-                    System.out.printf("Exception reading response\n");
-                }
+                LOGGER.log(Level.WARNING, getInfo() + "Exception reading response ", ex);
                 increaseTimeout();
             }
         }
-        if (log) {
-            System.out.printf("No response %d times\n", to_retries);
-        }
+        LOGGER.log(Level.WARNING, getInfo() + "No response {0} times", to_retries);
         suspStartTime = System.currentTimeMillis();
+        LOGGER.log(Level.INFO, getInfo() + "Suspend reading for {0} ms", suspDuration);
         response = "";
         return response;
     }
     
-    public String readResponse(String firstChar) {
+    public String readResponse(String firstChar) throws ADAMException {
         String resp = readResponse();
         if (resp==null || resp.length()<=0) {
-            LOGGER.log(Level.INFO, "Null or empty response");
-            return "";
+            LOGGER.log(Level.INFO, getInfo() + "Null or empty response");
+            throw new ADAMException("Null or empty response");
         }
         if (!resp.startsWith(firstChar)) {
-            LOGGER.log(Level.INFO, "Unexpected response {0}", resp);
-            return resp;
+            LOGGER.log(Level.INFO, getInfo() + "Wrong response {0}", resp);
+            throw new ADAMException("Wrong response " + resp);
         }
         return resp.substring(firstChar.length());
     }
 		
+    public String readResponse(String cmd, String firstChar) throws ADAMException {
+        sendCommand(cmd);
+        return readResponse(firstChar);
+    }
+
     public void increaseTimeout() {
         if (!toAuto) return;
         int newto = (int) (to_fp * timeout);
         timeout = (newto > to_max) ? to_max: newto;
+        LOGGER.log(Level.FINE, getInfo() + "Timeout increased to {0} ms", timeout);
     }
     
     public void decreaseTimeout() {
         if (!toAuto) return;
         int newto = (int) (to_fm * timeout);
         timeout = (newto < to_min) ? to_min: newto;
+        LOGGER.log(Level.FINE, getInfo() + "Timeout decreased to {0} ms", timeout);
     }
   
-    public String execute(String command) {
-        // Send command and read response form ADAM
-        sendCommand(command);
-        return readResponse();
+    public String getInfo() {
+        return "ADAM " + port.getPortName() + ":" + addr + " ";
     }
-
-    public String readModuleName() {
+    
+    public String readModuleName() throws ADAMException {
         // Read Module Name.  Command: $AAM
-        sendCommand(String.format("$%02XM", addr));
-        return readResponse("!");
+        String cmd = String.format("$%02XM", addr);
+        return readResponse(cmd, "!");
     }
 		
-    public String readFirmwareVersion() {
+    public String readFirmwareVersion() throws ADAMException {
         // Read Module Firware Version.  Command: $AAF
-        sendCommand(String.format("$%02XF", addr));
-        return readResponse("!");
+        String cmd = String.format("$%02XF", addr);
+        return readResponse(cmd, "!");
     }
 
-    public double read(int chan) {
+    public double read(int chan) throws ADAMException {
         if ((chan < 0) || (chan > 8)) 
-            return -8888.8; //Float.NaN
+            throw new ADAMException("Wrong channel number " + chan);
+        // Compose command to Read One Channel  #AAN
+        String cmd = String.format("#%02X%1X", addr, chan);
+        String resp = readResponse(cmd, ">");
+        double result;
         try {
-            // Compose command to Read One Channel  #AAN
-            String cmd = String.format("#%02X%1X", addr, chan);
-            String resp = execute(cmd);
-            if (!resp.substring(0, 0).equals(">"))
-                throw new ADAMException("Wrong reading response.");
-            return Float.parseFloat(resp.substring(1));
+            result = Double.parseDouble(resp);
+        } catch (NumberFormatException ex) {
+            throw new ADAMException("Wrong response " + resp);
         }
-        catch (ADAMException | NumberFormatException ex) {
-            return -8888.8;
-        }
+        return result;
     }
 		
+    public double[] read() throws ADAMException {
+        double[] data;
+        // Compose command to Read All Channels  #AA
+        String cmd = String.format("#%02X", addr);
+        String resp = readResponse(cmd, ">");
+        data = doubleFromString(resp);
+        if (data.length != 8)
+            throw new ADAMException("Wrong response " + resp);
+        return data;
+    }
+
+    public void write(String command, int param, String ok) throws ADAMException {
+        String cmd = String.format("%s %d", command, param);
+        readResponse(cmd, ok);
+    }
+
     public static double[] doubleFromString(String str) {
         double[] data = new double[0];
         try {
-            str = str.substring(1);
+            if (str.startsWith(">")) str = str.substring(1);
+            if (str.startsWith("<")) str = str.substring(1);
             String str1 = str.replaceAll("\\+","; +");
             String str2 = str1.replaceAll("-","; -");
             if (str2.startsWith("; ")) str2 = str2.substring(2);
@@ -362,54 +376,23 @@ public class ADAM {
         }
     }
 
-    public double[] read() {
-        double[] data = {-8888.8};
-        try {
-            // Compose command to Read All Channels  #AA
-            String command = String.format("#%02X", addr);
-            String resp = execute(command);
-            if (!resp.substring(0, 0).equals(">"))
-                throw new ADAMException("Wrong reading response.");
-            data = doubleFromString(resp);
-            if (data.length != 8)
-                throw new ADAMException("Wrong reading response.");
-            return data;
-        }
-        catch (ADAMException | NumberFormatException ex) {
-            return data;
-        }
-    }
-
-    public boolean write(String command, int param) throws SerialPortException {
-        String cmd = String.format("%s %d", command, param);
-        sendCommand(cmd);
-        String resp = readResponse();
-        if ("OK".equals(resp)) {
-            return true;
-        }
-        else{
-            System.out.println("Unexpected response. " + cmd + " -> " + resp);
-            return false;
-        }
-    }
-
 //************************************************************
     public class ADAMException extends Exception {
 
         public ADAMException(String description, int parameter) {
-            super("ADAM exception: " + description + parameter);
+            super(getInfo() + description + parameter);
         }
 
         public ADAMException(int timeout) {
-            super("ADAM operation timeout " + timeout + " ms.");
+            super(getInfo() + "timeout " + timeout + " ms");
         }
 
         public ADAMException(String str) {
-            super("ADAM exception: " + str);
+            super(getInfo() + str);
         }
 
         public ADAMException() {
-            super("ADAM exception.");
+            super(getInfo() + "exception");
         }
     }
 //************************************************************

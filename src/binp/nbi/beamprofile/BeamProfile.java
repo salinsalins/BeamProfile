@@ -5,7 +5,6 @@
 
 package binp.nbi.beamprofile;
 
-import static binp.nbi.beamprofile.Adam4118.reader;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;

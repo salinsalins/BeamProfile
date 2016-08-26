@@ -20,6 +20,7 @@ import jssc.SerialPortException;
  */
 
 public class Adam4118 extends ADAM {
+    // Uses superclass logger
     //static final Logger LOGGER = Logger.getLogger(Adam4118.class.getName());
     //static final Logger LOGGER = Logger.getLogger(Adam4118.class.getPackage().getName());
     static public File file;
@@ -34,14 +35,13 @@ public class Adam4118 extends ADAM {
             setAddr(_addr);
             name = readModuleName();
             firmware = readFirmwareVersion();
-            LOGGER.log(Level.FINEST, "Adam4118 created at {0} addr:{1}", 
-                    new Object[]{comport.getPortName(), _addr});
+            LOGGER.log(Level.FINEST, "{0}Adam4118 created", getInfo()); 
         } else {
             //port = null;
             //addr = -1;
             //name = "";
             //firmware = "";
-            LOGGER.log(Level.FINEST, "Adam4118 created with reading from file");
+            LOGGER.log(Level.FINEST, "FILE: Adam4118 created");
         }
     }
     

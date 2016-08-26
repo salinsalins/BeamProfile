@@ -1,8 +1,8 @@
 /*
+    Common class for ADAM4xxx series devices
  */
 package binp.nbi.beamprofile;
 
-import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jssc.SerialPort;
@@ -14,8 +14,6 @@ import jssc.SerialPortTimeoutException;
  * @author Sanin
  */
 public class ADAM {
-    //Common class for ADAM4xxx series devices
-    //static final Logger LOGGER = Logger.getLogger(ADAM.class.getName());
     static final Logger LOGGER = Logger.getLogger(ADAM.class.getPackage().getName());
 
     public SerialPort port;

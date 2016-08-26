@@ -74,35 +74,17 @@ public class Adam4118 extends ADAM {
         reader = null;
     }
 
-    public String readString() {
+    public String readString() throws ADAMException, FileNotFoundException, IOException {
         if (reader != null) {
-            // Reading from BufferedReader reader
+            // Reading next line from reader
             if (index <= 0) {
                 // Read next line
-                try {
-                    line = reader.readLine();
-                } catch (IOException ex) {
-                    try {
-                        reader.reset();
-                        LOGGER.log(Level.FINEST, "Reader reset");
-                        line = reader.readLine();
-                    } catch (IOException ex1) {
-                        LOGGER.log(Level.WARNING, "Line read error ", ex1);
-                        return "";
-                    }
-                }
+                line = reader.readLine();
                 if (line == null) {
-                    try {
-                        closeFile();
-                        openFile();
-                        LOGGER.log(Level.FINE, "Reopen file.");
-                        line = reader.readLine();
-                    } catch (IOException ex1) {
-                        LOGGER.log(Level.WARNING, "Line read error ", ex1);
-                        return "";
-                    }
-                    if (line == null) 
-                        return "";
+                    closeFile();
+                    openFile();
+                    LOGGER.log(Level.FINE, "Reopen file.");
+                    line = reader.readLine();
                 }
                 columns = line.split(";");
                 index = 1;
@@ -136,15 +118,8 @@ public class Adam4118 extends ADAM {
         } 
         else {
             String cmd = String.format("#%02X", addr);
-            sendCommand(cmd);
-            String resp = readResponse();
-            if ( resp != null && resp.length()>0 && resp.substring(0,1).equals(">")) {
-                LOGGER.log(Level.FINEST, "4118 readString: ", resp);
-                return resp;
-            }
-            //throw new ADAMException("Wrong reading response.");
-            LOGGER.log(Level.WARNING, "4118 readString: Wrong response ", resp);
-            return "";
+            String resp = readResponse(cmd, ">");
+            return resp;
         }
     }
     
@@ -155,7 +130,11 @@ public class Adam4118 extends ADAM {
     }
     
     public double[] readData() {
-        return doubleFromString(readString());
+        try {
+            return doubleFromString(readString());
+        } catch (Exception ex) {
+            return new double[8];
+        }
     }
 
 

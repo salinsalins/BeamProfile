@@ -29,48 +29,46 @@ public class Adam4118 extends ADAM {
     static public String[] columns;
     static public int index;
 
-    Adam4118(SerialPort comport, int _addr) throws SerialPortException, ADAMException {
+    Adam4118(File _file) throws FileNotFoundException {
         if (reader == null ) {
-            setPort(comport);
-            setAddr(_addr);
-            name = readModuleName();
-            firmware = readFirmwareVersion();
-            LOGGER.log(Level.FINEST, "{0}Adam4118 created", getInfo()); 
+            openFile(_file);
+            LOGGER.log(Level.FINEST, "Adam4118: " + file.getName() + " created"); 
         } else {
-            //port = null;
-            //addr = -1;
-            //name = "";
-            //firmware = "";
-            LOGGER.log(Level.FINEST, "FILE: Adam4118 created");
+            LOGGER.log(Level.WARNING, "Adam4118: Input file was not closed");
         }
     }
     
-    public static void openFile() throws FileNotFoundException {
+    Adam4118(SerialPort _port, int _addr) throws SerialPortException, ADAMException {
+        super(_port, _addr);
+    }
+    
+    public static void openFile(File _file) throws FileNotFoundException {
         if (reader == null) {
-            if (!file.canRead())
-                throw new FileNotFoundException("File is unreadable.");
+            if (!_file.canRead())
+                throw new FileNotFoundException("File is unreadable");
+            file = _file;
             reader = new BufferedReader(new FileReader(file));
-            LOGGER.log(Level.FINE, "File {0} has been opened.", file.getName());
+            LOGGER.log(Level.FINEST, "Adam4118: File {0} has been opened", file.getName());
         }
     }
+    
     public static void openFile(String fileName) throws FileNotFoundException {
-        file = new File(fileName);
-        openFile();
+        openFile(new File(fileName));
     }
+    
     public static void openFile(String filePath, String fileName) throws FileNotFoundException {
-        file = new File(filePath, fileName);
-        openFile();
+        openFile(new File(filePath, fileName));
     }
  
     public static void closeFile() {
         if (reader != null) {
             try {
                 reader.close();
-                LOGGER.log(Level.FINEST, "Adam4118 input file has been closed.");
+                LOGGER.log(Level.FINEST, "Adam4118 input file has been closed");
             } catch (IOException ex) {
-                LOGGER.log(Level.WARNING, "Adam4118 input file close error ", ex);
+                LOGGER.log(Level.WARNING, "Adam4118 input file closing error ", ex);
             }
-        }
+        } 
         reader = null;
     }
 
@@ -80,18 +78,17 @@ public class Adam4118 extends ADAM {
             if (index <= 0) {
                 // Read next line
                 line = reader.readLine();
+                // Reopen file if EOF
                 if (line == null) {
                     closeFile();
-                    openFile();
-                    LOGGER.log(Level.FINE, "Reopen file.");
+                    openFile(file);
                     line = reader.readLine();
                 }
                 columns = line.split(";");
+                // Skip fist value = time
                 index = 1;
             }
-        
-            StringBuilder result = new StringBuilder();
-            result.append("<");
+            StringBuilder result = new StringBuilder("<");
             String str;
             for (int i = 0; i < 8; i++)
             {
@@ -100,15 +97,14 @@ public class Adam4118 extends ADAM {
                 else
                     str = columns[index].trim();
                 index++;
-                
                 double d;
                 try {
                     d = Double.parseDouble(str);
                 }
                 catch (NumberFormatException | NullPointerException ex) {
-                    d = -888.88;
+                    d = -8888.8;
                 }
-                str = String.format("%+07.2f", d);
+                str = String.format("%+07f", d);
                 str = str.replaceAll(",", ".");
                 result.append(str);
             }
@@ -119,7 +115,7 @@ public class Adam4118 extends ADAM {
         else {
             String cmd = String.format("#%02X", addr);
             String resp = readResponse(cmd, ">");
-            return resp;
+            return ">" + resp;
         }
     }
     
@@ -136,8 +132,4 @@ public class Adam4118 extends ADAM {
             return new double[8];
         }
     }
-
-
-
-
 }

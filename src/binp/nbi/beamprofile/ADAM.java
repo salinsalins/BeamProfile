@@ -19,13 +19,11 @@ public class ADAM {
     public SerialPort port;
     public int addr = -1;
     
-    boolean to_ctrl = true;
-    long to_r = 0;
     long to_w = 0;
-
-    String command = "";
+    // Last command
+    String command;
     // Reading response buffer, times and statistics
-    String response = "";
+    String response;
     static byte[] readBuffer = new byte[256];
     static int readBufferIndex = 0;
     long byteReadTime = 0L;
@@ -36,14 +34,14 @@ public class ADAM {
     double averageFirstByteReadTime = 0.0;
     
     // Timeouts
+    boolean autoTimeout = true;
     int timeout = 500;
     int to_min = 250;
     int to_max = 2000;
-    int to_retries = 3;
-    boolean toAuto = true;
+    int minByteReadTimeout = 2;
     double to_fp = 2.0;
     double to_fm = 0.5;
-    int minByteReadTimeout = 2;
+    int to_retries = 3;
 
     long suspStartTime = 0;
     long suspDuration = 5000;
@@ -51,24 +49,16 @@ public class ADAM {
     String name = "";
     String firmware = "";
 		
-    public boolean log = true;
-
-    ADAM () {
+    ADAM() {
+        //LOGGER.log(Level.FINEST, "Empty ADAM Created");
     }
 
-    ADAM (SerialPort comport, int addr) {
-        try {
-            setPort(comport);
-            setAddr(addr);
-            name = readModuleName();
-            firmware = readFirmwareVersion();
-        }
-        catch (SerialPortException | ADAMException ex) {
-            if (log) {
-                System.out.printf("%s\n", ex.getMessage());
-                ex.printStackTrace();
-            }
-        }
+    ADAM(SerialPort _port, int _addr) throws ADAMException, SerialPortException {
+        setPort(_port);
+        setAddr(_addr);
+        name = readModuleName();
+        firmware = readFirmwareVersion();
+        LOGGER.log(Level.FINEST, getInfo() + name + " Created");
     }
 
     public void setPort(SerialPort sp) throws SerialPortException {
@@ -244,7 +234,6 @@ public class ADAM {
         // Perform n reties to read response
         int n = to_retries;
         while (n-- > 0) {
-            to_r = -1;
             try {
                 response = ADAM.this.readResponse(timeout);
                 decreaseTimeout();
@@ -286,14 +275,14 @@ public class ADAM {
     }
 
     public void increaseTimeout() {
-        if (!toAuto) return;
+        if (!autoTimeout) return;
         int newto = (int) (to_fp * timeout);
         timeout = (newto > to_max) ? to_max: newto;
         LOGGER.log(Level.FINE, getInfo() + "Timeout increased to {0} ms", timeout);
     }
     
     public void decreaseTimeout() {
-        if (!toAuto) return;
+        if (!autoTimeout) return;
         int newto = (int) (to_fm * timeout);
         timeout = (newto < to_min) ? to_min: newto;
         LOGGER.log(Level.FINE, getInfo() + "Timeout decreased to {0} ms", timeout);
@@ -347,29 +336,31 @@ public class ADAM {
     }
 
     public static double[] doubleFromString(String str) {
-        double[] data = new double[0];
+        double[] data = new double[8];
+        for (int i = 0; i < data.length; i++) {
+            data[i] = -8888.8;
+        }
         try {
-            if (str.startsWith(">")) str = str.substring(1);
-            if (str.startsWith("<")) str = str.substring(1);
-            String str1 = str.replaceAll("\\+","; +");
-            String str2 = str1.replaceAll("-","; -");
-            if (str2.startsWith("; ")) str2 = str2.substring(2);
-            String[] strarr = str2.split("; ");
-            data = new double[strarr.length];
-            int j = 0; 
-            for (String s : strarr) {
+            if (!(str.startsWith(">") || str.startsWith("<"))) 
+                return data;
+            //str = str.substring(1);
+            str = str.replaceAll("\\+","; +");
+            str = str.replaceAll("-","; -");
+            String[] strarr = str.split("; ");
+            if (strarr.length <= 1) return data;
+            data = new double[strarr.length - 1];
+            for (int i = 1; i < strarr.length; i++) {
                 try {
-                    data[j] = Double.parseDouble(s);
+                    data[i-1] = Double.parseDouble(strarr[i]);
                 }
-                catch (NumberFormatException ex) {
-                    data[j] = -8888.8;
+                catch (NumberFormatException | NullPointerException ex) {
+                    data[i-1] = -8888.8;
                 }
-                j++;
             }
             return data;
         }
         catch (Exception ex) {
-            LOGGER.log(Level.INFO, "ADAM response conversion error.", ex);
+            LOGGER.log(Level.INFO, "ADAM response conversion error", ex);
             return data;
         }
     }

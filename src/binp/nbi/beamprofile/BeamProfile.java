@@ -156,12 +156,15 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int mi2;    // Right ingex
     int mw = 50; // Marker window half-width in points
 	
-    // Error logging file
-    String logFileName = OutputFileName(progNameShort + "_" + progVersion, "log");
-	
     // Clocks
     Date c0 = new Date();
     Date c1 = new Date();
+
+    AdamReader adamReader;
+    Adam4118[] adams;
+    int[] addrs = {6, 7, 8, 9};
+    String[] ports = new String[addrs.length];
+    List<SerialPort> portList = null;
 
     /**
      * Creates new form BeamProfile
@@ -212,9 +215,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         //setLineColor(Color.red, Color.blue, Color.green, Color.gray);
         // Disable tooltips
         //getChart().getXYPlot().getRenderer().setBaseToolTipGenerator(null);
-
-//        SyncronizedXYSeriesCollection tracesDataset = new SyncronizedXYSeriesCollection();
-//        plot.setDataset(tracesDataset);
 
         boolean savedNotify = plot.isNotify();
         // Stop refreshing the plot
@@ -278,7 +278,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         jScrollPane2.setViewportView(chartPanel);
         
-//-----------------------------------------------
         for (int i = 0; i < p1range.length; i++) {
             prof1[i] = data[0][p1range[i]];
             prof1max[i] = 1.0;
@@ -292,14 +291,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             fpi[i] = nx;
         }
 
-        // Create ADAMs
-//        for(int i = 0; i < adams.length; i++) {
-//            adams[i] = new ADAM();
-//        }
-
         c0 = new Date();
         c1 = new Date();
-//-----------------------------------------------
     }    
     
     /** This method is called from within the constructor to
@@ -693,13 +686,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         if (result == JFileChooser.APPROVE_OPTION) {
             File newInputFile = fileChooser.getSelectedFile();
             LOGGER.log(Level.FINEST, "Input file {0} selected", newInputFile.getName());
-            openInputFile(newInputFile);
+            setInputFile(newInputFile);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jTextField6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField6ActionPerformed
         File newInputFile = new File(jTextField6.getText());
-        openInputFile(newInputFile);
+        setInputFile(newInputFile);
     }//GEN-LAST:event_jTextField6ActionPerformed
 
     private void jCheckBox2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox2ActionPerformed
@@ -869,7 +862,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     public void windowDeactivated(WindowEvent e) {
     }
 
-    private void openInputFile(File newInputFile) {                                            
+    private void setInputFile(File newInputFile) {                                            
         if (newInputFile == null) return;
         if (inputFile != null && newInputFile.getAbsolutePath().equals(inputFile.getAbsolutePath())) return;
         if (newInputFile.canRead()) {
@@ -880,6 +873,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         } else {
             LOGGER.log(Level.WARNING, "Input file {0} can't be opened", newInputFile.getName());
             stopMeasuremets();
+            inputChanged = true;
         }
     }                                           
 
@@ -1002,13 +996,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         runMeasurements = false;
         LOGGER.log(Level.WARNING, "Measurements stopped");
     }
-
-//=================================================
-    AdamReader adamReader;
-    Adam4118[] adams;
-    int[] addrs = {6, 7, 8, 9};
-    String[] ports = new String[addrs.length];
-    List<SerialPort> portList = null;
+    
+    void disableOutputWrite() {
+        outputWriter = null;
+        jCheckBox2.setSelected(false);
+        writeToFile = false;
+        LOGGER.log(Level.INFO, "Output disabled");
+    }
 
     public void createADAMs() {
         try {
@@ -1108,13 +1102,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         outputFile = new File(outputFilePath, outputFileName);
         try {
             outputWriter = new BufferedWriter(new FileWriter(outputFile, true));
-            //jTextField7.setText(outFileName);
             LOGGER.log(Level.FINE, "Output file {0} has been opened.", outputFileName);
         } catch (IOException ex) {
             // Disable output writing
-            jCheckBox2.setSelected(false);
-            writeToFile = false;
             LOGGER.log(Level.SEVERE, "Output file {0} open error.", outputFileName);
+            disableOutputWrite();
         }
     }
 
@@ -1453,6 +1445,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             } catch (IOException ex) {
                                 LOGGER.log(Level.SEVERE, "Output write error");
                                 LOGGER.log(Level.INFO, "Exception info", ex);
+                                closeOutputFile();
+                                disableOutputWrite();
                             }
                         }
 
@@ -1759,7 +1753,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 return;
             }
             LOGGER.log(Level.WARNING, "AdamReader: Input file should be closed first");
-                    throw new FileNotFoundException("Input file should be closed first");
+            throw new FileNotFoundException("Input file should be closed first");
         }
 
         public void openFile(String fileName) throws FileNotFoundException {
@@ -1827,5 +1821,5 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             throw new FileNotFoundException("Reading from closed file");
         }
     } 
-//---------------------------------------------
+
 }

@@ -1118,10 +1118,30 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             result = Math.max(d, result);
         return result;
     }
+    public double max(double[] array, int i1, int i2) {
+        if (i1 < 0) i1 = 0;
+        if (i2 >= array.length) i2 = array.length - 1;
+        double result = array[i1];
+        for (int i = i1; i<i2; i++)
+            if (result < array[i]) {
+                result = array[i];
+            }
+        return result;
+    }
     public double min(double[] array) {
         double result = array[0];
         for (double d: array)
             result = Math.min(d, result);
+        return result;
+    }
+    public double min(double[] array, int i1, int i2) {
+        if (i1 < 0) i1 = 0;
+        if (i2 >= array.length) i2 = array.length - 1;
+        double result = array[i1];
+        for (int i = i1; i<i2; i++)
+            if (result > array[i]) {
+                result = array[i];
+            }
         return result;
     }
     public double[] min(double[][] array) {
@@ -1614,6 +1634,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                         // Determine indexes for targeting traces
                         double maxdata = data[mi1][tpn[0]];
+                        double mindata = data[mi1][tpn[0]];
                         int indexx = mi1;
                         int indexy = tpn[0];
                         for (int j = 0; j < tpn.length; j++) {
@@ -1622,6 +1643,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                     indexx = i;
                                     indexy = tpn[j];
                                     maxdata = data[i][tpn[j]];
+                                }
+                                if (data[i][tpn[j]] < mindata) {
+                                    mindata = data[i][tpn[j]];
                                 }
                             }
                         }
@@ -1636,9 +1660,35 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             tpn2 = tpn1 + 2*tpw;
                         }
 
-
 //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
     /*
+                        // Calculate and plot equivalent current
+                        double dt;
+                        double integralin = 0.0;
+                        double integralout = 0.0;
+                        double integraldt = 0.0;
+                        double integralflow = 0.0;
+                        double minout = data[tpn1 + 1][bctout];
+                        double minin = data[tpn1 + 1][bctin];
+                        for (int i = tpn1 + 1; i < tpn2; i++) {
+                            dt = data[i-1][0] - data[i][0];
+                            if (minout > data[i][bctout]) {
+                                minout = data[i][bctout];
+                            }
+                            if (minin > data[i][bctin]) {
+                                minin = data[i][bctin];
+                            }
+                            integraldt += dt; 
+                            integralout += data[i][bctout]*dt; 
+                            integralin += data[i][bctin]*dt; 
+                            integralflow += data[i][bcflowchan]*dt; 
+                        }
+                        double beamCurrent = ((integralout - integralin) - (minout - minin)*integraldt)*
+                                                integralflow/integraldt*Q/voltage;  //mA
+
+
+
+
                         // Determine beam durationi from targeting traces
                         if (tpn1 > 1) && (tpn2 < nx) {
                             [v1, v2] = max(data(tpn1:tpn2, tpn));

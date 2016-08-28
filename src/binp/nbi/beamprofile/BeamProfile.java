@@ -143,12 +143,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int tpb = 19;
     int tpl = 20;
     int tpr = 21;
-    
-    // Traces
+    // Targeting traces
     int[] tpn = {tpt, tpb, tpl, tpr};   // Channel numbers for Targeting plots
     Color[] tpc = {Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA};  // Colors of traces
     int[] tph1 = new int[tpn.length];   // Handles of traces zoom
-    double tpw = 30.0;                  // +- Zoom window halfwidth
+    int tpw = 30;                  // +- Integration window halfwidth
+    int tpnm;
+    int tpn1;
+    int tpn2;
     
     // Marker window
     int mi;     // Center of marker window
@@ -288,7 +290,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             prof2max[i] = 1.0;
         }
         for (int i = 0; i < fpi.length; i++) {
-            fpi[i] = nx;
+            fpi[i] = nx - 1;
         }
 
         c0 = new Date();
@@ -1388,20 +1390,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             outputChanged = true;
                         }
 
-                        // Faded profiles - refresh every fpdt seconds
-                        if (Math.abs(c.getSeconds() - c1.getSeconds()) < fpdt) {
-                            for(int i = 0; i < fpi.length; i++) {
-                                fpi[i] = fpi[i] - 1;
-                            }
-                        }
-                        else {
-                            for(int i = 0; i < fpi.length-1; i++) {
-                                fpi[i] = fpi[i+1];
-                            }
-                            fpi[fpi.length - 1] = nx;
-                            c1 = c;
-                        }
-
                         // Read data from ADAMs
                         Date cr = new Date();
 
@@ -1483,7 +1471,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             }
                             tracesDataset.addSeries("Signal " + i, plottedData);
                             //chart1.getChart().setLineColor(Color.red, Color.blue, Color.green, Color.gray);
-                            //tracesDataset.Series("Signal " + i, plottedData);
                         }
 
                         // Calculate profiles prof1 - vertical and prof2 - horizontal
@@ -1494,7 +1481,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             prof2[i] = data[nx-1][p2range[i]] - dmin[p2range[i]];
                         }
                         // Calculate datasets for profiles
-                        // Horizontal profile
+                        // Vertical profile
                         profileDataset = new DefaultXYDataset();
                         plottedData = new double[2][p1range.length];
                         for (int j = 0; j < p1range.length; j++) {
@@ -1502,7 +1489,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             plottedData[1][j] = prof1[j];
                         }
                         profileDataset.addSeries("vertProf", plottedData);
-                        // Vertical profile
+                        // Horizontal profile
                         plottedData = new double[2][p2range.length];
                         for (int j = 0; j < p2range.length; j++) {
                             plottedData[0][j] = p2x[j];
@@ -1561,6 +1548,30 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             profileDataset.addSeries("maxAllVertProf", plottedData);
                         }
 
+                        // Faded profiles - refresh every fpdt seconds
+                        if (Math.abs(c.getSeconds() - c1.getSeconds()) < fpdt) {
+                            for(int i = 0; i < fpi.length; i++) {
+                                if (fpi[i] > 0) fpi[i] = fpi[i] - 1;
+                            }
+                        }
+                        else {
+                            for(int i = 0; i < fpi.length-1; i++) {
+                                fpi[i] = fpi[i+1];
+                            }
+                            fpi[fpi.length - 1] = nx - 1;
+                            c1 = c;
+                        }
+                        for (int i: fpi) {
+                            //System.out.println(i);
+                            plottedData = new double[2][p1range.length];
+                            for (int j = 0; j < p1range.length; j++) {
+                                plottedData[0][j] = p1x[j];
+                                plottedData[1][j] = data[i][p1range[j]] - dmin[p1range[j]];
+                            }
+                            profileDataset.addSeries("Faded " + i, plottedData);
+                        }
+
+
                         // Trageting traces
                         for (int i: tpn) { 
                             plottedData = new double[2][nx];
@@ -1571,44 +1582,63 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             tracesDataset.addSeries("Targeting " + i, plottedData);
                         }
 
+                        // Acceleration grid traces
+                        for (int i: agn) {
+                            plottedData = new double[2][nx];
+                            for (int j = 0; j < data.length; j++) {
+                                plottedData[0][j] = (data[j][0] - data[0][0])/1000.0;
+                                plottedData[1][j] = data[j][i] - dmin[i];
+                            }
+                            tracesDataset.addSeries("Acceleration " + i, plottedData);
+                        }
+
                         // Shift marker
                         mi = mi - 1;
                         if (mi < 0) {
                             int nx = data.length;
                             int ny = data[0].length;
-                            double maxdata = -8888.8;
-                            int index = 1;
-                            for (int j = 0; j < ny; j++)
-                                for (int i = 1; i < nx; i++)
+                            double maxdata = data[0][1];
+                            int index = 0;
+                            for (int j = 1; j < ny; j++) {
+                                for (int i = 0; i < nx; i++) {
                                     if (data[i][j] > maxdata) {
                                         index = i;
                                         maxdata = data[i][j];
                                     }
+                                }
+                            }
                             mi = index;
                         }
                         mi1 = Math.max(mi - mw, 0);
                         mi2 = Math.min(mi + mw, nx-1);
 
+                        // Determine indexes for targeting traces
+                        double maxdata = data[mi1][tpn[0]];
+                        int indexx = mi1;
+                        int indexy = tpn[0];
+                        for (int j = 0; j < tpn.length; j++) {
+                            for (int i = mi1; i < mi2; i++) {
+                                if (data[i][tpn[j]] > maxdata) {
+                                    indexx = i;
+                                    indexy = tpn[j];
+                                    maxdata = data[i][tpn[j]];
+                                }
+                            }
+                        }
+                        tpnm = indexx;
+                        tpn2 = tpnm + tpw;
+                        if (tpn2 > (nx-1)) {
+                            tpn2 = nx-1;
+                        }
+                        tpn1 = tpn2 - 2*tpw;
+                        if (tpn1 < 0) {
+                            tpn1 = 0;
+                            tpn2 = tpn1 + 2*tpw;
+                        }
+
 
 //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
     /*
-                        // Determine index for targeting traces
-                        [v1, v2] = max(data(mi1:mi2, tpn));
-                        [~, v3] = max(v1);
-                        tpnm = v2(v3) + mi1;
-                        tpn2 = tpnm + tpw;
-                        if tpn2 > nx {
-                            tpn2 = nx;
-                            tpn1 = nx - 2*tpw - 1;
-                        }
-                        else {
-                            tpn1 = tpnm - tpw;
-                            if tpn1 < 1 {
-                                tpn1 = 1;
-                                tpn2 = 2*tpw + 2;
-                            }
-                        }
-
                         // Determine beam durationi from targeting traces
                         if (tpn1 > 1) && (tpn2 < nx) {
                             [v1, v2] = max(data(tpn1:tpn2, tpn));
@@ -1624,11 +1654,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                     duration = cdt;
                                 }
                             }
-                        }
-
-                        // Update acceleration grid traces
-                        for ii = 1:numel(agn) {
-                            set(agh(ii), "Ydata", smooth(data(:, agn(ii)), 20)-dmin(agn(ii)));
                         }
 
                         // Calculate and plot equivalent current
@@ -1679,13 +1704,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         set(bch, "Ydata", current - min(current));
                         set(mh, "Xdata", i1:i2);
                         set(mh, "Ydata", current(i1:i2) - min(current));
-
-                        // Plot faded profiles
-                        for (ii = 1:numel(fpi)) {
-                            prof1  = data(fpi(ii), p1range) - dmin(p1range);
-                            set(fph(ii), "Ydata",  prof1);
-                        }
-
     */
     // </editor-fold> 
 

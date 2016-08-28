@@ -686,7 +686,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         int result = fileChooser.showDialog(this, "Open Input File");
         if (result == JFileChooser.APPROVE_OPTION) {
             File newInputFile = fileChooser.getSelectedFile();
-            LOGGER.log(Level.FINE, "Input file {0} selected", newInputFile.getName());
+            LOGGER.log(Level.FINEST, "Input file {0} selected", newInputFile.getName());
             openInputFile(newInputFile);
         }
     }//GEN-LAST:event_jButton2ActionPerformed
@@ -867,17 +867,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         if (newInputFile == null) return;
         if (inputFile != null && newInputFile.getAbsolutePath().equals(inputFile.getAbsolutePath())) return;
         if (newInputFile.canRead()) {
+            inputChanged = true;
             inputFile = newInputFile;
             LOGGER.log(Level.FINE, "Input file changed to {0}", inputFile.getName());
             jTextField6.setText(inputFile.getAbsolutePath());
-            Adam4118.file = inputFile;
-            inputChanged = true;
         } else {
             LOGGER.log(Level.WARNING, "Input file {0} can't be opened", newInputFile.getName());
-            if (inputFile != null) 
-                jTextField6.setText(inputFile.getAbsolutePath());
-            else 
-                jTextField6.setText("");
+            stopMeasuremets();
         }
     }                                           
 
@@ -921,12 +917,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             jComboBox3.setSelectedItem(s);
             s = (String) objIStrm.readObject();
             jComboBox4.setSelectedItem(s);
-        } catch (IOException | ClassNotFoundException e) {
-            LOGGER.log(Level.WARNING, "Config file read error {0}", e);
+        } catch (IOException | ClassNotFoundException ex) {
+            LOGGER.log(Level.WARNING, "Config file read error");
+            LOGGER.log(Level.INFO, "Exception info", ex);
         }
         // Read and set state of volatile variables
         jToggleButton1ActionPerformed(null);
-        LOGGER.fine("Config restored.");
+        LOGGER.fine("Config restored");
    }
 
     private void saveConfig() {
@@ -963,9 +960,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             s = (String) jComboBox4.getSelectedItem();
             objOStrm.writeObject(s);
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "Config write error ", ex);
+            LOGGER.log(Level.WARNING, "Config write error");
+            LOGGER.log(Level.INFO, "Exception info", ex);
         }
-        LOGGER.fine("Config saved.");
+        LOGGER.fine("Config saved");
     }
 
     static String prefix, ext;
@@ -992,79 +990,99 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 	return prefix + timeString + "." + ext;
     }
 
+    void stopMeasuremets() {
+        // Stop measurements
+        jToggleButton1.setSelected(false);
+        runMeasurements = false;
+        LOGGER.log(Level.WARNING, "Measurements stopped");
+    }
+
 //=================================================
+    AdamReader adamReader;
     Adam4118[] adams;
-    int[] addr = {6, 7, 8, 9};
-    String[] ports = new String[addr.length];
+    int[] addrs = {6, 7, 8, 9};
+    String[] ports = new String[addrs.length];
     List<SerialPort> portList = null;
 
     public void createADAMs() {
         try {
             // Create ADAM objects
-            addr = new int[4];
-            addr[0] = (int) jSpinner7.getValue();
-            addr[1] = (int) jSpinner8.getValue();
-            addr[2] = (int) jSpinner9.getValue();
-            addr[3] = (int) jSpinner10.getValue();
+            adams = new Adam4118[3];
+
+            if (readFromFile) {
+                // Open input file
+                if (adamReader == null) {
+                    adamReader = new AdamReader(jTextField6.getText());
+                }
+                else {
+                    adamReader.closeFile();
+                    adamReader.openFile(jTextField6.getText());
+                }
+                for (int i = 0; i < adams.length; i++) {
+                        adams[i] = new Adam4118(adamReader);
+                }
+                LOGGER.finest("ADAMs created");
+                return;
+            }
+
+            // Read ports and addresses
+            addrs = new int[4];
+            addrs[0] = (int) jSpinner7.getValue();
+            addrs[1] = (int) jSpinner8.getValue();
+            addrs[2] = (int) jSpinner9.getValue();
+            addrs[3] = (int) jSpinner10.getValue();
             ports = new String[4];
             ports[0] = (String) jComboBox1.getSelectedItem();
             ports[1] = (String) jComboBox2.getSelectedItem();
             ports[2] = (String) jComboBox3.getSelectedItem();
             ports[3] = (String) jComboBox4.getSelectedItem();
 
-            adams = new Adam4118[3];
-
-            if (readFromFile) {
-                // Open input file
-                Adam4118.openFile(jTextField6.getText());
-                for (int i = 0; i < adams.length; i++) {
-                        adams[i] = new Adam4118(null, addr[i]);
-                }
-                return;
-            }
             if (portList == null) portList = new LinkedList<>();
             for (int i = 0; i < adams.length; i++) {
                 adams[i] = null;
+                // Check if port is in used port list
                 for (SerialPort p:portList) {
                     if (ports[i].equalsIgnoreCase(p.getPortName())) {
-                        adams[i] = new Adam4118(p, addr[i]);
+                        // Create Adam for existent port
+                        adams[i] = new Adam4118(p, addrs[i]);
                         break;
                     }
                 }
+                // If Adam was created skip the rest of for 
                 if (adams[i] != null) continue;
-
+                // Othervise create port and add it to used port list
                 SerialPort serialPort = new SerialPort(ports[i]);
                 if (!serialPort.isOpened()) serialPort.openPort();
                 serialPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8,
                         SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
                 portList.add(serialPort);
-                adams[i] = new Adam4118(serialPort, addr[i]);
+                // Create Adam for new port
+                adams[i] = new Adam4118(serialPort, addrs[i]);
             }
+            LOGGER.finest("ADAMs created");
         } catch (FileNotFoundException ex) {
-            LOGGER.log(Level.WARNING, "Input file not found ", ex);
-            jCheckBox1.setSelected(false);
-            readFromFile = false;
-            jToggleButton1.setSelected(false);
-            runMeasurements = false;
-            LOGGER.log(Level.WARNING, "Measurements stopped");
+            LOGGER.log(Level.SEVERE, "Input file not found ");
+            LOGGER.log(Level.INFO, "Exception info", ex);
+            stopMeasuremets();
         } catch (SerialPortException | ADAM.ADAMException ex) { 
-            LOGGER.log(Level.WARNING, "ADAM creation error ", ex);
-            jToggleButton1.setSelected(false);
-            runMeasurements = false;
-            LOGGER.log(Level.WARNING, "Measurements stopped");
+            LOGGER.log(Level.SEVERE, "ADAM creation error ");
+            LOGGER.log(Level.INFO, "Exception info", ex);
+            stopMeasuremets();
         }
     }
 
     public void deleteADAMs() {
-        if (adams == null) return;
-        for (Adam4118 adam : adams) {
-            adam.delete();
+        if (adams != null) {
+            for (Adam4118 adam : adams) {
+                if (adam != null) adam.delete();
+            }
         }
         if (readFromFile) {
             // Open input file
-            Adam4118.closeFile();
+            if (adamReader != null) 
+                adamReader.closeFile();
         }
-        LOGGER.finest("ADAMs deleted.");
+        LOGGER.finest("ADAMs deleted");
     }
 
     public void closeOutputFile() {
@@ -1073,7 +1091,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             if (outputWriter != null) outputWriter.close();
             LOGGER.fine("Output file has been closed");
         } catch (Exception ex) {
-            LOGGER.log(Level.SEVERE, "Output file close error ", ex);
+            LOGGER.log(Level.SEVERE, "Output file close error ");
+            LOGGER.log(Level.INFO, "Exception info", ex);
         }
         outputWriter = null;
     }
@@ -1317,7 +1336,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 */    
 //</editor-fold>
 
-//================================================    
+//---------------------------------------------
     class Task extends SwingWorker<Void, Void> {
 
         BeamProfile bp;
@@ -1335,9 +1354,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         @Override
         public Void doInBackground() {
             LOGGER.finest("Background task started");
-            try {
-                //logger.finest("Try");
-                while(loopDoInBackground) {
+            //logger.finest("Try");
+            while(loopDoInBackground) {
+                try {
                     //logger.finest("LOOP");
 
                     // If Start was pressed
@@ -1426,7 +1445,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 outputWriter.write(str, 0, str.length());
                                 outputWriter.flush();
                             } catch (IOException ex) {
-                                LOGGER.log(Level.SEVERE, null, ex);
+                                LOGGER.log(Level.SEVERE, "Output write error");
+                                LOGGER.log(Level.INFO, "Exception info", ex);
                             }
                         }
 
@@ -1673,9 +1693,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         //process(new ArrayList<Void>());
                     }
                 }
-            }
-            catch (Exception ex) {
-                LOGGER.log(Level.SEVERE, "Exception during doInBackground" , ex);
+                catch (Exception ex) {
+                    stopMeasuremets();
+                    LOGGER.log(Level.SEVERE, "Exception during doInBackground");
+                    LOGGER.log(Level.INFO, "Exception info", ex);
+                }
             }
             return null;
         }
@@ -1694,4 +1716,106 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             //taskOutput.append("Done!\n");
         }
     }
+
+//---------------------------------------------
+    class AdamReader {
+        File file;
+        BufferedReader reader = null;
+        String line;
+        String[] columns;
+        int index;
+
+        AdamReader(File _file) throws FileNotFoundException {
+            openFile(_file);
+            LOGGER.log(Level.FINEST, "AdamReader: {0} created", file.getName()); 
+        }
+    
+        AdamReader(String fileName) throws FileNotFoundException {
+            openFile(fileName);
+            LOGGER.log(Level.FINEST, "AdamReader: {0} created", file.getName()); 
+        }
+
+        public void openFile(File _file) throws FileNotFoundException {
+            if (reader == null) {
+                if (!_file.canRead()) {
+                    LOGGER.log(Level.WARNING, "AdamReader: File is unreadable");
+                    throw new FileNotFoundException("File is unreadable");
+                }
+                file = _file;
+                reader = new BufferedReader(new FileReader(file));
+                // Reset input buffer
+                index = -1;
+                LOGGER.log(Level.FINEST, "AdamReader: File {0} has been opened", file.getName());
+                return;
+            }
+            LOGGER.log(Level.WARNING, "AdamReader: Input file should be closed first");
+                    throw new FileNotFoundException("Input file should be closed first");
+        }
+
+        public void openFile(String fileName) throws FileNotFoundException {
+            openFile(new File(fileName));
+        }
+
+        public void openFile(String filePath, String fileName) throws FileNotFoundException {
+            openFile(new File(filePath, fileName));
+        }
+
+        public void closeFile() {
+            if (reader != null) {
+                try {
+                    reader.close();
+                    LOGGER.log(Level.FINEST, "AdamReader: Input file has been closed");
+                } catch (IOException ex) {
+                    LOGGER.log(Level.WARNING, "AdamReader: Input file closing error ");
+                    LOGGER.log(Level.INFO, "Exception info", ex);
+                }
+            } 
+            reader = null;
+        }
+        
+        public String readString() throws FileNotFoundException, IOException {
+            if (reader != null) {
+                // Reading next line from reader
+                if (index <= 0) {
+                    // Read next line
+                    line = reader.readLine();
+                    // Reopen file if EOF
+                    if (line == null) {
+                        closeFile();
+                        openFile(file);
+                        line = reader.readLine();
+                    }
+                    columns = line.split(";");
+                    // Skip fist value = time
+                    index = 1;
+                }
+                StringBuilder result = new StringBuilder("<");
+                String str;
+                for (int i = 0; i < 8; i++)
+                {
+                    if (index >= columns.length) 
+                        str = "+000.00";
+                    else
+                        str = columns[index].trim();
+                    index++;
+                    double d;
+                    try {
+                        d = Double.parseDouble(str);
+                    }
+                    catch (NumberFormatException | NullPointerException ex) {
+                        d = -8888.8;
+                    }
+                    str = String.format("%+07f", d);
+                    str = str.replaceAll(",", ".");
+                    result.append(str);
+                }
+                if (index >= 24)
+                    index = 0;
+                return result.toString();
+            } 
+            LOGGER.log(Level.WARNING, "AdamReader: Reading from closed file");
+            throw new FileNotFoundException("Reading from closed file");
+        }
+    } 
+//---------------------------------------------
 }

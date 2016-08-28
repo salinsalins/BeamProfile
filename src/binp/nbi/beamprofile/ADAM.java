@@ -185,7 +185,11 @@ public class ADAM {
 
     public boolean isSuspended() {
         long now = System.currentTimeMillis();
-        return ((now - suspStartTime) < suspDuration);
+        if ((now - suspStartTime) < suspDuration) {
+            LOGGER.log(Level.FINEST, getInfo() + "Reading is suspended");
+            return true;
+        }
+        return false;
     }
             
     public  String readResponse(int timeout)  
@@ -229,7 +233,9 @@ public class ADAM {
         // Read response form ADAM module
         response = "";
         // If comport suspended return ""
-        if (isSuspended()) return "";
+        if (isSuspended()) {
+            return "";
+        }
 
         // Perform n reties to read response
         int n = to_retries;
@@ -237,15 +243,17 @@ public class ADAM {
             try {
                 response = ADAM.this.readResponse(timeout);
                 decreaseTimeout();
-                LOGGER.log(Level.FINEST, getInfo() + "Response: {0}", response);
+                LOGGER.log(Level.FINE, getInfo() + "Response: {0}", response);
                 return response;
             }
             catch (SerialPortTimeoutException | ADAMException ex) {
-                LOGGER.log(Level.INFO, getInfo() + "Response timeout {0}", timeout);
+                LOGGER.log(Level.WARNING, getInfo() + "Response timeout {0}", timeout);
+                LOGGER.log(Level.INFO, "Exception info ", ex);
                 increaseTimeout();
             }
             catch (SerialPortException ex) {
-                LOGGER.log(Level.WARNING, getInfo() + "Exception reading response ", ex);
+                LOGGER.log(Level.WARNING, getInfo() + "SerialPortException reading response");
+                LOGGER.log(Level.INFO, "Exception info ", ex);
                 increaseTimeout();
             }
         }
@@ -256,8 +264,8 @@ public class ADAM {
         return response;
     }
     
-    public String readResponse(String firstChar) throws ADAMException {
-        String resp = readResponse();
+    public String readResponse(String cmd, String firstChar) throws ADAMException {
+        String resp = readResponse(cmd);
         if (resp==null || resp.length()<=0) {
             LOGGER.log(Level.INFO, getInfo() + "Null or empty response");
             throw new ADAMException("Null or empty response");
@@ -266,12 +274,12 @@ public class ADAM {
             LOGGER.log(Level.INFO, getInfo() + "Wrong response {0}", resp);
             throw new ADAMException("Wrong response " + resp);
         }
-        return resp.substring(firstChar.length());
+        return resp;
     }
 		
-    public String readResponse(String cmd, String firstChar) throws ADAMException {
+    public String readResponse(String cmd) {
         sendCommand(cmd);
-        return readResponse(firstChar);
+        return readResponse();
     }
 
     public void increaseTimeout() {
@@ -295,13 +303,13 @@ public class ADAM {
     public String readModuleName() throws ADAMException {
         // Read Module Name.  Command: $AAM
         String cmd = String.format("$%02XM", addr);
-        return readResponse(cmd, "!");
+        return readResponse(cmd, "!").substring(1);
     }
 		
     public String readFirmwareVersion() throws ADAMException {
         // Read Module Firware Version.  Command: $AAF
         String cmd = String.format("$%02XF", addr);
-        return readResponse(cmd, "!");
+        return readResponse(cmd, "!").substring(1);
     }
 
     public double read(int chan) throws ADAMException {
@@ -312,7 +320,7 @@ public class ADAM {
         String resp = readResponse(cmd, ">");
         double result;
         try {
-            result = Double.parseDouble(resp);
+            result = Double.parseDouble(resp.substring(1));
         } catch (NumberFormatException ex) {
             throw new ADAMException("Wrong response " + resp);
         }
@@ -360,7 +368,8 @@ public class ADAM {
             return data;
         }
         catch (Exception ex) {
-            LOGGER.log(Level.INFO, "ADAM response conversion error", ex);
+            LOGGER.log(Level.WARNING, "ADAM response conversion error");
+            LOGGER.log(Level.INFO, "Exception info", ex);
             return data;
         }
     }

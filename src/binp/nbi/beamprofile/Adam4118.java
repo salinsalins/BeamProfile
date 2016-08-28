@@ -38,10 +38,10 @@ public class Adam4118 extends ADAM {
         try {
             resp = reader.readString();
             return resp;
-        } catch (Exception e) {
+        } catch (Exception ex) {
             String cmd = String.format("#%02X", addr);
             resp = readResponse(cmd, ">");
-            return ">" + resp;
+            return resp;
         }
     }
     
@@ -49,6 +49,8 @@ public class Adam4118 extends ADAM {
         try {
             return ADAM.doubleFromString(readString());
         } catch (Exception ex) {
+            LOGGER.log(Level.WARNING, "Adam4118 response conversion error");
+            LOGGER.log(Level.INFO, "Exception info", ex);
             return new double[8];
         }
     }

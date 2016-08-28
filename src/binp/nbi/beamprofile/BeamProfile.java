@@ -149,6 +149,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     Color[] tpc = {Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA};  // Colors of traces
     int[] tph1 = new int[tpn.length];   // Handles of traces zoom
     double tpw = 30.0;                  // +- Zoom window halfwidth
+    
+    // Marker window
+    int mi;     // Center of marker window
+    int mi1;    // Left index
+    int mi2;    // Right ingex
+    int mw = 50; // Marker window half-width in points
 	
     // Error logging file
     String logFileName = OutputFileName(progNameShort + "_" + progVersion, "log");
@@ -1570,25 +1576,28 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             }
                             tracesDataset.addSeries("Targeting " + i, plottedData);
                         }
-                        /*
-                        // Update targeting traces
-                        for ii = 1:numel(tpn) {
-                            set(tph1(ii), "Xdata", tpn1:tpn2);
-                            set(tph1(ii), "Ydata", data(tpn1:tpn2, tpn(ii))-dmin(tpn(ii)));
-                        }
-                        */
 
-                        
-//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
-    /*
                         // Shift marker
                         mi = mi - 1;
-                        if (mi < 1) {
-                            mi = maxIndex(current);
+                        if (mi < 0) {
+                            int nx = data.length;
+                            int ny = data[0].length;
+                            double maxdata = -8888.8;
+                            int index = 1;
+                            for (int j = 0; j < ny; j++)
+                                for (int i = 1; i < nx; i++)
+                                    if (data[i][j] > maxdata) {
+                                        index = i;
+                                        maxdata = data[i][j];
+                                    }
+                            mi = index;
                         }
                         mi1 = Math.max(mi - mw, 0);
                         mi2 = Math.min(mi + mw, nx-1);
 
+
+//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
+    /*
                         // Determine index for targeting traces
                         [v1, v2] = max(data(mi1:mi2, tpn));
                         [~, v3] = max(v1);
@@ -1685,7 +1694,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     */
     // </editor-fold> 
-                        // Refresh Figure
+
+                        // Refresh plots
                         process(new ArrayList<Void>());
                     }
                     else {

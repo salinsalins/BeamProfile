@@ -250,11 +250,13 @@ public class ADAM {
                 LOGGER.log(Level.WARNING, getInfo() + "Response timeout {0}", timeout);
                 LOGGER.log(Level.INFO, "Exception info ", ex);
                 increaseTimeout();
+                sendCommand(command);
             }
             catch (SerialPortException ex) {
                 LOGGER.log(Level.WARNING, getInfo() + "SerialPortException reading response");
                 LOGGER.log(Level.INFO, "Exception info ", ex);
                 increaseTimeout();
+                sendCommand(command);
             }
         }
         LOGGER.log(Level.WARNING, getInfo() + "No response {0} times", to_retries);
@@ -267,12 +269,14 @@ public class ADAM {
     public String readResponse(String cmd, String firstChar) throws ADAMException {
         String resp = readResponse(cmd);
         if (resp==null || resp.length()<=0) {
-            LOGGER.log(Level.INFO, getInfo() + "Null or empty response");
-            throw new ADAMException("Null or empty response");
+            String msg = getInfo() + "Null or empty response";
+            LOGGER.log(Level.WARNING, msg);
+            throw new ADAMException(msg);
         }
         if (!resp.startsWith(firstChar)) {
-            LOGGER.log(Level.INFO, getInfo() + "Wrong response {0}", resp);
-            throw new ADAMException("Wrong response " + resp);
+            String msg = getInfo() + "Null or empty response " + resp;
+            LOGGER.log(Level.WARNING, msg);
+            throw new ADAMException(msg);
         }
         return resp;
     }

@@ -274,7 +274,7 @@ public class ADAM {
             throw new ADAMException(msg);
         }
         if (!resp.startsWith(firstChar)) {
-            String msg = getInfo() + "Null or empty response " + resp;
+            String msg = getInfo() + "Wrong response " + resp;
             LOGGER.log(Level.WARNING, msg);
             throw new ADAMException(msg);
         }

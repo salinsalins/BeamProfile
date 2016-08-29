@@ -88,27 +88,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int[] trn = {6, 2, 10};     // Channel numbers of traces
     Color[] trc = {Color.RED, Color.GREEN, Color.BLUE};  // Colors of traces
 	
-    // Profile arrays and their plot handles
+    // Profile arrays
     // Vertical profile
     int[] p1range = {1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13};  // Channels for vertical profile
     int[] p1x =     {0, 2, 3, 4, 5, 6, 7,  8,  9, 10, 12};  // X values for vertical profile
     double[] prof1  = new double[p1range.length];           // Vertical profile
-    int prof1h = 0;         // handle
-
-    double[] prof1max  = new double[prof1.length];     // Maximal vertical profile (over the plot)
-    int	prof1maxh = 0;          // Maximal vertical profile handle
-
-    double[] prof1max1  = new double[prof1max.length]; // Maximal vertical profile from the program start
-    int prof1max1h = 0;         // Handle
-
+    double[] prof1max  = new double[prof1.length];     // Maximal vertical profile
     // Horizontal profile
     int[] p2range = {15, 6, 14};     // Channels for horizontal profile
-    int[] p2x =     { 2, 6, 10};     // X values for horizontal profile
+    int[] p2x =     { 2, 6, 10};     // cm X values for horizontal profile
     double[] prof2  = new double[p2range.length];  // Horizontal profile
-    int	prof2h = 0;         // handle
-
-    double[] prof2max  = new double[prof2.length];      // Maximal horizontal profile (over the plot)
-    int prof2maxh = 0;
+    double[] prof2max  = new double[prof2.length]; // Maximal horizontal profile
 
     // Faded profiles
     int fpn = 10;               // Number of faded pofiles
@@ -120,8 +110,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double voltage = 80.0;   // keV Particles energy
     double duration = 2.0;     // s Beam duration
     double flow = 12.5;      // gpm Cooling water flow (gallons per minute) 
-    int bctin = 9;        // Input water temperature channel number
-    int bctout = 8;       // Output water temperature channel number
+    int bctin = 8;        // Input water temperature channel number
+    int bctout = 7;       // Output water temperature channel number
     // Current[mA] =	folw[gpm]*(OutputTemperature-InputTemperature)*Q/voltage
     double Q = 4.3*0.0639*1000; // Coeff to convert 
     int bch = 0;      // Handle for beam current plot
@@ -242,7 +232,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         chart2 = new ChartPanel(ChartFactory.createXYLineChart(
                 "Profiles", // chart title
-                "Time, s", // x axis label
+                "Distance, cm", // x axis label
                 "Profile", // y axis label
                 new XYSeriesCollection(), // data
                 PlotOrientation.VERTICAL,
@@ -283,7 +273,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         for (int i = 0; i < p1range.length; i++) {
             prof1[i] = data[0][p1range[i]];
             prof1max[i] = 1.0;
-            prof1max1[i] = 1.0;
         }
         for (int i = 0; i < p2range.length; i++) {
             prof2[i] = data[0][p2range[i]];
@@ -310,6 +299,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jPanel6 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jToggleButton1 = new javax.swing.JToggleButton();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
         jComboBox1 = new javax.swing.JComboBox();
@@ -331,13 +322,18 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jComboBox4 = new javax.swing.JComboBox();
         jLabel18 = new javax.swing.JLabel();
         jSpinner10 = new javax.swing.JSpinner();
-        jTextField6 = new javax.swing.JTextField();
-        jCheckBox1 = new javax.swing.JCheckBox();
-        jButton2 = new javax.swing.JButton();
+        jPanel1 = new javax.swing.JPanel();
+        jCheckBox4 = new javax.swing.JCheckBox();
         jCheckBox2 = new javax.swing.JCheckBox();
         jTextField7 = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
         jCheckBox3 = new javax.swing.JCheckBox();
+        jPanel2 = new javax.swing.JPanel();
+        jCheckBox1 = new javax.swing.JCheckBox();
+        jTextField6 = new javax.swing.JTextField();
+        jButton2 = new javax.swing.JButton();
+        jSpinner11 = new javax.swing.JSpinner();
+        jLabel20 = new javax.swing.JLabel();
         jPanel8 = new javax.swing.JPanel();
         jLabel19 = new javax.swing.JLabel();
         jButton4 = new javax.swing.JButton();
@@ -359,22 +355,42 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             }
         });
 
+        jLabel1.setText("Current:");
+
+        jLabel3.setText("Flow:");
+
         org.jdesktop.layout.GroupLayout jPanel6Layout = new org.jdesktop.layout.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
             jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 481, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+            .add(jPanel6Layout.createSequentialGroup()
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 481, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .add(0, 21, Short.MAX_VALUE))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel6Layout.createSequentialGroup()
-                .addContainerGap()
+                .add(123, 123, 123)
+                .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 104, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(jToggleButton1)
                 .addContainerGap())
+            .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(jPanel6Layout.createSequentialGroup()
+                    .add(20, 20, 20)
+                    .add(jLabel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 104, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .addContainerGap(378, Short.MAX_VALUE)))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel6Layout.createSequentialGroup()
                 .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 417, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 29, Short.MAX_VALUE)
-                .add(jToggleButton1))
+                .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jToggleButton1)
+                    .add(jLabel1)))
+            .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel6Layout.createSequentialGroup()
+                    .addContainerGap(444, Short.MAX_VALUE)
+                    .add(jLabel3)
+                    .addContainerGap()))
         );
 
         jToggleButton1.getAccessibleContext().setAccessibleDescription("");
@@ -421,12 +437,80 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         jSpinner10.setModel(new javax.swing.SpinnerNumberModel(3, 0, 127, 1));
 
-        jTextField6.setText("D:\\");
-            jTextField6.addActionListener(new java.awt.event.ActionListener() {
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Output"));
+
+        jCheckBox4.setText("Create Year/Month/Day subfolders");
+        jCheckBox4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox4ActionPerformed(evt);
+            }
+        });
+
+        jCheckBox2.setText("Write to Folder: ");
+        jCheckBox2.setActionCommand("Write to Folder:");
+        jCheckBox2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jCheckBox2ActionPerformed(evt);
+            }
+        });
+
+        jTextField7.setText("D:\\");
+            jTextField7.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    jTextField6ActionPerformed(evt);
+                    jTextField7ActionPerformed(evt);
                 }
             });
+
+            jButton3.setText("...");
+            jButton3.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jButton3ActionPerformed(evt);
+                }
+            });
+
+            jCheckBox3.setSelected(true);
+            jCheckBox3.setText("Split output file every hour");
+            jCheckBox3.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jCheckBox3ActionPerformed(evt);
+                }
+            });
+
+            org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
+            jPanel1.setLayout(jPanel1Layout);
+            jPanel1Layout.setHorizontalGroup(
+                jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(jPanel1Layout.createSequentialGroup()
+                    .addContainerGap()
+                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(jPanel1Layout.createSequentialGroup()
+                            .add(jCheckBox3)
+                            .add(77, 77, 77)
+                            .add(jCheckBox4))
+                        .add(jPanel1Layout.createSequentialGroup()
+                            .add(jCheckBox2)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 322, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                    .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            );
+            jPanel1Layout.setVerticalGroup(
+                jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
+                    .addContainerGap()
+                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(jCheckBox2)
+                        .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jButton3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(jCheckBox3)
+                        .add(jCheckBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                    .add(15, 15, 15))
+            );
+
+            jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Input"));
 
             jCheckBox1.setSelected(true);
             jCheckBox1.setText("Read From File: ");
@@ -436,63 +520,56 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 }
             });
 
-            jButton2.setText("...");
-            jButton2.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    jButton2ActionPerformed(evt);
-                }
-            });
-
-            jCheckBox2.setText("Write to Folder: ");
-            jCheckBox2.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent evt) {
-                    jCheckBox2ActionPerformed(evt);
-                }
-            });
-
-            jTextField7.setText("D:\\");
-                jTextField7.addActionListener(new java.awt.event.ActionListener() {
+            jTextField6.setText("D:\\");
+                jTextField6.addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        jTextField7ActionPerformed(evt);
+                        jTextField6ActionPerformed(evt);
                     }
                 });
 
-                jButton3.setText("...");
-                jButton3.addActionListener(new java.awt.event.ActionListener() {
+                jButton2.setText("...");
+                jButton2.addActionListener(new java.awt.event.ActionListener() {
                     public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        jButton3ActionPerformed(evt);
+                        jButton2ActionPerformed(evt);
                     }
                 });
 
-                jCheckBox3.setSelected(true);
-                jCheckBox3.setText("Split");
-                jCheckBox3.addActionListener(new java.awt.event.ActionListener() {
-                    public void actionPerformed(java.awt.event.ActionEvent evt) {
-                        jCheckBox3ActionPerformed(evt);
-                    }
-                });
+                org.jdesktop.layout.GroupLayout jPanel2Layout = new org.jdesktop.layout.GroupLayout(jPanel2);
+                jPanel2.setLayout(jPanel2Layout);
+                jPanel2Layout.setHorizontalGroup(
+                    jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel2Layout.createSequentialGroup()
+                        .add(jCheckBox1)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jTextField6)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 55, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addContainerGap())
+                );
+                jPanel2Layout.setVerticalGroup(
+                    jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jCheckBox1)
+                            .add(jTextField6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jButton2))
+                        .addContainerGap(27, Short.MAX_VALUE))
+                );
+
+                jSpinner11.setModel(new javax.swing.SpinnerNumberModel(1.0d, 0.0d, 127.0d, 0.10000000000000009d));
+
+                jLabel20.setText("Flow meter calibration l/sec/Volt : ");
 
                 org.jdesktop.layout.GroupLayout jPanel7Layout = new org.jdesktop.layout.GroupLayout(jPanel7);
                 jPanel7.setLayout(jPanel7Layout);
                 jPanel7Layout.setHorizontalGroup(
                     jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 514, Short.MAX_VALUE)
+                    .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jPanel7Layout.createSequentialGroup()
                         .addContainerGap()
                         .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                            .add(jPanel7Layout.createSequentialGroup()
-                                .add(jCheckBox1)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(jTextField6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 252, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jButton2))
-                            .add(jPanel7Layout.createSequentialGroup()
-                                .add(jCheckBox2)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 252, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jButton3)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(jCheckBox3))
                             .add(jPanel7Layout.createSequentialGroup()
                                 .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                     .add(jLabel16)
@@ -536,8 +613,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                     .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
                                         .add(jLabel18)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))))
-                        .addContainerGap(22, Short.MAX_VALUE))
+                                        .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                            .add(jPanel7Layout.createSequentialGroup()
+                                .add(jLabel20)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(jSpinner11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 );
                 jPanel7Layout.setVerticalGroup(
                     jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -570,18 +651,15 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             .add(jLabel18)
                             .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jLabel16))
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jTextField6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jCheckBox1)
-                            .add(jButton2))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .add(jCheckBox2)
-                            .add(jButton3)
-                            .add(jCheckBox3))
-                        .addContainerGap(307, Short.MAX_VALUE))
+                            .add(jLabel20)
+                            .add(jSpinner11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(146, Short.MAX_VALUE))
                 );
 
                 jTabbedPane1.addTab("Config", jPanel7);
@@ -622,7 +700,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         .add(jLabel19)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jComboBox5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 118, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 183, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 204, Short.MAX_VALUE)
                         .add(jButton4)
                         .add(42, 42, 42))
                 );
@@ -645,13 +723,16 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 getContentPane().setLayout(layout);
                 layout.setHorizontalGroup(
                     layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(jTabbedPane1)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .addContainerGap()
+                        .add(jTabbedPane1)
+                        .addContainerGap())
                 );
                 layout.setVerticalGroup(
                     layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(layout.createSequentialGroup()
-                        .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 520, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(0, 3, Short.MAX_VALUE))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(0, 11, Short.MAX_VALUE)
+                        .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 520, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                 );
 
                 pack();
@@ -747,6 +828,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 break;
         }
     }//GEN-LAST:event_jComboBox5ActionPerformed
+
+    private void jCheckBox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jCheckBox4ActionPerformed
     
     /**
      * @param args the command line arguments
@@ -798,11 +883,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JCheckBox jCheckBox3;
+    private javax.swing.JCheckBox jCheckBox4;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JComboBox jComboBox3;
     private javax.swing.JComboBox jComboBox4;
     private javax.swing.JComboBox jComboBox5;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -814,14 +901,19 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JLabel jLabel18;
     private javax.swing.JLabel jLabel19;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel20;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSpinner jSpinner10;
+    private javax.swing.JSpinner jSpinner11;
     private javax.swing.JSpinner jSpinner7;
     private javax.swing.JSpinner jSpinner8;
     private javax.swing.JSpinner jSpinner9;
@@ -1413,25 +1505,23 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         // Read data from ADAMs
                         Date cr = new Date();
 
-                        double[] t3 = adams[0].readData();
-                        double[] t4 = adams[1].readData();
+                        double[] t0 = adams[0].readData();
+                        double[] t1 = adams[1].readData();
                         double[] t2 = adams[2].readData();
 
                         double[] temp = new double[data[0].length];
-                        System.arraycopy(data[nx-1], 0, temp, 0, temp.length);
-
                         temp[0] = cr.getTime();
-                        System.arraycopy(t3, 0, temp, 1, t3.length);
-                        System.arraycopy(t4, 0, temp, 9, t4.length);
+                        System.arraycopy(t0, 0, temp,  1, t0.length);
+                        System.arraycopy(t1, 0, temp,  9, t1.length);
                         System.arraycopy(t2, 0, temp, 17, t2.length);
 
-                        // If temperature readings == 0 then use previous value
+                        // If temperature readings <= 0 then use previous value
                         for (int i = 0; i < temp.length; i++) {
-                            if (temp[i] == 0.0)
+                            if (0.0 > temp[i])
                                 temp[i] = data[nx-1][i];
                         } 
 
-                        // Save line with data to output file if log writing is enabled
+                        // Save line with data to output file if output writing is enabled
                         if (writeToFile && (outputWriter != null)) {
                             try {
                                 // Write Time in milliseconds - not time HH:MM:SS.SS
@@ -1459,7 +1549,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         }
 
                         // Shift data array
-                        for (int i = 0; i < data.length-1; i++) {
+                        for (int i = 0; i < nx-1; i++) {
                             data[i] = data[i+1];
                         }
                         // Fill last data point
@@ -1470,9 +1560,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             // First reading, fill arrays with defaults
                             System.arraycopy(temp, 0, dmin, 0, dmin.length);
                             for (int i = 0; i < data.length-1; i++) {
-                                //System.arraycopy(data[data.length-1], 0, data[i], 0, dmin.length);
                                 data[i] = data[nx-1];
-                                //data(ii, :) = data(nx, :);
                             }
                         }
                         else {
@@ -1523,55 +1611,25 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         profileDataset.addSeries("horizProf", plottedData);
                         
                         // Calculate maximal horizontal and vertical profiles
-                        // Find index for maximal vertical profile
-                        int imax = 0;
-                        double dmax = -273.0;
-                        for (int i = 0; i < nx; i++) {
-                            for (int  j = 0; j < p1range.length; j++) {
-                                if (data[i][p1range[j]] >= dmax) {
-                                    dmax = data[i][p1range[j]];
-                                    imax = i;
-                                }
-                            }
+                        // Refresh maximal profiles
+                        if (max(prof1max) < max(prof1)) {
+                            System.arraycopy(prof1, 0, prof1max, 0, prof1max.length);
+                            System.arraycopy(prof2, 0, prof2max, 0, prof2max.length);
                         }
-                        // Maximal vertical profiles
-                        for (int i =0; i < p1range.length; i++) {
-                            prof1max[i] = data[imax][p1range[i]] - dmin[p1range[i]];
-                        }
-                        // DeltaTemperature for max profile should be > 0.5 deg C to exclude noise
-                        if (max(prof1max) < 0.5) {
-                            for (int i =0; i < p1range.length; i++) {
-                                prof1max[i] = 0.5;
-                            }
-                        }
-                        plottedData = new double[2][p1range.length];
-                        for (int j = 0; j < p1range.length; j++) {
+                        // Vertical profile
+                        plottedData = new double[2][prof1max.length];
+                        for (int j = 0; j < prof1max.length; j++) {
                             plottedData[0][j] = p1x[j];
                             plottedData[1][j] = prof1max[j];
                         }
                         profileDataset.addSeries("maxVertProf", plottedData);
                         // Horizontal profile
-                        for (int i =0; i < p2range.length; i++) {
-                            prof2max[i] = data[imax][p2range[i]] - dmin[p2range[i]];
-                        }
                         plottedData = new double[2][p2range.length];
                         for (int j = 0; j < p2range.length; j++) {
                             plottedData[0][j] = p2x[j];
                             plottedData[1][j] = prof2max[j];
                         }
                         profileDataset.addSeries("maxHorizProf", plottedData);
-                        // Maximal vertical profile from the program start
-                        if (max(prof1max) > max(prof1max1)) {
-                            prof1max1  = prof1max;
-                        }
-                        if (true) { // ToDo read checkBox for max1 profile
-                            plottedData = new double[2][p1range.length];
-                            for (int j = 0; j < p1range.length; j++) {
-                                plottedData[0][j] = p1x[j];
-                                plottedData[1][j] = prof1max1[j];
-                            }
-                            profileDataset.addSeries("maxAllVertProf", plottedData);
-                        }
 
                         // Faded profiles - refresh every fpdt seconds
                         if (Math.abs(c.getSeconds() - c1.getSeconds()) < fpdt) {
@@ -1616,7 +1674,41 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         mi1 = Math.max(mi - mw, 0);
                         mi2 = Math.min(mi + mw, nx-1);
 
-                        // Determine indexes for targeting traces
+                        // Calculate and plot equivalent current
+                        // Intgeration window limits [tpn1, tpn2]
+                        tpn2 = nx - 1;
+                        tpn1 = tpn2 - 2*tpw;
+                        double dt;
+                        double integralin = 0.0;
+                        double integralout = 0.0;
+                        double integraldt = 0.0;
+                        double integralflow = 0.0;
+                        double minout = data[tpn1][bctout];
+                        double minin = data[tpn1][bctin];
+                        for (int i = tpn1; i < tpn2; i++) {
+                            dt = data[i+1][0] - data[i][0];
+                            if (minout > data[i][bctout]) {
+                                minout = data[i][bctout];
+                            }
+                            if (minin > data[i][bctin]) {
+                                minin = data[i][bctin];
+                            }
+                            integraldt += dt; 
+                            integralout += data[i][bctout]*dt; 
+                            integralin += data[i][bctin]*dt; 
+                            integralflow += data[i][bcflowchan]*dt; 
+                        }
+                        double flow = integralflow/integraldt*Q;
+                        System.out.println("Flow " + flow + " dt " + integraldt);
+                        double beamCurrent = ((integralout - integralin) - (minout - minin)*integraldt)*
+                                                flow/voltage;  //mA
+                        System.out.println("In " + (integralin - minin*integraldt));
+                        System.out.println("Out " + (integralout - minout*integraldt));
+                        System.out.println("Beam current " + beamCurrent);
+
+//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
+    /*
+                        // Determine integration window from targeting traces
                         double maxdata = data[mi1][tpn[0]];
                         double mindata = data[mi1][tpn[0]];
                         int indexx = mi1;
@@ -1644,8 +1736,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             tpn2 = tpn1 + 2*tpw;
                         }
 
-//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
-    /*
                         // Calculate and plot equivalent current
                         double dt;
                         double integralin = 0.0;

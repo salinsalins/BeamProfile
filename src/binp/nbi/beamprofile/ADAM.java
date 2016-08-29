@@ -18,6 +18,8 @@ public class ADAM {
 
     public SerialPort port;
     public int addr = -1;
+    String name = "";
+    String firmware = "";
     
     long writeTime;
     // Last command
@@ -34,23 +36,19 @@ public class ADAM {
     double firstByteReadCount = 0.0;
     double averageFirstByteReadTime = 0.0;
     long readTime;
-    
+    int readRetries = 3;
     // Timeouts
     boolean autoTimeout = true;
     int timeout = 500;
-    int to_min = 250;
-    int to_max = 2000;
+    int minTimeout = 250;
+    int maxTimeout = 2000;
     int minByteReadTimeout = 2;
-    double to_fp = 2.0;
-    double to_fm = 0.5;
-    int to_retries = 3;
+    double increaseTimeoutFactor = 2.0;
+    double decreseTimeoutFactor = 0.5;
 
     long suspStartTime = 0;
     long suspDuration = 5000;
 
-    String name = "";
-    String firmware = "";
-		
     ADAM() {
         //LOGGER.log(Level.FINEST, "Empty ADAM Created");
     }
@@ -193,12 +191,14 @@ public class ADAM {
         }
 
         // Perform n reties to read response
-        int n = to_retries;
+        int n = readRetries;
+        readTime = System.currentTimeMillis();
         while (n-- > 0) {
             try {
                 String rsp = ADAM.this.readResponse(timeout);
                 decreaseTimeout();
                 LOGGER.log(Level.FINE, getInfo() + "Response: {0}", response);
+                readTime = System.currentTimeMillis() - readTime;
                 return rsp;
             }
             catch (SerialPortTimeoutException | ADAMException ex) {
@@ -214,7 +214,7 @@ public class ADAM {
                 sendCommand(command);
             }
         }
-        LOGGER.log(Level.SEVERE, getInfo() + "No response {0} times", to_retries);
+        LOGGER.log(Level.SEVERE, getInfo() + "No response {0} times", readRetries);
         suspStartTime = System.currentTimeMillis();
         LOGGER.log(Level.SEVERE, getInfo() + "Suspend reading for {0} ms", suspDuration);
         return "";
@@ -242,15 +242,15 @@ public class ADAM {
 
     public void increaseTimeout() {
         if (!autoTimeout) return;
-        int newto = (int) (to_fp * timeout);
-        timeout = (newto > to_max) ? to_max: newto;
+        int newto = (int) (increaseTimeoutFactor * timeout);
+        timeout = (newto > maxTimeout) ? maxTimeout: newto;
         LOGGER.log(Level.INFO, getInfo() + "Timeout increased to {0} ms", timeout);
     }
     
     public void decreaseTimeout() {
         if (!autoTimeout) return;
-        int newto = (int) (to_fm * timeout);
-        timeout = (newto < to_min) ? to_min: newto;
+        int newto = (int) (decreseTimeoutFactor * timeout);
+        timeout = (newto < minTimeout) ? minTimeout: newto;
         LOGGER.log(Level.FINE, getInfo() + "Timeout decreased to {0} ms", timeout);
     }
   

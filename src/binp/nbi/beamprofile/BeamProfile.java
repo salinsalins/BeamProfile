@@ -1482,15 +1482,20 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                         // Prepare traces data set
                         tracesDataset = new DefaultXYDataset();
-                        double[][] plottedData;
+                        // Signal traces
                         for (int i: trn) { 
-                            plottedData = new double[2][nx];
-                            for (int j = 0; j < data.length; j++) {
-                                plottedData[0][j] = (data[j][0] - data[0][0])/1000.0;
-                                plottedData[1][j] = data[j][i];
-                            }
-                            tracesDataset.addSeries("Signal " + i, plottedData);
-                            //chart1.getChart().setLineColor(Color.red, Color.blue, Color.green, Color.gray);
+                            Trace t = new Trace(i, data);
+                            tracesDataset.addSeries("Signal " + i, t.data);
+                        }
+                        // Trageting traces
+                        for (int i: tpn) { 
+                            Trace t = new Trace(i, data);
+                            tracesDataset.addSeries("Targeting " + i, t.data);
+                        }
+                        // Acceleration grid traces
+                        for (int i: agn) {
+                            Trace t = new Trace(i, data);
+                            tracesDataset.addSeries("Acceleration " + i, t.data);
                         }
 
                         // Calculate profiles prof1 - vertical and prof2 - horizontal
@@ -1503,7 +1508,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         // Calculate datasets for profiles
                         // Vertical profile
                         profileDataset = new DefaultXYDataset();
-                        plottedData = new double[2][p1range.length];
+                        double[][] plottedData = new double[2][p1range.length];
                         for (int j = 0; j < p1range.length; j++) {
                             plottedData[0][j] = p1x[j];
                             plottedData[1][j] = prof1[j];
@@ -1589,27 +1594,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 plottedData[1][j] = data[i][p1range[j]] - dmin[p1range[j]];
                             }
                             profileDataset.addSeries("Faded " + i, plottedData);
-                        }
-
-
-                        // Trageting traces
-                        for (int i: tpn) { 
-                            plottedData = new double[2][nx];
-                            for (int j = 0; j < data.length; j++) {
-                                plottedData[0][j] = (data[j][0] - data[0][0])/1000.0;
-                                plottedData[1][j] = data[j][i] - dmin[i];
-                            }
-                            tracesDataset.addSeries("Targeting " + i, plottedData);
-                        }
-
-                        // Acceleration grid traces
-                        for (int i: agn) {
-                            plottedData = new double[2][nx];
-                            for (int j = 0; j < data.length; j++) {
-                                plottedData[0][j] = (data[j][0] - data[0][0])/1000.0;
-                                plottedData[1][j] = data[j][i] - dmin[i];
-                            }
-                            tracesDataset.addSeries("Acceleration " + i, plottedData);
                         }
 
                         // Shift marker
@@ -1890,4 +1874,21 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
     } 
 
+//---------------------------------------------
+    class Trace {
+        int channel;
+        double[][] data;
+        Color color;
+
+        Trace(int ch, double[][] d) {
+            int nx = d.length;
+            data = new double[2][nx];
+            double t0 = d[0][0];
+            for (int i = 0; i < nx; i++) {
+                data[0][i] = (d[i][0] - t0)/1000.0;
+                data[1][i] = d[i][ch];
+            }
+            channel = ch;
+        }
+    }
 }

@@ -28,7 +28,7 @@ public class ADAM {
     //String response;
     //byte[] readBuffer = new byte[256];
     //int readBufferIndex = 0;
-    StringBuilder response;
+    StringBuilder response = new StringBuilder();
     long byteReadTime = 0L;
     double totalByteReadCount = 0.0;
     double averageByteReadTime = 0.0;
@@ -150,7 +150,7 @@ public class ADAM {
         byte[] b;
         long startTime = System.currentTimeMillis();
         long currentTime = startTime;
-        response.delete(0, response.length());
+        if(response != null) response.delete(0, response.length());
         //readBufferIndex = 0;
         while ((currentTime  - startTime) <= timeout) {
             int nextByteTimeout = timeout - (int) (currentTime - startTime);
@@ -184,7 +184,7 @@ public class ADAM {
 
     public String readResponse() {
         // Read response form ADAM module
-        response.delete(0, response.length());
+        if(response != null) response.delete(0, response.length());
         // If comport suspended return ""
         if (isSuspended()) {
             return "";

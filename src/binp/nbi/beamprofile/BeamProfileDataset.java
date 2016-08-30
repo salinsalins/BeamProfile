@@ -121,8 +121,7 @@ public class BeamProfileDataset extends AbstractXYDataset
         if ((series < 0) || (series >= getSeriesCount())) {
             throw new IllegalArgumentException("Series index out of bounds");
         }
-        int index = seriesList.get(series);
-        return data[index].length;
+        return data.length;
     }
 
     /**
@@ -144,7 +143,7 @@ public class BeamProfileDataset extends AbstractXYDataset
      */
     @Override
     public double getXValue(int series, int item) {
-        return data[0][item];
+        return data[item][0];
     }
 
     /**
@@ -189,7 +188,7 @@ public class BeamProfileDataset extends AbstractXYDataset
     @Override
     public double getYValue(int series, int item) {
         int index = seriesList.get(series);
-        return data[index][item];
+        return data[item][index];
     }
 
     /**
@@ -282,6 +281,9 @@ public class BeamProfileDataset extends AbstractXYDataset
         if (this.seriesList.size() != that.seriesList.size()) {
             return false;
         }
+        if (this.data != that.data) {
+            return false;
+        }
         for (int i = 0; i < this.seriesList.size(); i++) {
             int d1 = this.seriesList.get(i);
             int d2 = that.seriesList.get(i);
@@ -321,6 +323,7 @@ public class BeamProfileDataset extends AbstractXYDataset
         for (int i = 0; i < this.seriesList.size(); i++) {
             clone.seriesList.add(this.seriesList.get(i));
         }
+        clone.data = data;
         return clone;
     }
 

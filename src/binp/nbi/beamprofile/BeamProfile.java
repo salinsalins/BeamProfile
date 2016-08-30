@@ -1458,9 +1458,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     class Task extends SwingWorker<Void, Void> {
 
         BeamProfile bp;
-        DefaultXYDataset tracesDataset;
+        BeamProfileDataset tracesDataset;
         DefaultXYDataset profileDataset;
-        DefaultXYDataset vertProfileDataset;
         
         Task(BeamProfile bp) {
             this.bp = bp;
@@ -1575,23 +1574,20 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         }
 
                         // Prepare traces data set
-                        tracesDataset = new DefaultXYDataset();
+                        tracesDataset = new BeamProfileDataset(data);
                         // Signal traces
                         for (int i: trn) { 
-                            Trace t = new Trace(i, data);
-                            tracesDataset.addSeries("Signal " + i, t.data);
+                            //System.out.println("Add " + i);
+                            tracesDataset.addSeries(i);
                         }
                         // Trageting traces
                         for (int i: tpn) { 
-                            Trace t = new Trace(i, data);
-                            tracesDataset.addSeries("Targeting " + i, t.data);
+                            tracesDataset.addSeries(i);
                         }
                         // Acceleration grid traces
                         for (int i: agn) {
-                            Trace t = new Trace(i, data);
-                            tracesDataset.addSeries("Acceleration " + i, t.data);
+                            tracesDataset.addSeries(i);
                         }
-
                         // Calculate profiles prof1 - vertical and prof2 - horizontal
                         for (int i =0; i < p1range.length; i++) {
                             prof1[i] = data[nx-1][p1range[i]] - dmin[p1range[i]];

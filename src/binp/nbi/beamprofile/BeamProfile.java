@@ -116,7 +116,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double duration = 2.0;     // s Beam duration
     double flow = 1.0;      // [V]  = 12.0 Gpm Cooling water flow signal (gallons per minute) 
     // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)[degrees C]*Q/voltage[V]
-    double Q = 12.0*4.3*1000.0*0.06309; // Coeff to convert Volts to Watts/gradus 
+    double Q = 12.0*4.3*1000.0*0.06309; // Coeff to convert Volts to Watts/degreeC 
     double bcmax = 0.0;    // Max beam current on the screen
     double bcmax1 = 0.0;   // MaxMax beam current
     int bcflowchan = 22;  // Channel number for flowmeter output
@@ -373,7 +373,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 481, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(0, 21, Short.MAX_VALUE))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel6Layout.createSequentialGroup()
-                .add(123, 123, 123)
+                .add(166, 166, 166)
                 .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 104, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(jToggleButton1)
@@ -389,9 +389,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             .add(jPanel6Layout.createSequentialGroup()
                 .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 417, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 29, Short.MAX_VALUE)
-                .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
                     .add(jToggleButton1)
-                    .add(jLabel1)))
+                    .add(jPanel6Layout.createSequentialGroup()
+                        .add(4, 4, 4)
+                        .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                        .addContainerGap())))
             .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                 .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel6Layout.createSequentialGroup()
                     .addContainerGap(444, Short.MAX_VALUE)

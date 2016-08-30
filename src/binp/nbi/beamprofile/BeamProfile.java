@@ -1524,12 +1524,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         System.arraycopy(t1, 0, temp,  9, t1.length);
                         System.arraycopy(t2, 0, temp, 17, t2.length);
 
-                        // If temperature readings <= 0 then use previous value
-                        for (int i = 0; i < temp.length; i++) {
-                            if (0.0 > temp[i])
-                                temp[i] = data[nx-1][i];
-                        } 
-
                         // Save line with data to output file if output writing is enabled
                         if (writeToFile && (outputWriter != null)) {
                             try {
@@ -1557,6 +1551,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             }
                         }
 
+                        // If temperature readings <= 0 then use previous value
+                        for (int i = 1; i < temp.length; i++) {
+                            if (0.0 > temp[i])
+                                temp[i] = data[nx-1][i];
+                        } 
+
                         // Shift data array
                         for (int i = 0; i < nx-1; i++) {
                             data[i] = data[i+1];
@@ -1565,7 +1565,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         data[nx-1] = temp;
 
                         // Calculate minimum values
-                        if (data[0][0] <= 0 ) {
+                        if (data[0][0] <= 0.0 ) {
                             // First reading, fill arrays with defaults
                             System.arraycopy(temp, 0, dmin, 0, dmin.length);
                             for (int i = 0; i < data.length-1; i++) {

@@ -35,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.TimeZone;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
@@ -43,6 +44,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.axis.DateAxis;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYSeries;
 
@@ -209,7 +211,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         //setLineColor(Color.red, Color.blue, Color.green, Color.gray);
         // Disable tooltips
         //plot.getRenderer().setBaseToolTipGenerator(null);
-
+        DateAxis axis = new DateAxis("Time", TimeZone.getTimeZone("GMT+7"));
+        plot.setDomainAxis(axis);
+        
         // Add simple sinusoidal data 
         boolean savedNotify = plot.isNotify();
         // Stop refreshing the plot

@@ -114,8 +114,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int bctout = 7;       // Output water temperature channel number
     double voltage = 80.0;   // keV Particles energy
     double duration = 2.0;     // s Beam duration
-    double flow = 1.0;      // [V]  = 12.0 Gpm Cooling water flow signal (gallons per minute) 
+    double flow = 1.0;      // [V] 1V  = 12.0Gpm (gallons per minute) Default cooling water flow signal  
     // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)[degrees C]*Q/voltage[V]
+    double VoltsToGPM = 12.0;  // 1V  = 12.0Gpm conversion coeff 
     double Q = 12.0*4.3*1000.0*0.06309; // Coeff to convert Volts to Watts/degreeC 
     double bcmax = 0.0;    // Max beam current on the screen
     double bcmax1 = 0.0;   // MaxMax beam current
@@ -140,6 +141,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int tpnm;
     int tpn1;
     int tpn2;
+    
+    String statusLine = "";
     
     // Marker window
     int mi;     // Center of marker window
@@ -305,7 +308,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jPanel6 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jToggleButton1 = new javax.swing.JToggleButton();
-        jLabel1 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
@@ -361,8 +363,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             }
         });
 
-        jLabel1.setText("Current:");
-
         jLabel3.setText("Flow:");
 
         org.jdesktop.layout.GroupLayout jPanel6Layout = new org.jdesktop.layout.GroupLayout(jPanel6);
@@ -373,33 +373,20 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 481, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .add(0, 21, Short.MAX_VALUE))
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel6Layout.createSequentialGroup()
-                .add(166, 166, 166)
-                .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 104, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap()
+                .add(jLabel3)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .add(jToggleButton1)
                 .addContainerGap())
-            .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(jPanel6Layout.createSequentialGroup()
-                    .add(20, 20, 20)
-                    .add(jLabel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 104, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(378, Short.MAX_VALUE)))
         );
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel6Layout.createSequentialGroup()
                 .add(jScrollPane2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 417, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 29, Short.MAX_VALUE)
-                .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jToggleButton1)
-                    .add(jPanel6Layout.createSequentialGroup()
-                        .add(4, 4, 4)
-                        .add(jLabel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                        .addContainerGap())))
-            .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel6Layout.createSequentialGroup()
-                    .addContainerGap(444, Short.MAX_VALUE)
-                    .add(jLabel3)
-                    .addContainerGap()))
+                    .add(jLabel3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 14, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
         );
 
         jToggleButton1.getAccessibleContext().setAccessibleDescription("");
@@ -899,7 +886,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JComboBox jComboBox3;
     private javax.swing.JComboBox jComboBox4;
     private javax.swing.JComboBox jComboBox5;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -1704,10 +1690,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             integralin += data[i][bctin]*dt; 
                             integralflow += data[i][bcflowchan]*dt; 
                         }
-                        double flow = integralflow/integraldt*Q;
+                        double flow = integralflow/integraldt;
+                        double deltaTout = integralout/integraldt - minout;
+                        double deltaTin = integralin/integraldt - minout;
                         //System.out.println("Flow " + flow + " dt " + integraldt);
-                        double beamCurrent = ((integralout - integralin) - (minout - minin)*integraldt)*
-                                                flow/voltage;  //mA
+                        double beamCurrent = (deltaTout - deltaTin)*flow*Q/voltage;  //mA
+                        statusLine = String.format("Flow: %7.3f V; DeltaTout: %7.3f C; DeltaTin: %7.3f C; Current: %7.3f mA;", 
+                                flow, deltaTout, deltaTin, beamCurrent);
                         //System.out.println("In " + (integralin - minin*integraldt));
                         //System.out.println("Out " + (integralout - minout*integraldt));
                         //System.out.println("Beam current " + beamCurrent);
@@ -1858,6 +1847,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         protected void process(List<Void> chunks) {
             chart1.getChart().getXYPlot().setDataset(tracesDataset);
             chart2.getChart().getXYPlot().setDataset(profileDataset);
+            jLabel3.setText(statusLine);
         }
 
         /**

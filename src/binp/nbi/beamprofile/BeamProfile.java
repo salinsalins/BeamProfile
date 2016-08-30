@@ -509,10 +509,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                 .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
                     .addContainerGap()
-                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                        .add(jCheckBox2)
-                        .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .add(jButton3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                            .add(jCheckBox2)
+                            .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                     .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(jCheckBox3)
@@ -986,23 +987,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             ObjectInputStream objIStrm = new ObjectInputStream(new FileInputStream(iniFileName));
             String s = (String) objIStrm.readObject();
             jTextField6.setText(s);
-            jTextField6ActionPerformed(null);
             boolean b = (boolean) objIStrm.readObject();
             jCheckBox1.setSelected(b);
-            jCheckBox1ActionPerformed(null);
             s = (String) objIStrm.readObject();
             jTextField7.setText(s);
-            jTextField7ActionPerformed(null);
             b = (boolean) objIStrm.readObject();
             jCheckBox2.setSelected(b);
-            jCheckBox2ActionPerformed(null);
             b = (boolean) objIStrm.readObject();
             jCheckBox3.setSelected(b);
-            jCheckBox3ActionPerformed(null);
             // Restore log level
             int i = (int) objIStrm.readObject();
             jComboBox5.setSelectedIndex(i);
-            jComboBox5ActionPerformed(null);
             // Restore addresses of ADAMs
             i = (int) objIStrm.readObject();
             jSpinner7.setValue(i);
@@ -1026,6 +1021,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             LOGGER.log(Level.INFO, "Exception info", ex);
         }
         // Read and set state of volatile variables
+        jComboBox5ActionPerformed(null);
+        jCheckBox3ActionPerformed(null);
+        jCheckBox2ActionPerformed(null);
+        jTextField7ActionPerformed(null);
+        jCheckBox1ActionPerformed(null);
+        jTextField6ActionPerformed(null);
         jToggleButton1ActionPerformed(null);
         LOGGER.fine("Config restored");
    }
@@ -1705,12 +1706,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             integralflow += data[i][bcflowchan]*dt; 
                         }
                         double flow = integralflow/integraldt*Q;
-                        System.out.println("Flow " + flow + " dt " + integraldt);
+                        //System.out.println("Flow " + flow + " dt " + integraldt);
                         double beamCurrent = ((integralout - integralin) - (minout - minin)*integraldt)*
                                                 flow/voltage;  //mA
-                        System.out.println("In " + (integralin - minin*integraldt));
-                        System.out.println("Out " + (integralout - minout*integraldt));
-                        System.out.println("Beam current " + beamCurrent);
+                        //System.out.println("In " + (integralin - minin*integraldt));
+                        //System.out.println("Out " + (integralout - minout*integraldt));
+                        //System.out.println("Beam current " + beamCurrent);
 
 //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
     /*

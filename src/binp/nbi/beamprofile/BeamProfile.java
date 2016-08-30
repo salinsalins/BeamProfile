@@ -42,6 +42,7 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import jssc.SerialPort;
 import jssc.SerialPortException;
+import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYSeries;
 
@@ -194,8 +195,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             ), true
         );
         chart1.setPreferredSize(new Dimension(100, 100));
-        chart1.getChart().getTitle().setFont(new Font("SansSerif", Font.PLAIN, 12));
-        XYPlot plot = chart1.getChart().getXYPlot();
+        JFreeChart chart = chart1.getChart();
+        chart.getTitle().setFont(new Font("SansSerif", Font.PLAIN, 12));
+        XYPlot plot = chart.getXYPlot();
         //Color backgroundColor = new Color(28, 100, 140);
         //plot.setBackgroundPaint(backgroundColor);
         plot.setAxisOffset(RectangleInsets.ZERO_INSETS);
@@ -206,8 +208,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         // Set trace colors
         //setLineColor(Color.red, Color.blue, Color.green, Color.gray);
         // Disable tooltips
-        //getChart().getXYPlot().getRenderer().setBaseToolTipGenerator(null);
+        //plot.getRenderer().setBaseToolTipGenerator(null);
 
+        // Add simple sinusoidal data 
         boolean savedNotify = plot.isNotify();
         // Stop refreshing the plot
         plot.setNotify(false);
@@ -241,11 +244,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 false // urls
             ), true);
         chart2.setPreferredSize(new Dimension(100, 100));
-        chart2.getChart().getTitle().setFont(new Font("SansSerif", Font.PLAIN, 12));
-        plot = chart2.getChart().getXYPlot();
+        chart = chart2.getChart();
+        chart.getTitle().setFont(new Font("SansSerif", Font.PLAIN, 12));
+        plot = chart.getXYPlot();
         plot.setAxisOffset(RectangleInsets.ZERO_INSETS);
         plot.getRangeAxis().setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
         plot.getDomainAxis().setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
+        // Add simple sinusoidal data 
         savedNotify = plot.isNotify();
         // Stop refreshing the plot
         plot.setNotify(false);
@@ -270,6 +275,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         jScrollPane2.setViewportView(chartPanel);
         
+        // Initialize profiles
         for (int i = 0; i < p1range.length; i++) {
             prof1[i] = data[0][p1range[i]];
             prof1max[i] = 1.0;

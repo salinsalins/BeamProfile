@@ -110,26 +110,22 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double fpdt = 0.5;          // Faded pofile time inteval [s]
 
     // Beam current calculations and plot
-    double voltage = 80.0;   // keV Particles energy
-    double duration = 2.0;     // s Beam duration
-    double flow = 12.5;      // gpm Cooling water flow (gallons per minute) 
     int bctin = 8;        // Input water temperature channel number
     int bctout = 7;       // Output water temperature channel number
-    // Current[mA] =	folw[gpm]*(OutputTemperature-InputTemperature)*Q/voltage
-    double Q = 4.3*0.0639*1000; // Coeff to convert 
-    int bch = 0;      // Handle for beam current plot
+    double voltage = 80.0;   // keV Particles energy
+    double duration = 2.0;     // s Beam duration
+    double flow = 1.0;      // [V]  = 12.0 Gpm Cooling water flow signal (gallons per minute) 
+    // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)*Q/voltage
+    double Q = 12.0*4.3*1000.0*0.06309; // Coeff to convert Volts to Watts/gradus 
     double bcmax = 0.0;    // Max beam current on the screen
     double bcmax1 = 0.0;   // MaxMax beam current
-    int bcmaxh = 0;   // Handle of max current text
     int bcflowchan = 22;  // Channel number for flowmeter output
-    double bcv2flow = 12.0;    // V/gpm Conversion coefficienf for flowmeter 
 
     // Acceleration electrode voltage and current
     int agvn = 23;
     int agcn = 24;
     int[] agn = {agvn, agcn};
     Color[] agc = {Color.RED, Color.GREEN};  // Colors of traces
-    int[] agh = new int[agc.length];        // Handles of traces
 
     // Targeting plots
     int tpt = 18;

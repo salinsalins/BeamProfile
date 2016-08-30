@@ -115,7 +115,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double voltage = 80.0;   // keV Particles energy
     double duration = 2.0;     // s Beam duration
     double flow = 1.0;      // [V]  = 12.0 Gpm Cooling water flow signal (gallons per minute) 
-    // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)*Q/voltage
+    // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)[degrees C]*Q/voltage[V]
     double Q = 12.0*4.3*1000.0*0.06309; // Coeff to convert Volts to Watts/gradus 
     double bcmax = 0.0;    // Max beam current on the screen
     double bcmax1 = 0.0;   // MaxMax beam current

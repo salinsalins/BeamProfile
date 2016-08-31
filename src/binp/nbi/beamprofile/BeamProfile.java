@@ -591,7 +591,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     new Object [][] {
                         {null, null, null},
                         {null, null, null},
-                        {null, null, null},
                         {null, null, null}
                     },
                     new String [] {

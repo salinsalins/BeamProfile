@@ -304,6 +304,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
+        jPopupMenu1 = new javax.swing.JPopupMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenuItem2 = new javax.swing.JMenuItem();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -354,6 +357,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jTextArea3 = new javax.swing.JTextArea();
         jComboBox5 = new javax.swing.JComboBox();
 
+        jMenuItem1.setText("Add ADAM");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jPopupMenu1.add(jMenuItem1);
+
+        jMenuItem2.setText("Delete selected line");
+        jPopupMenu1.add(jMenuItem2);
+
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Calorimeter Beam Profile Plotter");
 
@@ -377,7 +391,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jLabel3)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 403, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 407, Short.MAX_VALUE)
                 .add(jToggleButton1)
                 .addContainerGap())
             .add(jScrollPane2)
@@ -587,25 +601,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 });
                 jScrollPane3.setViewportView(jTable1);
 
-                jTable2.setModel(new javax.swing.table.DefaultTableModel(
-                    new Object [][] {
-                        { new Integer(12),  new Integer(8),  new Boolean(true)},
-                        { new Integer(12),  new Integer(2),  new Boolean(true)},
-                        { new Integer(12),  new Integer(4),  new Boolean(true)},
-                        { new Integer(12),  new Integer(5),  new Boolean(true)}
-                    },
-                    new String [] {
-                        "COM Port", "Address", "Enabled"
-                    }
-                ) {
-                    Class[] types = new Class [] {
-                        java.lang.Integer.class, java.lang.Integer.class, java.lang.Boolean.class
-                    };
-
-                    public Class getColumnClass(int columnIndex) {
-                        return types [columnIndex];
-                    }
-                });
+                jTable2.setComponentPopupMenu(jPopupMenu1);
                 jScrollPane4.setViewportView(jTable2);
 
                 org.jdesktop.layout.GroupLayout jPanel7Layout = new org.jdesktop.layout.GroupLayout(jPanel7);
@@ -758,7 +754,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         .add(jLabel19)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jComboBox5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 118, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 204, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 208, Short.MAX_VALUE)
                         .add(jButton4)
                         .add(42, 42, 42))
                 );
@@ -790,7 +786,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .addContainerGap()
-                        .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 557, Short.MAX_VALUE)
+                        .add(jTabbedPane1)
                         .addContainerGap())
                 );
 
@@ -891,6 +887,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private void jCheckBox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox4ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jCheckBox4ActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        jTable2.getModel().getRowCount();
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
     
     /**
      * @param args the command line arguments
@@ -964,11 +965,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel6;
     private javax.swing.JPanel jPanel7;
     private javax.swing.JPanel jPanel8;
+    private javax.swing.JPopupMenu jPopupMenu1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;

@@ -336,12 +336,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jTextField7 = new javax.swing.JTextField();
         jButton3 = new javax.swing.JButton();
         jCheckBox3 = new javax.swing.JCheckBox();
+        jCheckBox5 = new javax.swing.JCheckBox();
         jPanel2 = new javax.swing.JPanel();
         jCheckBox1 = new javax.swing.JCheckBox();
         jTextField6 = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
         jSpinner11 = new javax.swing.JSpinner();
         jLabel20 = new javax.swing.JLabel();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        jTable1 = new javax.swing.JTable();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        jTable2 = new javax.swing.JTable();
         jPanel8 = new javax.swing.JPanel();
         jLabel19 = new javax.swing.JLabel();
         jButton4 = new javax.swing.JButton();
@@ -472,6 +477,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 }
             });
 
+            jCheckBox5.setText("Compress output file");
+
             org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
             jPanel1.setLayout(jPanel1Layout);
             jPanel1Layout.setHorizontalGroup(
@@ -481,8 +488,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                         .add(jPanel1Layout.createSequentialGroup()
                             .add(jCheckBox3)
-                            .add(77, 77, 77)
-                            .add(jCheckBox4))
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .add(jCheckBox4)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                            .add(jCheckBox5))
                         .add(jPanel1Layout.createSequentialGroup()
                             .add(jCheckBox2)
                             .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -503,7 +512,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                     .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(jCheckBox3)
-                        .add(jCheckBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .add(jCheckBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jCheckBox5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                     .add(15, 15, 15))
             );
 
@@ -558,11 +568,53 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                 jLabel20.setText("Flow meter calibration l/sec/Volt : ");
 
+                jTable1.setModel(new javax.swing.table.DefaultTableModel(
+                    new Object [][] {
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null}
+                    },
+                    new String [] {
+                        "Channel", "Color", "Enabled"
+                    }
+                ) {
+                    Class[] types = new Class [] {
+                        java.lang.Integer.class, java.lang.Long.class, java.lang.Boolean.class
+                    };
+
+                    public Class getColumnClass(int columnIndex) {
+                        return types [columnIndex];
+                    }
+                });
+                jScrollPane3.setViewportView(jTable1);
+
+                jTable2.setModel(new javax.swing.table.DefaultTableModel(
+                    new Object [][] {
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null}
+                    },
+                    new String [] {
+                        "COM Port", "Address", "Enabled"
+                    }
+                ) {
+                    Class[] types = new Class [] {
+                        java.lang.Integer.class, java.lang.Integer.class, java.lang.Boolean.class
+                    };
+
+                    public Class getColumnClass(int columnIndex) {
+                        return types [columnIndex];
+                    }
+                });
+                jScrollPane4.setViewportView(jTable2);
+
                 org.jdesktop.layout.GroupLayout jPanel7Layout = new org.jdesktop.layout.GroupLayout(jPanel7);
                 jPanel7.setLayout(jPanel7Layout);
                 jPanel7Layout.setHorizontalGroup(
                     jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 514, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 518, Short.MAX_VALUE)
                     .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jPanel7Layout.createSequentialGroup()
                         .addContainerGap()
@@ -614,7 +666,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             .add(jPanel7Layout.createSequentialGroup()
                                 .add(jLabel20)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jSpinner11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                .add(jSpinner11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                            .add(jPanel7Layout.createSequentialGroup()
+                                .add(jScrollPane4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 187, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 187, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 );
                 jPanel7Layout.setVerticalGroup(
@@ -656,7 +712,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                             .add(jLabel20)
                             .add(jSpinner11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(146, Short.MAX_VALUE))
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                            .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 133, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                            .add(jScrollPane4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 133, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 );
 
                 jTabbedPane1.addTab("Config", jPanel7);
@@ -728,8 +788,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 layout.setVerticalGroup(
                     layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(0, 11, Short.MAX_VALUE)
-                        .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 520, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap()
+                        .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 520, Short.MAX_VALUE))
                 );
 
                 pack();
@@ -881,6 +941,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JCheckBox jCheckBox3;
     private javax.swing.JCheckBox jCheckBox4;
+    private javax.swing.JCheckBox jCheckBox5;
     private javax.swing.JComboBox jComboBox1;
     private javax.swing.JComboBox jComboBox2;
     private javax.swing.JComboBox jComboBox3;
@@ -908,12 +969,16 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JPanel jPanel8;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSpinner jSpinner10;
     private javax.swing.JSpinner jSpinner11;
     private javax.swing.JSpinner jSpinner7;
     private javax.swing.JSpinner jSpinner8;
     private javax.swing.JSpinner jSpinner9;
     private javax.swing.JTabbedPane jTabbedPane1;
+    private javax.swing.JTable jTable1;
+    private javax.swing.JTable jTable2;
     private javax.swing.JTextArea jTextArea3;
     private javax.swing.JTextField jTextField6;
     private javax.swing.JTextField jTextField7;

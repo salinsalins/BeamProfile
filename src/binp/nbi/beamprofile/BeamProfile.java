@@ -385,7 +385,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jPanel6Layout.setVerticalGroup(
             jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(jPanel6Layout.createSequentialGroup()
-                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 461, Short.MAX_VALUE)
+                .add(jScrollPane2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
                 .add(18, 18, 18)
                 .add(jPanel6Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(jToggleButton1)
@@ -568,17 +568,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                 jTable1.setModel(new javax.swing.table.DefaultTableModel(
                     new Object [][] {
-                        {null, null, null},
-                        {null, null, null},
-                        {null, null, null},
-                        {null, null, null}
+                        {null, null, null, null, null},
+                        {null, null, null, null, null},
+                        {null, null, null, null, null},
+                        {null, null, null, null, null}
                     },
                     new String [] {
-                        "Channel", "Color", "Enabled"
+                        "Channel", "Color", "Plot", "Profile", "X"
                     }
                 ) {
                     Class[] types = new Class [] {
-                        java.lang.Integer.class, java.lang.Long.class, java.lang.Boolean.class
+                        java.lang.Integer.class, java.lang.Long.class, java.lang.Boolean.class, java.lang.Integer.class, java.lang.Double.class
                     };
 
                     public Class getColumnClass(int columnIndex) {
@@ -618,58 +618,61 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         .addContainerGap()
                         .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPanel7Layout.createSequentialGroup()
-                                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jLabel16)
-                                    .add(jLabel13)
-                                    .add(jLabel10)
-                                    .add(jLabel9))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
-                                        .add(jLabel17)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jComboBox4, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .add(jPanel7Layout.createSequentialGroup()
-                                        .add(jLabel14)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jComboBox3, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .add(jPanel7Layout.createSequentialGroup()
-                                        .add(jLabel11)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jComboBox2, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .add(jPanel7Layout.createSequentialGroup()
-                                        .add(jLabel2)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                                .add(80, 80, 80)
-                                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                            .add(jPanel7Layout.createSequentialGroup()
-                                                .add(jLabel8)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
-                                                .add(jLabel12)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
-                                            .add(jLabel15)
-                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                            .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
-                                        .add(jLabel18)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
-                            .add(jPanel7Layout.createSequentialGroup()
-                                .add(jLabel20)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jSpinner11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(jPanel7Layout.createSequentialGroup()
                                 .add(jScrollPane4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 187, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 187, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                            .add(jPanel7Layout.createSequentialGroup()
+                                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                    .add(jPanel7Layout.createSequentialGroup()
+                                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                            .add(jLabel16)
+                                            .add(jLabel13)
+                                            .add(jLabel10)
+                                            .add(jLabel9))
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                                                .add(jLabel17)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jComboBox4, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                            .add(jPanel7Layout.createSequentialGroup()
+                                                .add(jLabel14)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jComboBox3, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                            .add(jPanel7Layout.createSequentialGroup()
+                                                .add(jLabel11)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jComboBox2, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                            .add(jPanel7Layout.createSequentialGroup()
+                                                .add(jLabel2)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                        .add(80, 80, 80)
+                                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                            .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                    .add(jPanel7Layout.createSequentialGroup()
+                                                        .add(jLabel8)
+                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                        .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                                                        .add(jLabel12)
+                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                        .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                                .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                                                    .add(jLabel15)
+                                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                    .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                                                .add(jLabel18)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
+                                    .add(jPanel7Layout.createSequentialGroup()
+                                        .add(jLabel20)
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(jSpinner11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                .add(0, 0, Short.MAX_VALUE)))
+                        .addContainerGap())
                 );
                 jPanel7Layout.setVerticalGroup(
                     jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -714,7 +717,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 133, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jScrollPane4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 133, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap(39, Short.MAX_VALUE))
                 );
 
                 jTabbedPane1.addTab("Config", jPanel7);
@@ -768,7 +771,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             .add(jButton4)
                             .add(jComboBox5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 475, Short.MAX_VALUE)
+                        .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 478, Short.MAX_VALUE)
                         .addContainerGap())
                 );
 
@@ -785,9 +788,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 );
                 layout.setVerticalGroup(
                     layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                    .add(layout.createSequentialGroup()
                         .addContainerGap()
-                        .add(jTabbedPane1))
+                        .add(jTabbedPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 557, Short.MAX_VALUE)
+                        .addContainerGap())
                 );
 
                 pack();

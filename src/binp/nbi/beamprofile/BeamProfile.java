@@ -589,9 +589,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                 jTable2.setModel(new javax.swing.table.DefaultTableModel(
                     new Object [][] {
-                        {null, null, null},
-                        {null, null, null},
-                        {null, null, null}
+                        { new Integer(12),  new Integer(8),  new Boolean(true)},
+                        { new Integer(12),  new Integer(2),  new Boolean(true)},
+                        { new Integer(12),  new Integer(4),  new Boolean(true)},
+                        { new Integer(12),  new Integer(5),  new Boolean(true)}
                     },
                     new String [] {
                         "COM Port", "Address", "Enabled"
@@ -1111,6 +1112,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             objOStrm.writeObject(s);
             s = (String) jComboBox4.getSelectedItem();
             objOStrm.writeObject(s);
+            //objOStrm.writeObject(jTable2);
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, "Config write error");
             LOGGER.log(Level.INFO, "Exception info", ex);

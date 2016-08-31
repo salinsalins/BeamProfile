@@ -1624,7 +1624,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         }
                         else {
                             // Calculate minimum
-                            dmin = min(data);
+                            for (int i = 1; i < temp.length; i++) {
+                                if (dmin[i] > temp[i]) {
+                                    dmin[0] = temp[0];
+                                    dmin[i] = temp[i];
+                                }
+                            }
                         }
 
                         // Prepare traces data set

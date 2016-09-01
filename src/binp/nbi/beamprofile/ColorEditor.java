@@ -30,6 +30,7 @@
  */ 
 
 //package components;
+package binp.nbi.beamprofile;
 
 /* 
  * ColorEditor.java (compiles with releases 1.3 and 1.4) is used by 

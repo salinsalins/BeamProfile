@@ -280,16 +280,36 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         jScrollPane2.setViewportView(chartPanel);
         
+        //Set up renderer and editor for the Favorite Color column.
+        jTable1.setDefaultRenderer(Color.class,
+                                 new ColorRenderer(true));
+        jTable1.setDefaultEditor(Color.class,
+                               new ColorEditor());
+        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null},
+                {null, null, null, null, null}
+            },
+            new String [] {
+                "Channel", "Color", "Plot", "Profile", "X"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, Color.class, java.lang.Boolean.class, java.lang.Integer.class, java.lang.Double.class
+            };
+
+            @Override
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
         jTable1.setValueAt(new Color(153, 0, 153), 0, 1);
         jTable1.setValueAt(new Color(153, 0, 153), 1, 1);
         jTable1.setValueAt(new Color(153, 0, 153), 2, 1);
         jTable1.setValueAt(new Color(153, 0, 153), 3, 1);
-        //Set up renderer and editor for the Favorite Color column.
-        //jTable1.setDefaultRenderer(Color.class,
-        //                         new ColorRenderer(true));
-        //jTable1.setDefaultEditor(Color.class,
-        //                       new ColorEditor());
-    
+
 
         
         // Initialize profiles

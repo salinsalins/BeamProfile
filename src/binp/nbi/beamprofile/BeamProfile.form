@@ -591,7 +591,7 @@
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel20">
               <Properties>
-                <Property name="text" type="java.lang.String" value="Flow meter calibration l/sec/Volt : "/>
+                <Property name="text" type="java.lang.String" value="Flow meter calibration liters/sec/Volt : "/>
               </Properties>
             </Component>
             <Container class="javax.swing.JScrollPane" name="jScrollPane3">
@@ -648,7 +648,7 @@
                           <Data value="true"/>
                           <Data value="true"/>
                           <Data value="true"/>
-                          <Data value="null"/>
+                          <Data value="false"/>
                         </Column>
                       </Table>
                     </Property>

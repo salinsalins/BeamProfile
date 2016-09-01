@@ -187,7 +187,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         chart1 = new ChartPanel(
             ChartFactory.createXYLineChart(
-                "Temperature Traces", // chart title
+                "Traces", // chart title
                 "Time, s", // x axis label
                 "Temperature, degC", // y axis label
                 new XYSeriesCollection(), // data
@@ -617,7 +617,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                 jSpinner11.setModel(new javax.swing.SpinnerNumberModel(1.0d, 0.0d, 127.0d, 0.10000000000000009d));
 
-                jLabel20.setText("Flow meter calibration l/sec/Volt : ");
+                jLabel20.setText("Flow meter calibration liters/sec/Volt : ");
 
                 jTable1.setModel(new javax.swing.table.DefaultTableModel(
                     new Object [][] {
@@ -645,7 +645,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         { new Integer(12),  new Integer(8),  new Boolean(true)},
                         { new Integer(12),  new Integer(2),  new Boolean(true)},
                         { new Integer(12),  new Integer(4),  new Boolean(true)},
-                        { new Integer(12),  new Integer(5), null}
+                        { new Integer(12),  new Integer(5),  new Boolean(false)}
                     },
                     new String [] {
                         "COM", "Address", "Enabed"
@@ -1065,7 +1065,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     @Override
     public void windowOpened(WindowEvent e) {
         restoreConfig();
-
         task = new Task(this);
         task.execute();
     }

@@ -36,11 +36,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.TimeZone;
+import java.util.Vector;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import org.jfree.chart.JFreeChart;
@@ -603,10 +605,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                 jTable2.setModel(new javax.swing.table.DefaultTableModel(
                     new Object [][] {
-                        {null, null, null},
-                        {null, null, null},
-                        {null, null, null},
-                        {null, null, null}
+                        { new Integer(12),  new Integer(8),  new Boolean(true)},
+                        { new Integer(12),  new Integer(2),  new Boolean(true)},
+                        { new Integer(12),  new Integer(4),  new Boolean(true)},
+                        { new Integer(12),  new Integer(5), null}
                     },
                     new String [] {
                         "COM", "Address", "Enabed"
@@ -908,8 +910,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }//GEN-LAST:event_jCheckBox4ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        jTable2.getModel().getRowCount();
-        // TODO add your handling code here:
+        DefaultTableModel tableModel = (DefaultTableModel)jTable2.getModel();
+        tableModel.addRow((Vector) tableModel.getDataVector().elementAt(0));
     }//GEN-LAST:event_jMenuItem1ActionPerformed
     
     /**
@@ -1797,7 +1799,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         //System.out.println("Out " + (integralout - minout*integraldt));
                         //System.out.println("Beam current " + beamCurrent);
 
-//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m ">
+//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m and other staff">
     /*
                         // Determine integration window from targeting traces
                         double maxdata = data[mi1][tpn[0]];
@@ -1919,7 +1921,141 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         set(bch, "Ydata", current - min(current));
                         set(mh, "Xdata", i1:i2);
                         set(mh, "Ydata", current(i1:i2) - min(current));
-    */
+
+
+
+
+Using a Combo Box as an Editor
+
+Setting up a combo box as an editor is simple, as the following example shows. The bold line of code sets up the combo box as the editor for a specific column.
+
+TableColumn sportColumn = table.getColumnModel().getColumn(2);
+...
+JComboBox comboBox = new JComboBox();
+comboBox.addItem("Snowboarding");
+comboBox.addItem("Rowing");
+comboBox.addItem("Chasing toddlers");
+comboBox.addItem("Speed reading");
+comboBox.addItem("Teaching high school");
+comboBox.addItem("None");
+sportColumn.setCellEditor(new DefaultCellEditor(comboBox));
+
+/*
+ * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *   - Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *
+ *   - Redistributions in binary form must reproduce the above copyright
+ *     notice, this list of conditions and the following disclaimer in the
+ *     documentation and/or other materials provided with the distribution.
+ *
+ *   - Neither the name of Oracle or the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
+ * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+ * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ / 
+
+package components;
+
+/* 
+ * ColorEditor.java (compiles with releases 1.3 and 1.4) is used by 
+ * TableDialogEditDemo.java.
+ /
+
+import javax.swing.AbstractCellEditor;
+import javax.swing.table.TableCellEditor;
+import javax.swing.JButton;
+import javax.swing.JColorChooser;
+import javax.swing.JDialog;
+import javax.swing.JTable;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class ColorEditor extends AbstractCellEditor
+                         implements TableCellEditor,
+			            ActionListener {
+    Color currentColor;
+    JButton button;
+    JColorChooser colorChooser;
+    JDialog dialog;
+    protected static final String EDIT = "edit";
+
+    public ColorEditor() {
+        //Set up the editor (from the table's point of view),
+        //which is a button.
+        //This button brings up the color chooser dialog,
+        //which is the editor from the user's point of view.
+        button = new JButton();
+        button.setActionCommand(EDIT);
+        button.addActionListener(this);
+        button.setBorderPainted(false);
+
+        //Set up the dialog that the button brings up.
+        colorChooser = new JColorChooser();
+        dialog = JColorChooser.createDialog(button,
+                                        "Pick a Color",
+                                        true,  //modal
+                                        colorChooser,
+                                        this,  //OK button handler
+                                        null); //no CANCEL button handler
+    }
+
+    /**
+     * Handles events from the editor button and from
+     * the dialog's OK button.
+     /
+    public void actionPerformed(ActionEvent e) {
+        if (EDIT.equals(e.getActionCommand())) {
+            //The user has clicked the cell, so
+            //bring up the dialog.
+            button.setBackground(currentColor);
+            colorChooser.setColor(currentColor);
+            dialog.setVisible(true);
+
+            //Make the renderer reappear.
+            fireEditingStopped();
+
+        } else { //User pressed dialog's "OK" button.
+            currentColor = colorChooser.getColor();
+        }
+    }
+
+    //Implement the one CellEditor method that AbstractCellEditor doesn't.
+    public Object getCellEditorValue() {
+        return currentColor;
+    }
+
+    //Implement the one method defined by TableCellEditor.
+    public Component getTableCellEditorComponent(JTable table,
+                                                 Object value,
+                                                 boolean isSelected,
+                                                 int row,
+                                                 int column) {
+        currentColor = (Color)value;
+        return button;
+    }
+}
+
+
+*/
     // </editor-fold> 
 
                         // Refresh plots

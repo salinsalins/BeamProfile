@@ -624,9 +624,24 @@
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                       <Table columnCount="3" rowCount="4">
-                        <Column editable="true" title="COM" type="java.lang.Integer"/>
-                        <Column editable="true" title="Address" type="java.lang.Integer"/>
-                        <Column editable="true" title="Enabed" type="java.lang.Boolean"/>
+                        <Column editable="true" title="COM" type="java.lang.Integer">
+                          <Data value="12"/>
+                          <Data value="12"/>
+                          <Data value="12"/>
+                          <Data value="12"/>
+                        </Column>
+                        <Column editable="true" title="Address" type="java.lang.Integer">
+                          <Data value="8"/>
+                          <Data value="2"/>
+                          <Data value="4"/>
+                          <Data value="5"/>
+                        </Column>
+                        <Column editable="true" title="Enabed" type="java.lang.Boolean">
+                          <Data value="true"/>
+                          <Data value="true"/>
+                          <Data value="true"/>
+                          <Data value="null"/>
+                        </Column>
                       </Table>
                     </Property>
                     <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">

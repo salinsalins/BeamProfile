@@ -280,6 +280,18 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         jScrollPane2.setViewportView(chartPanel);
         
+        jTable1.setValueAt(new Color(153, 0, 153), 0, 1);
+        jTable1.setValueAt(new Color(153, 0, 153), 1, 1);
+        jTable1.setValueAt(new Color(153, 0, 153), 2, 1);
+        jTable1.setValueAt(new Color(153, 0, 153), 3, 1);
+        //Set up renderer and editor for the Favorite Color column.
+        //jTable1.setDefaultRenderer(Color.class,
+        //                         new ColorRenderer(true));
+        //jTable1.setDefaultEditor(Color.class,
+        //                       new ColorEditor());
+    
+
+        
         // Initialize profiles
         for (int i = 0; i < p1range.length; i++) {
             prof1[i] = data[0][p1range[i]];
@@ -368,6 +380,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jPopupMenu1.add(jMenuItem1);
 
         jMenuItem2.setText("Delete selected line");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
         jPopupMenu1.add(jMenuItem2);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
@@ -584,7 +601,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                 jTable1.setModel(new javax.swing.table.DefaultTableModel(
                     new Object [][] {
-                        {null, null, null, null, null},
+                        {null, "", null, null, null},
                         {null, null, null, null, null},
                         {null, null, null, null, null},
                         {null, null, null, null, null}
@@ -594,7 +611,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     }
                 ) {
                     Class[] types = new Class [] {
-                        java.lang.Integer.class, java.lang.Long.class, java.lang.Boolean.class, java.lang.Integer.class, java.lang.Double.class
+                        java.lang.Integer.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Integer.class, java.lang.Double.class
                     };
 
                     public Class getColumnClass(int columnIndex) {
@@ -913,6 +930,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         DefaultTableModel tableModel = (DefaultTableModel)jTable2.getModel();
         tableModel.addRow((Vector) tableModel.getDataVector().elementAt(0));
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        DefaultTableModel tableModel = (DefaultTableModel)jTable2.getModel();
+        int row = jTable2.getSelectedRow();
+        if (row >=0 ) tableModel.removeRow(row);
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
     
     /**
      * @param args the command line arguments

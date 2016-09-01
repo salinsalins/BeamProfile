@@ -22,6 +22,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Delete selected line"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem2ActionPerformed"/>
+          </Events>
         </MenuItem>
       </SubComponents>
     </Container>
@@ -603,7 +606,12 @@
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
                       <Table columnCount="5" rowCount="4">
                         <Column editable="true" title="Channel" type="java.lang.Integer"/>
-                        <Column editable="true" title="Color" type="java.lang.Long"/>
+                        <Column editable="true" title="Color" type="java.lang.Object">
+                          <Data value=""/>
+                          <Data value="null"/>
+                          <Data value="null"/>
+                          <Data value="null"/>
+                        </Column>
                         <Column editable="true" title="Plot" type="java.lang.Boolean"/>
                         <Column editable="true" title="Profile" type="java.lang.Integer"/>
                         <Column editable="true" title="X" type="java.lang.Double"/>

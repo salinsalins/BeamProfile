@@ -601,6 +601,25 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 });
                 jScrollPane3.setViewportView(jTable1);
 
+                jTable2.setModel(new javax.swing.table.DefaultTableModel(
+                    new Object [][] {
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null},
+                        {null, null, null}
+                    },
+                    new String [] {
+                        "COM", "Address", "Enabed"
+                    }
+                ) {
+                    Class[] types = new Class [] {
+                        java.lang.Integer.class, java.lang.Integer.class, java.lang.Boolean.class
+                    };
+
+                    public Class getColumnClass(int columnIndex) {
+                        return types [columnIndex];
+                    }
+                });
                 jTable2.setComponentPopupMenu(jPopupMenu1);
                 jScrollPane4.setViewportView(jTable2);
 

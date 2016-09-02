@@ -5,6 +5,7 @@
 
 package binp.nbi.beamprofile;
 
+import binp.nbi.tango.util.TodayFolder;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -77,10 +78,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     volatile boolean outputChanged = true;
     volatile boolean writeToFile = false;
     volatile boolean splitOutputFile = true;
-    String outputFileName = OutputFileName(progNameShort, "txt");
-    File outputFilePath = new File("D:\\");
+    volatile boolean createSubfolders = true;
+    volatile String outputFileName = outputFileName(progNameShort, "txt");
+    volatile File outputFilePath = new File("D:\\");
     File outputFile = new File(outputFilePath, outputFileName);
-    BufferedWriter outputWriter = null;
+    volatile BufferedWriter outputWriter = null;
 
     // Run measurements button
     volatile boolean loopDoInBackground = true;
@@ -1197,7 +1199,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }
 
     static String prefix, ext;
-    public static String OutputFileName(String... strs) {
+    public static String outputFileName(String... strs) {
 	if (prefix==null || "".equals(prefix)) {
             prefix = progNameShort;
         }
@@ -1328,7 +1330,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }
 
     public void openOutputFile() {
-        outputFileName = OutputFileName(progNameShort, "txt");
+        outputFileName = outputFileName(progNameShort, "txt");
+        if (createSubfolders) {
+            File newOutputPath = new TodayFolder();
+        }
         outputFile = new File(outputFilePath, outputFileName);
         try {
             outputWriter = new BufferedWriter(new FileWriter(outputFile, true));
@@ -1584,17 +1589,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 */    
 //</editor-fold>
 
-    public void setUpColumnComboBoxEditor(JTable table,
-                                 int columnIndex) {
-        //Set up the editor for the sport cells.
+    public void setUpColumnComboBoxEditor(JTable table, int columnIndex) {
+        //Set up the editor for the column cells.
         String[] pts = SerialPortList.getPortNames();
         JComboBox comboBox = new JComboBox(pts);
-        //comboBox.addItem("Snowboarding");
-        //comboBox.addItem("Rowing");
-        //comboBox.addItem("Knitting");
-        //comboBox.addItem("Speed reading");
-        //comboBox.addItem("Pool");
-        //comboBox.addItem("None of the above");
+        comboBox.setEditable(true);
         TableColumn column = table.getColumnModel().getColumn(columnIndex);
         column.setCellEditor(new DefaultCellEditor(comboBox));
 

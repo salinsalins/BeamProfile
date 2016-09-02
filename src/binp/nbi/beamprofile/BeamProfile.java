@@ -40,9 +40,14 @@ import java.util.Vector;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.LogRecord;
 import java.util.logging.SimpleFormatter;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
+import javax.swing.JTable;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 import jssc.SerialPort;
 import jssc.SerialPortException;
 import org.jfree.chart.JFreeChart;
@@ -309,8 +314,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jTable1.setValueAt(new Color(153, 0, 153), 1, 1);
         jTable1.setValueAt(new Color(153, 0, 153), 2, 1);
         jTable1.setValueAt(new Color(153, 0, 153), 3, 1);
-
-
+        
+        setUpColumnComboBoxEditor(jTable2, 0);
         
         // Initialize profiles
         for (int i = 0; i < p1range.length; i++) {
@@ -642,17 +647,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                 jTable2.setModel(new javax.swing.table.DefaultTableModel(
                     new Object [][] {
-                        { new Integer(12),  new Integer(8),  new Boolean(true)},
-                        { new Integer(12),  new Integer(2),  new Boolean(true)},
-                        { new Integer(12),  new Integer(4),  new Boolean(true)},
-                        { new Integer(12),  new Integer(5),  new Boolean(false)}
+                        {null,  new Integer(8),  new Boolean(true)},
+                        {null,  new Integer(2),  new Boolean(true)},
+                        {null,  new Integer(4),  new Boolean(true)},
+                        {null,  new Integer(5),  new Boolean(false)}
                     },
                     new String [] {
                         "COM", "Address", "Enabed"
                     }
                 ) {
                     Class[] types = new Class [] {
-                        java.lang.Integer.class, java.lang.Integer.class, java.lang.Boolean.class
+                        java.lang.String.class, java.lang.Integer.class, java.lang.Boolean.class
                     };
 
                     public Class getColumnClass(int columnIndex) {
@@ -1578,6 +1583,28 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     
 */    
 //</editor-fold>
+
+    public void setUpColumnComboBoxEditor(JTable table,
+                                 int columnIndex) {
+        //Set up the editor for the sport cells.
+        String[] pts = SerialPortList.getPortNames();
+        JComboBox comboBox = new JComboBox(pts);
+        //comboBox.addItem("Snowboarding");
+        //comboBox.addItem("Rowing");
+        //comboBox.addItem("Knitting");
+        //comboBox.addItem("Speed reading");
+        //comboBox.addItem("Pool");
+        //comboBox.addItem("None of the above");
+        TableColumn column = table.getColumnModel().getColumn(columnIndex);
+        column.setCellEditor(new DefaultCellEditor(comboBox));
+
+        //Set up tool tips for the cells.
+        DefaultTableCellRenderer renderer =
+                new DefaultTableCellRenderer();
+        renderer.setToolTipText("Click for combo box");
+        column.setCellRenderer(renderer);
+    }
+
 
 //---------------------------------------------
     class Task extends SwingWorker<Void, Void> {

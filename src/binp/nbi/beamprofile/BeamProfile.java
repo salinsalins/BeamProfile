@@ -79,10 +79,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     volatile boolean writeToFile = false;
     volatile boolean splitOutputFile = true;
     volatile boolean createSubfolders = true;
+    volatile boolean compressOutput = false;
     volatile String outputFileName = outputFileName(progNameShort, "txt");
     volatile File outputFilePath = new File("D:\\");
     File outputFile = new File(outputFilePath, outputFileName);
-    volatile BufferedWriter outputWriter = null;
+    volatile Writer outputWriter = null;
 
     // Run measurements button
     volatile boolean loopDoInBackground = true;
@@ -120,7 +121,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     // Beam current calculations and plot
     int bctin = 8;        // Input water temperature channel number
-    int bctout = 7;       // Output water temperature channel number
+    int bctout = 7;        // Output water temperature channel number
     double voltage = 80.0;   // keV Particles energy
     double duration = 2.0;     // s Beam duration
     double flow = 1.0;      // [V] 1V  = 12.0Gpm (gallons per minute) Default cooling water flow signal  
@@ -437,7 +438,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jLabel3)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 407, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 410, Short.MAX_VALUE)
                 .add(jToggleButton1)
                 .addContainerGap())
             .add(jScrollPane2)
@@ -535,7 +536,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 }
             });
 
-            jCheckBox5.setText("Compress output file");
+            jCheckBox5.setText("Compress output");
+            jCheckBox5.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent evt) {
+                    jCheckBox5ActionPerformed(evt);
+                }
+            });
 
             org.jdesktop.layout.GroupLayout jPanel1Layout = new org.jdesktop.layout.GroupLayout(jPanel1);
             jPanel1.setLayout(jPanel1Layout);
@@ -619,7 +625,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             .add(jCheckBox1)
                             .add(jTextField6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jButton2))
-                        .addContainerGap(27, Short.MAX_VALUE))
+                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 );
 
                 jSpinner11.setModel(new javax.swing.SpinnerNumberModel(1.0d, 0.0d, 127.0d, 0.10000000000000009d));
@@ -673,7 +679,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 jPanel7.setLayout(jPanel7Layout);
                 jPanel7Layout.setHorizontalGroup(
                     jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 518, Short.MAX_VALUE)
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jPanel2, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jPanel7Layout.createSequentialGroup()
                         .addContainerGap()
@@ -767,7 +773,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jLabel16))
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 61, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
@@ -778,7 +784,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 133, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                             .add(jScrollPane4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 133, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(39, Short.MAX_VALUE))
+                        .addContainerGap(62, Short.MAX_VALUE))
                 );
 
                 jTabbedPane1.addTab("Config", jPanel7);
@@ -819,7 +825,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         .add(jLabel19)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jComboBox5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 118, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 208, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 211, Short.MAX_VALUE)
                         .add(jButton4)
                         .add(42, 42, 42))
                 );
@@ -950,7 +956,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }//GEN-LAST:event_jComboBox5ActionPerformed
 
     private void jCheckBox4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox4ActionPerformed
-        // TODO add your handling code here:
+        createSubfolders = jCheckBox4.isSelected();
     }//GEN-LAST:event_jCheckBox4ActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
@@ -963,6 +969,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         int row = jTable2.getSelectedRow();
         if (row >=0 ) tableModel.removeRow(row);
     }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void jCheckBox5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jCheckBox5ActionPerformed
+        compressOutput = jCheckBox5.isSelected();
+    }//GEN-LAST:event_jCheckBox5ActionPerformed
     
     /**
      * @param args the command line arguments
@@ -976,6 +986,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
+    /*
         try {
             javax.swing.UIManager.LookAndFeelInfo[] installedLookAndFeels=javax.swing.UIManager.getInstalledLookAndFeels();
             for (int idx=0; idx<installedLookAndFeels.length; idx++)
@@ -992,9 +1003,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             LOGGER.log(java.util.logging.Level.SEVERE, null, ex);
         }
+    */
         //</editor-fold>
-        //</editor-fold>
-
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
@@ -1198,24 +1208,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         LOGGER.fine("Config saved");
     }
 
-    static String prefix, ext;
-    public static String outputFileName(String... strs) {
+    public static String outputFileName(String prefix, String ext) {
 	if (prefix==null || "".equals(prefix)) {
-            prefix = progNameShort;
+            prefix = "Data";
         }
 	if (ext==null || "".equals(ext)) {
 		ext = "txt";
         }
-	if (strs.length >= 1) {
-            prefix = strs[0];
-        }
-	if (strs.length >= 2) {
-            ext = strs[1];
-        }
 	String formatString = "_yyyy-MM-dd-HH-mm-ss";
-        if (strs.length >= 3) {
-            formatString = strs[2];
-        }        
         Date now = new Date();
         SimpleDateFormat fmt = new SimpleDateFormat(formatString);
 	String timeString = fmt.format(now);
@@ -1331,10 +1331,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     public void openOutputFile() {
         outputFileName = outputFileName(progNameShort, "txt");
+        File outputPath;
         if (createSubfolders) {
-            File newOutputPath = new TodayFolder();
+            outputPath = new TodayFolder(outputFilePath.getAbsolutePath());
         }
-        outputFile = new File(outputFilePath, outputFileName);
+        else {
+            outputPath = outputFilePath;
+        }
+        outputFile = new File(outputPath, outputFileName);
         try {
             outputWriter = new BufferedWriter(new FileWriter(outputFile, true));
             LOGGER.log(Level.FINE, "Output file {0} has been opened.", outputFileName);
@@ -1603,7 +1607,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         renderer.setToolTipText("Click for combo box");
         column.setCellRenderer(renderer);
     }
-
 
 //---------------------------------------------
     class Task extends SwingWorker<Void, Void> {

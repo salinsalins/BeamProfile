@@ -69,6 +69,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     static String progNameShort = "Beam_Profile";
     static String progVersion = "21";
     String iniFileName = progNameShort + "_" + progVersion + ".ini";
+    String configFileName = progNameShort + ".ini";
 
     // Input file
     volatile boolean inputChanged = true;
@@ -1170,14 +1171,21 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     private void saveConfig() {
         try (ObjectOutputStream objOStrm = new ObjectOutputStream(new FileOutputStream(iniFileName))) {
+            // Save input file parameters
+            // File name
             String s = jTextField6.getText();
             objOStrm.writeObject(s);
+            // readFromFile
             boolean b = jCheckBox1.isSelected();
             objOStrm.writeObject(b);
+            // Save output file parameters
+            // File name
             s = jTextField7.getText();
             objOStrm.writeObject(s);
+            // writeToFolder
             b = jCheckBox2.isSelected();
             objOStrm.writeObject(b);
+            // splitOutput
             b = jCheckBox3.isSelected();
             objOStrm.writeObject(b);
             // Save log level
@@ -1207,11 +1215,15 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             LOGGER.log(Level.INFO, "Exception info", ex);
         }
         LOGGER.fine("Config saved");
+        // Save config to *.ini file
         try {
-            Wini ini = new Wini(new File(iniFileName+".ini"));
-            String s = jTextField6.getText();
+            int i;
+            boolean b;
+            String s;
+            Wini ini = new Wini(new File(configFileName));
+            s = jTextField6.getText();
             ini.put("Input", "file", s);
-            boolean b = jCheckBox1.isSelected();
+            b = jCheckBox1.isSelected();
             ini.put("Input", "readFromFile", b);
             s = jTextField7.getText();
             ini.put("Output", "dir", s);
@@ -1219,8 +1231,32 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             ini.put("Output", "writeToFolder", b);
             b = jCheckBox3.isSelected();
             ini.put("Output", "splitOtput", b);
+
+            // Save addresses of ADAMs
+            i = (int) jSpinner7.getValue();
+            ini.put("ADAM1", "address", i);
+            s = (String) jComboBox1.getSelectedItem();
+            ini.put("ADAM1", "port", s);
+            i = (int) jSpinner8.getValue();
+            ini.put("ADAM2", "address", i);
+            s = (String) jComboBox2.getSelectedItem();
+            ini.put("ADAM2", "port", s);
+            i = (int) jSpinner9.getValue();
+            ini.put("ADAM3", "address", i);
+            s = (String) jComboBox3.getSelectedItem();
+            ini.put("ADAM3", "port", s);
+            i = (int) jSpinner10.getValue();
+            ini.put("ADAM4", "address", i);
+            s = (String) jComboBox4.getSelectedItem();
+            ini.put("ADAM4", "port", s);
+
+            // Save log level
+            s = (String) jComboBox5.getSelectedItem();
+            ini.put("Log", "level", s);
+
             ini.store();
 
+           
             //int age = ini.get("happy", "age", int.class);
             //double height = ini.get("happy", "height", double.class);
             //String dir = ini.get("happy", "homeDir");

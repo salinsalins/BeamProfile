@@ -51,6 +51,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import jssc.SerialPort;
 import jssc.SerialPortException;
+import org.ini4j.Wini;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
 import org.jfree.data.xy.DefaultXYDataset;
@@ -1206,6 +1207,27 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             LOGGER.log(Level.INFO, "Exception info", ex);
         }
         LOGGER.fine("Config saved");
+        try {
+            Wini ini = new Wini(new File(iniFileName+".ini"));
+            String s = jTextField6.getText();
+            ini.put("Input", "file", s);
+            boolean b = jCheckBox1.isSelected();
+            ini.put("Input", "readFromFile", b);
+            s = jTextField7.getText();
+            ini.put("Output", "dir", s);
+            b = jCheckBox2.isSelected();
+            ini.put("Output", "writeToFolder", b);
+            b = jCheckBox3.isSelected();
+            ini.put("Output", "splitOtput", b);
+            ini.store();
+
+            //int age = ini.get("happy", "age", int.class);
+            //double height = ini.get("happy", "height", double.class);
+            //String dir = ini.get("happy", "homeDir");
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "Config write error");
+            LOGGER.log(Level.INFO, "Exception info", ex);
+        }
     }
 
     public static String outputFileName(String prefix, String ext) {

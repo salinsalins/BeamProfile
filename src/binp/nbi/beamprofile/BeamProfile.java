@@ -1182,17 +1182,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             jTextField7.setText(s);
             LOGGER.fine("ini file restored");
 
-            //java.awt.Color c;
-            //c = ini.get("Channel"+0, jTable1.getColumnName(1), java.awt.Color.class);
-            //System.out.println(c);
-
-            //for (int j=0; j<jTable1.getRowCount(); j++){
-            //    for (int k=0; k<jTable1.getColumnCount(); k++){
-            //        s = ini.get("Channel"+j, jTable1.getColumnName(k));
-            //        jTable1.setValueAt(s, j, k);
-            //    }
-            //}
-
+            restoreTable(jTable1, ini, "Channel");
+            restoreTable(jTable2, ini, "ADAM");
+            LOGGER.fine("ini file restored");
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, "ini file write error");
             LOGGER.log(Level.INFO, "Exception info", ex);
@@ -1315,6 +1307,31 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, "ini file write error");
             LOGGER.log(Level.INFO, "Exception info", ex);
+        }
+    }
+
+    void restoreTable(JTable table, Wini ini, String prefix) {       // Save jTable1
+        for (int j=0; j<table.getRowCount(); j++){
+            for (int k=0; k<table.getColumnCount(); k++){
+                if (table.getColumnClass(k) == Color.class) {
+                    int red = ini.get(prefix+j, table.getColumnName(k)+".red", int.class) ;
+                    int green = ini.get(prefix+j, table.getColumnName(k)+".green", int.class) ;
+                    int blue = ini.get(prefix+j, table.getColumnName(k)+".blue", int.class) ;
+                    table.setValueAt(new Color(red, green, blue), j, k);
+                }
+                else {
+                    if (ini.get(prefix+j, table.getColumnName(k)).equals("")) {
+                        table.setValueAt(null, j, k) ;
+                    }
+                    else {
+                        //System.out.println(table.getColumnClass(k));
+                        Object o = ini.get(prefix+j, table.getColumnName(k), table.getColumnClass(k));
+                        //System.out.println(o);
+                        //System.out.println(o.getClass().getName());
+                        table.setValueAt(o, j, k) ;
+                    }
+                }
+            }
         }
     }
 

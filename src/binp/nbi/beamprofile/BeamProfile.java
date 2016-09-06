@@ -1321,7 +1321,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     void saveTable(JTable table, Wini ini, String prefix) {       // Save jTable1
         for (int j=0; j<table.getRowCount(); j++){
             for (int k=0; k<table.getColumnCount(); k++){
-                ini.put(prefix+j, table.getColumnName(k), table.getValueAt(j, k));
+                if (table.getColumnClass(k) == Color.class) {
+                    Color c = (Color) table.getValueAt(j, k);
+                    ini.put(prefix+j, table.getColumnName(k)+".red", c.getRed()) ;
+                    ini.put(prefix+j, table.getColumnName(k)+".green", c.getGreen()) ;
+                    ini.put(prefix+j, table.getColumnName(k)+".blue", c.getBlue()) ;
+                }
+                else
+                    ini.put(prefix+j, table.getColumnName(k), table.getValueAt(j, k));
             }
         }
     }

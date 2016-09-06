@@ -1232,7 +1232,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             b = jCheckBox3.isSelected();
             ini.put("Output", "splitOtput", b);
 
-            // Save addresses of ADAMs
+            // Save addresses and ports of ADAMs
             i = (int) jSpinner7.getValue();
             ini.put("ADAM1", "address", i);
             s = (String) jComboBox1.getSelectedItem();
@@ -1252,6 +1252,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
             // Save log level
             s = (String) jComboBox5.getSelectedItem();
+            ini.put("Log", "level", s);
+
+            // Save addresses and ports of ADAMs from jTable2
+            for (int j=0; j<jTable2.getRowCount(); j++){
+                ini.put("T2_ADAM"+j, "port", jTable2.getValueAt(j, 0));
+                ini.put("T2_ADAM"+j, "address", jTable2.getValueAt(j, 1));
+                ini.put("T2_ADAM"+j, "enabled", jTable2.getValueAt(j, 2));
+                //for (int k=0; k<jTable2.getColumnCount(); k++){
+                //    ini.put("Log", "level", jTable2.getValueAt(j, k));
+                //}
+            }
             ini.put("Log", "level", s);
 
             ini.store();

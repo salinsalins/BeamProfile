@@ -1122,19 +1122,29 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     private void restoreConfig() {
         try {
+            int i;
+            boolean b;
+            String s;
             ObjectInputStream objIStrm = new ObjectInputStream(new FileInputStream(iniFileName));
-            String s = (String) objIStrm.readObject();
+            // Restore input file parameters
+            // File name
+            s = (String) objIStrm.readObject();
             jTextField6.setText(s);
-            boolean b = (boolean) objIStrm.readObject();
+            // readFromFile
+            b = (boolean) objIStrm.readObject();
             jCheckBox1.setSelected(b);
+            // Restore output file parameters
+            // File name
             s = (String) objIStrm.readObject();
             jTextField7.setText(s);
+            // writeToFolder
             b = (boolean) objIStrm.readObject();
             jCheckBox2.setSelected(b);
+            // splitOutput
             b = (boolean) objIStrm.readObject();
             jCheckBox3.setSelected(b);
             // Restore log level
-            int i = (int) objIStrm.readObject();
+            i = (int) objIStrm.readObject();
             jComboBox5.setSelectedIndex(i);
             // Restore addresses of ADAMs
             i = (int) objIStrm.readObject();
@@ -1158,6 +1168,40 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             LOGGER.log(Level.WARNING, "Config file read error");
             LOGGER.log(Level.INFO, "Exception info", ex);
         }
+        // Restore config from *.ini file
+        try {
+            int i;
+            boolean b;
+            String s;
+            Wini ini = new Wini(new File(configFileName));
+            s = ini.get("Input", "file");
+            jTextField6.setText(s);
+            b =  ini.get("Input", "readFromFile", boolean.class);
+            jCheckBox1.setSelected(b);
+            s = ini.get("Output", "dir");
+            jTextField7.setText(s);
+            LOGGER.fine("ini file restored");
+
+            //java.awt.Color c;
+            //c = ini.get("Channel"+0, jTable1.getColumnName(1), java.awt.Color.class);
+            //System.out.println(c);
+
+            //for (int j=0; j<jTable1.getRowCount(); j++){
+            //    for (int k=0; k<jTable1.getColumnCount(); k++){
+            //        s = ini.get("Channel"+j, jTable1.getColumnName(k));
+            //        jTable1.setValueAt(s, j, k);
+            //    }
+            //}
+
+        } catch (IOException ex) {
+            LOGGER.log(Level.WARNING, "ini file write error");
+            LOGGER.log(Level.INFO, "Exception info", ex);
+        }
+        setValuesFromComponens();
+        LOGGER.fine("Config restored");
+    }
+    
+    void setValuesFromComponens() {
         // Read and set state of volatile variables
         jComboBox5ActionPerformed(null);
         jCheckBox3ActionPerformed(null);
@@ -1166,8 +1210,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jCheckBox1ActionPerformed(null);
         jTextField6ActionPerformed(null);
         jToggleButton1ActionPerformed(null);
-        LOGGER.fine("Config restored");
-   }
+    }
 
     private void saveConfig() {
         try (ObjectOutputStream objOStrm = new ObjectOutputStream(new FileOutputStream(iniFileName))) {
@@ -1221,14 +1264,21 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             boolean b;
             String s;
             Wini ini = new Wini(new File(configFileName));
+            // Save input file parameters
+            // File name
             s = jTextField6.getText();
             ini.put("Input", "file", s);
+            // readFromFile
             b = jCheckBox1.isSelected();
             ini.put("Input", "readFromFile", b);
+            // Save output file parameters
+            // File name
             s = jTextField7.getText();
             ini.put("Output", "dir", s);
+            // writeToFolder
             b = jCheckBox2.isSelected();
             ini.put("Output", "writeToFolder", b);
+            // splitOutput
             b = jCheckBox3.isSelected();
             ini.put("Output", "splitOtput", b);
 
@@ -1255,25 +1305,24 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             ini.put("Log", "level", s);
 
             // Save addresses and ports of ADAMs from jTable2
-            for (int j=0; j<jTable2.getRowCount(); j++){
-                ini.put("T2_ADAM"+j, "port", jTable2.getValueAt(j, 0));
-                ini.put("T2_ADAM"+j, "address", jTable2.getValueAt(j, 1));
-                ini.put("T2_ADAM"+j, "enabled", jTable2.getValueAt(j, 2));
-                //for (int k=0; k<jTable2.getColumnCount(); k++){
-                //    ini.put("Log", "level", jTable2.getValueAt(j, k));
-                //}
-            }
-            ini.put("Log", "level", s);
+            saveTable(jTable2, ini, "ADAM");
+            // Save jTable1
+            saveTable(jTable1, ini, "Channel");
 
             ini.store();
-
            
-            //int age = ini.get("happy", "age", int.class);
-            //double height = ini.get("happy", "height", double.class);
-            //String dir = ini.get("happy", "homeDir");
+            LOGGER.fine("ini file saved");
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "Config write error");
+            LOGGER.log(Level.WARNING, "ini file write error");
             LOGGER.log(Level.INFO, "Exception info", ex);
+        }
+    }
+
+    void saveTable(JTable table, Wini ini, String prefix) {       // Save jTable1
+        for (int j=0; j<table.getRowCount(); j++){
+            for (int k=0; k<table.getColumnCount(); k++){
+                ini.put(prefix+j, table.getColumnName(k), table.getValueAt(j, k));
+            }
         }
     }
 

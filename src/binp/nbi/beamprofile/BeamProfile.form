@@ -514,6 +514,7 @@
                 <Component class="javax.swing.JCheckBox" name="jCheckBox5">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Compress output"/>
+                    <Property name="enabled" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jCheckBox5ActionPerformed"/>
@@ -590,11 +591,13 @@
                 <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
                   <SpinnerModel initial="1.0" maximum="127.0" minimum="0.0" numberType="java.lang.Double" stepSize="0.10000000000000009" type="number"/>
                 </Property>
+                <Property name="enabled" type="boolean" value="false"/>
               </Properties>
             </Component>
             <Component class="javax.swing.JLabel" name="jLabel20">
               <Properties>
                 <Property name="text" type="java.lang.String" value="Flow meter calibration liters/sec/Volt : "/>
+                <Property name="enabled" type="boolean" value="false"/>
               </Properties>
             </Component>
             <Container class="javax.swing.JScrollPane" name="jScrollPane3">

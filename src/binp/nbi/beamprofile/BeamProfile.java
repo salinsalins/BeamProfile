@@ -539,6 +539,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             });
 
             jCheckBox5.setText("Compress output");
+            jCheckBox5.setEnabled(false);
             jCheckBox5.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent evt) {
                     jCheckBox5ActionPerformed(evt);
@@ -631,8 +632,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 );
 
                 jSpinner11.setModel(new javax.swing.SpinnerNumberModel(1.0d, 0.0d, 127.0d, 0.10000000000000009d));
+                jSpinner11.setEnabled(false);
 
                 jLabel20.setText("Flow meter calibration liters/sec/Volt : ");
+                jLabel20.setEnabled(false);
 
                 jTable1.setModel(new javax.swing.table.DefaultTableModel(
                     new Object [][] {
@@ -1776,7 +1779,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
          */
         @Override
         public Void doInBackground() {
-            LOGGER.finest("Background task started");
+            LOGGER.fine("Background task started");
             //logger.finest("Try");
             while(loopDoInBackground) {
                 try {
@@ -1855,7 +1858,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                         // If temperature readings <= 0 then use previous value
                         for (int i = 1; i < temp.length; i++) {
-                            if (0.0 > temp[i])
+                            if (temp[i] <= 0.0)
+                                temp[i] = data[nx-1][i];
+                            if (temp[i] > 8000.0)
                                 temp[i] = data[nx-1][i];
                         } 
 

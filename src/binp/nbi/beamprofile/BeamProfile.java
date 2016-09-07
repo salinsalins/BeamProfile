@@ -1079,11 +1079,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     @Override
     public void windowClosed(WindowEvent e) {
         saveConfig();
+        saveConfigToIni();
         System.exit(0);
     }
     @Override
     public void windowOpened(WindowEvent e) {
+        restoreConfigFromIni();
         restoreConfig();
+        setValuesFromComponens();
         task = new Task(this);
         task.execute();
     }
@@ -1168,6 +1171,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             LOGGER.log(Level.WARNING, "Config file read error");
             LOGGER.log(Level.INFO, "Exception info", ex);
         }
+        LOGGER.fine("Config restored");
+    }
+    
+    private void restoreConfigFromIni() {
         // Restore config from *.ini file
         try {
             int i;
@@ -1180,19 +1187,16 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             jCheckBox1.setSelected(b);
             s = ini.get("Output", "dir");
             jTextField7.setText(s);
-            LOGGER.fine("ini file restored");
 
             restoreTable(jTable1, ini, "Channel");
             restoreTable(jTable2, ini, "ADAM");
-            LOGGER.fine("ini file restored");
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "ini file write error");
+            LOGGER.log(Level.WARNING, "Ini file write error");
             LOGGER.log(Level.INFO, "Exception info", ex);
         }
-        setValuesFromComponens();
         LOGGER.fine("Config restored");
     }
-    
+
     void setValuesFromComponens() {
         // Read and set state of volatile variables
         jComboBox5ActionPerformed(null);
@@ -1250,6 +1254,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             LOGGER.log(Level.INFO, "Exception info", ex);
         }
         LOGGER.fine("Config saved");
+    }
+
+    private void saveConfigToIni() {
         // Save config to *.ini file
         try {
             int i;
@@ -1276,21 +1283,21 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
             // Save addresses and ports of ADAMs
             i = (int) jSpinner7.getValue();
-            ini.put("ADAM1", "address", i);
+            ini.put("ADAM_1", "address", i);
             s = (String) jComboBox1.getSelectedItem();
-            ini.put("ADAM1", "port", s);
+            ini.put("ADAM_1", "port", s);
             i = (int) jSpinner8.getValue();
-            ini.put("ADAM2", "address", i);
+            ini.put("ADAM_2", "address", i);
             s = (String) jComboBox2.getSelectedItem();
-            ini.put("ADAM2", "port", s);
+            ini.put("ADAM_2", "port", s);
             i = (int) jSpinner9.getValue();
-            ini.put("ADAM3", "address", i);
+            ini.put("ADAM_3", "address", i);
             s = (String) jComboBox3.getSelectedItem();
-            ini.put("ADAM3", "port", s);
+            ini.put("ADAM_3", "port", s);
             i = (int) jSpinner10.getValue();
-            ini.put("ADAM4", "address", i);
+            ini.put("ADAM_4", "address", i);
             s = (String) jComboBox4.getSelectedItem();
-            ini.put("ADAM4", "port", s);
+            ini.put("ADAM_4", "port", s);
 
             // Save log level
             s = (String) jComboBox5.getSelectedItem();
@@ -1303,35 +1310,38 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
             ini.store();
            
-            LOGGER.fine("ini file saved");
+            LOGGER.fine("Config saved to ini file");
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "ini file write error");
+            LOGGER.log(Level.WARNING, "Config ini file write error");
             LOGGER.log(Level.INFO, "Exception info", ex);
         }
     }
 
     void restoreTable(JTable table, Wini ini, String prefix) {       // Save jTable1
-        for (int j=0; j<table.getRowCount(); j++){
-            for (int k=0; k<table.getColumnCount(); k++){
-                if (table.getColumnClass(k) == Color.class) {
-                    int red = ini.get(prefix+j, table.getColumnName(k)+".red", int.class) ;
-                    int green = ini.get(prefix+j, table.getColumnName(k)+".green", int.class) ;
-                    int blue = ini.get(prefix+j, table.getColumnName(k)+".blue", int.class) ;
-                    table.setValueAt(new Color(red, green, blue), j, k);
-                }
-                else {
-                    if (ini.get(prefix+j, table.getColumnName(k)).equals("")) {
-                        table.setValueAt(null, j, k) ;
-                    }
-                    else {
-                        //System.out.println(table.getColumnClass(k));
-                        Object o = ini.get(prefix+j, table.getColumnName(k), table.getColumnClass(k));
-                        //System.out.println(o);
-                        //System.out.println(o.getClass().getName());
-                        table.setValueAt(o, j, k) ;
+        try {
+            for (int j = 0; j < table.getRowCount(); j++) {
+                for (int k = 0; k < table.getColumnCount(); k++) {
+                    try {
+                        if (table.getColumnClass(k) == Color.class) {
+                            int red = ini.get(prefix + j, table.getColumnName(k) + ".red", int.class);
+                            int green = ini.get(prefix + j, table.getColumnName(k) + ".green", int.class);
+                            int blue = ini.get(prefix + j, table.getColumnName(k) + ".blue", int.class);
+                            table.setValueAt(new Color(red, green, blue), j, k);
+                        } else if (ini.get(prefix + j, table.getColumnName(k)).equals("")) {
+                            table.setValueAt(null, j, k);
+                        } else {
+                            //System.out.println(table.getColumnClass(k));
+                            Object o = ini.get(prefix + j, table.getColumnName(k), table.getColumnClass(k));
+                            //System.out.println(o);
+                            //System.out.println(o.getClass().getName());
+                            table.setValueAt(o, j, k);
+                        }
+                    } catch (Exception ex) {
+                        table.setValueAt(null, j, k);
                     }
                 }
             }
+        } catch (Exception e) {
         }
     }
 

@@ -319,6 +319,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jTable1.setValueAt(new Color(153, 0, 153), 1, 1);
         jTable1.setValueAt(new Color(153, 0, 153), 2, 1);
         jTable1.setValueAt(new Color(153, 0, 153), 3, 1);
+        DefaultTableModel tableModel = (DefaultTableModel)jTable1.getModel();
+        tableModel.setRowCount(40);
+        //addRow((Vector) tableModel.getDataVector().elementAt(0));
         
         setUpColumnComboBoxEditor(jTable2, 0);
         
@@ -639,17 +642,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                 jTable1.setModel(new javax.swing.table.DefaultTableModel(
                     new Object [][] {
-                        {null, "", null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
+                        { new Integer(1), "", null, null, null},
+                        { new Integer(2), null, null, null, null},
+                        { new Integer(3), null, null, null, null},
+                        { new Integer(4), null, null, null, null},
+                        { new Integer(5), null, null, null, null},
+                        { new Integer(6), null, null, null, null},
+                        { new Integer(7), null, null, null, null},
+                        { new Integer(8), null, null, null, null},
+                        { new Integer(9), null, null, null, null},
+                        { new Integer(10), null, null, null, null},
+                        { new Integer(11), null, null, null, null},
                         {null, null, null, null, null},
                         {null, null, null, null, null},
                         {null, null, null, null, null},
@@ -1468,6 +1471,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     if (ports[i].equalsIgnoreCase(p.getPortName())) {
                         // Create Adam for existent port
                         adams[i] = new Adam4118(p, addrs[i]);
+                        for(int j=0; j<8; j++){
+                            jTable1.setValueAt(i*8+j+1, i*8+j, 0);
+                        }
                         break;
                     }
                 }
@@ -1482,7 +1488,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 // Create Adam for new port
                 adams[i] = new Adam4118(serialPort, addrs[i]);
                 for(int j=0; j<8; j++){
-                    jTable1.setValueAt(i*8+j, i*8+j+1, 0);
+                    jTable1.setValueAt(i*8+j+1, i*8+j, 0);
                 }
             }
             LOGGER.finest("ADAMs created");

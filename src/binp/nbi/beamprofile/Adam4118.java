@@ -6,11 +6,6 @@
 package binp.nbi.beamprofile;
 
 import binp.nbi.beamprofile.BeamProfile.AdamReader;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.logging.Level;
 import jssc.SerialPort;
 import jssc.SerialPortException;
@@ -26,11 +21,12 @@ public class Adam4118 extends ADAM {
 
     Adam4118(AdamReader _reader) {
         reader = _reader ;
-        LOGGER.log(Level.FINEST, "Adam4118: {0} created", reader.file.getName()); 
+        LOGGER.log(Level.FINE, "Adam4118: {0} created", reader.file.getName()); 
     }
     
     Adam4118(SerialPort _port, int _addr) throws SerialPortException, ADAMException {
         super(_port, _addr);
+        LOGGER.log(Level.FINE, getInfo() + "Adam4118 created"); 
     }
 
     public String readString() throws ADAMException {

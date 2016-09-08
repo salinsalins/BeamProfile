@@ -320,7 +320,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jTable1.setValueAt(new Color(153, 0, 153), 2, 1);
         jTable1.setValueAt(new Color(153, 0, 153), 3, 1);
         DefaultTableModel tableModel = (DefaultTableModel)jTable1.getModel();
-        tableModel.setRowCount(ny);
+        tableModel.setRowCount(40);
+        //addRow((Vector) tableModel.getDataVector().elementAt(0));
         
         setUpColumnComboBoxEditor(jTable2, 0);
         
@@ -652,6 +653,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         { new Integer(9), null, null, null, null},
                         { new Integer(10), null, null, null, null},
                         { new Integer(11), null, null, null, null},
+                        {null, null, null, null, null},
+                        {null, null, null, null, null},
+                        {null, null, null, null, null},
+                        {null, null, null, null, null},
+                        {null, null, null, null, null},
+                        {null, null, null, null, null},
+                        {null, null, null, null, null},
+                        {null, null, null, null, null},
                         {null, null, null, null, null},
                         {null, null, null, null, null},
                         {null, null, null, null, null},
@@ -1458,23 +1467,24 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             for (int i = 0; i < adams.length; i++) {
                 adams[i] = null;
                 // Check if port is in used port list
-                SerialPort serialPort = null;
                 for (SerialPort p:portList) {
                     if (ports[i].equalsIgnoreCase(p.getPortName())) {
                         // Create Adam for existent port
-                        serialPort = p;
+                        adams[i] = new Adam4118(p, addrs[i]);
+                        for(int j=0; j<8; j++){
+                            jTable1.setValueAt(i*8+j+1, i*8+j, 0);
+                        }
                         break;
                     }
                 }
-                // If port was not created  
-                if (serialPort == null) {
-                    // Othervise create port and add it to used port list
-                    serialPort = new SerialPort(ports[i]);
-                    if (!serialPort.isOpened()) serialPort.openPort();
-                    serialPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8,
-                            SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
-                    portList.add(serialPort);
-                }
+                // If Adam was created skip the rest of for 
+                if (adams[i] != null) continue;
+                // Othervise create port and add it to used port list
+                SerialPort serialPort = new SerialPort(ports[i]);
+                if (!serialPort.isOpened()) serialPort.openPort();
+                serialPort.setParams(SerialPort.BAUDRATE_38400, SerialPort.DATABITS_8,
+                        SerialPort.STOPBITS_1, SerialPort.PARITY_NONE);
+                portList.add(serialPort);
                 // Create Adam for new port
                 adams[i] = new Adam4118(serialPort, addrs[i]);
                 for(int j=0; j<8; j++){

@@ -303,11 +303,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 {null, null, null, null, null}
             },
             new String [] {
-                "Channel", "Color", "Plot", "Profile", "X"
+                "Channel", "Color", "Plot", "Ymin", "Ymax"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, Color.class, java.lang.Boolean.class, java.lang.Integer.class, java.lang.Double.class
+                java.lang.Integer.class, Color.class, java.lang.Boolean.class, java.lang.Double.class, java.lang.Double.class
             };
 
             @Override
@@ -319,8 +319,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jTable1.setValueAt(new Color(153, 0, 153), 1, 1);
         jTable1.setValueAt(new Color(153, 0, 153), 2, 1);
         jTable1.setValueAt(new Color(153, 0, 153), 3, 1);
-        DefaultTableModel tableModel = (DefaultTableModel)jTable1.getModel();
-        tableModel.setRowCount(40);
+        //DefaultTableModel tableModel = (DefaultTableModel)jTable1.getModel();
+        //tableModel.setRowCount(4);
         //addRow((Vector) tableModel.getDataVector().elementAt(0));
         
         setUpColumnComboBoxEditor(jTable2, 0);
@@ -645,50 +645,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         { new Integer(1), "", null, null, null},
                         { new Integer(2), null, null, null, null},
                         { new Integer(3), null, null, null, null},
-                        { new Integer(4), null, null, null, null},
-                        { new Integer(5), null, null, null, null},
-                        { new Integer(6), null, null, null, null},
-                        { new Integer(7), null, null, null, null},
-                        { new Integer(8), null, null, null, null},
-                        { new Integer(9), null, null, null, null},
-                        { new Integer(10), null, null, null, null},
-                        { new Integer(11), null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null},
-                        {null, null, null, null, null}
+                        { new Integer(4), null, null, null, null}
                     },
                     new String [] {
-                        "Channel", "Color", "Plot", "Profile", "X"
+                        "Channel", "Color", "Plot", "Ymin", "Ymax"
                     }
                 ) {
                     Class[] types = new Class [] {
-                        java.lang.Integer.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Integer.class, java.lang.Double.class
+                        java.lang.Integer.class, java.lang.Object.class, java.lang.Boolean.class, java.lang.Double.class, java.lang.Double.class
                     };
 
                     public Class getColumnClass(int columnIndex) {
@@ -1233,7 +1197,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             restoreTable(jTable1, ini, "Channel");
             restoreTable(jTable2, ini, "ADAM");
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "Ini file write error");
+            LOGGER.log(Level.WARNING, "Config write error");
             LOGGER.log(Level.INFO, "Exception info", ex);
         }
         LOGGER.fine("Config restored");
@@ -1352,9 +1316,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
             ini.store();
            
-            LOGGER.fine("Config saved to ini file");
+            LOGGER.fine("Config saved");
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "Config ini file write error");
+            LOGGER.log(Level.WARNING, "Config file write error");
             LOGGER.log(Level.INFO, "Exception info", ex);
         }
     }

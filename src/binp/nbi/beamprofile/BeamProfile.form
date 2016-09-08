@@ -610,94 +610,22 @@
                 <Component class="javax.swing.JTable" name="jTable1">
                   <Properties>
                     <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="5" rowCount="40">
+                      <Table columnCount="5" rowCount="4">
                         <Column editable="true" title="Channel" type="java.lang.Integer">
                           <Data value="1"/>
                           <Data value="2"/>
                           <Data value="3"/>
                           <Data value="4"/>
-                          <Data value="5"/>
-                          <Data value="6"/>
-                          <Data value="7"/>
-                          <Data value="8"/>
-                          <Data value="9"/>
-                          <Data value="10"/>
-                          <Data value="11"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
                         </Column>
                         <Column editable="true" title="Color" type="java.lang.Object">
                           <Data value=""/>
                           <Data value="null"/>
                           <Data value="null"/>
                           <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
-                          <Data value="null"/>
                         </Column>
                         <Column editable="true" title="Plot" type="java.lang.Boolean"/>
-                        <Column editable="true" title="Profile" type="java.lang.Integer"/>
-                        <Column editable="true" title="X" type="java.lang.Double"/>
+                        <Column editable="true" title="Ymin" type="java.lang.Double"/>
+                        <Column editable="true" title="Ymax" type="java.lang.Double"/>
                       </Table>
                     </Property>
                   </Properties>

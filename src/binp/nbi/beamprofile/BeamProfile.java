@@ -1360,7 +1360,16 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }
 
     void restoreTable(JTable table, Wini ini, String prefix) {       // Save jTable1
+        int rowCount;
+        int columnCount;
         try {
+            try {
+                rowCount = ini.get(prefix, "rowCount", int.class);
+                columnCount = ini.get(prefix, "columnCount", int.class);
+            } catch (Exception e) {
+                rowCount = table.getRowCount();
+                columnCount = table.getColumnCount();
+            }
             for (int j = 0; j < table.getRowCount(); j++) {
                 for (int k = 0; k < table.getColumnCount(); k++) {
                     try {
@@ -1387,19 +1396,19 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
     }
 
-    void saveTable(JTable table, Wini ini, String prefix) {       // Save jTable1
-        ini.put(prefix, "rowCount", table.getRowCount());
-        ini.put(prefix, "columnCount", table.getColumnCount());
+    void saveTable(JTable table, Wini ini, String tableName) {       // Save jTable1
+        ini.put(tableName, "rowCount", table.getRowCount());
+        ini.put(tableName, "columnCount", table.getColumnCount());
         for (int j=0; j<table.getRowCount(); j++){
             for (int k=0; k<table.getColumnCount(); k++){
                 if (table.getColumnClass(k) == Color.class) {
                     Color c = (Color) table.getValueAt(j, k);
-                    ini.put(prefix+j, table.getColumnName(k)+".red", c.getRed()) ;
-                    ini.put(prefix+j, table.getColumnName(k)+".green", c.getGreen()) ;
-                    ini.put(prefix+j, table.getColumnName(k)+".blue", c.getBlue()) ;
+                    ini.put(tableName+j, table.getColumnName(k)+".red", c.getRed()) ;
+                    ini.put(tableName+j, table.getColumnName(k)+".green", c.getGreen()) ;
+                    ini.put(tableName+j, table.getColumnName(k)+".blue", c.getBlue()) ;
                 }
                 else
-                    ini.put(prefix+j, table.getColumnName(k), table.getValueAt(j, k));
+                    ini.put(tableName+j, table.getColumnName(k), table.getValueAt(j, k));
             }
         }
     }

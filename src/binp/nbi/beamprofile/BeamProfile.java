@@ -292,11 +292,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         jScrollPane2.setViewportView(chartPanel);
         
-//        //Set up renderer and editor for the Color column.
-//        jTable1.setDefaultRenderer(Color.class,
-//                                 new ColorRenderer(true));
-//        jTable1.setDefaultEditor(Color.class,
-//                               new ColorEditor());
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
@@ -1408,29 +1403,19 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     }
 
     void restoreTable(JTable table, Wini ini, String prefix) {       // Save jTable1
-        int rowCount;
-        int columnCount;
+        int rowCount = table.getRowCount();
+        int columnCount = table.getColumnCount();
         try {
             try {
                 rowCount = ini.get(prefix, "rowCount", int.class);
             } catch (Exception e) {
-                rowCount = table.getRowCount();
-            }
-            try {
-                columnCount = ini.get(prefix, "columnCount", int.class);
-            } catch (Exception e) {
-                columnCount = table.getColumnCount();
             }
             if (table.getRowCount() < rowCount) {
                 DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
                 tableModel.setRowCount(rowCount);
             }
-            if (table.getColumnCount() < columnCount) {
-                DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
-                tableModel.setColumnCount(columnCount);
-            }
-            for (int j = 0; j < table.getRowCount(); j++) {
-                for (int k = 0; k < table.getColumnCount(); k++) {
+            for (int j = 0; j < rowCount; j++) {
+                for (int k = 0; k < columnCount; k++) {
                     try {
                         if (table.getColumnClass(k) == Color.class) {
                             int red = ini.get(prefix + j, table.getColumnName(k) + ".red", int.class);
@@ -1440,10 +1425,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         } else if (ini.get(prefix + j, table.getColumnName(k)).equals("")) {
                             table.setValueAt(null, j, k);
                         } else {
-                            //System.out.println(table.getColumnClass(k));
                             Object o = ini.get(prefix + j, table.getColumnName(k), table.getColumnClass(k));
-                            //System.out.println(o);
-                            //System.out.println(o.getClass().getName());
                             table.setValueAt(o, j, k);
                         }
                     } catch (Exception ex) {

@@ -712,6 +712,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     }
                 });
                 jTable2.setComponentPopupMenu(jPopupMenu1);
+                jTable2.setName("ADAM Config Table"); // NOI18N
                 jTable2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
                 jTable2.getTableHeader().setResizingAllowed(false);
                 jTable2.getTableHeader().setReorderingAllowed(false);

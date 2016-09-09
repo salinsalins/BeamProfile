@@ -103,37 +103,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     // Traces to plot
     int[] trn = {6, 2, 10};     // Channel numbers of traces
     Color[] trc = {Color.RED, Color.GREEN, Color.BLUE};  // Colors of traces
-	
-    // Profile arrays
-    // Vertical profile
-    int[] p1range = {1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13};  // Channels for vertical profile
-    int[] p1x =     {0, 2, 3, 4, 5, 6, 7,  8,  9, 10, 12};  // X values for vertical profile
-    double[] prof1  = new double[p1range.length];           // Vertical profile
-    double[] prof1max  = new double[prof1.length];     // Maximal vertical profile
-    // Horizontal profile
-    int[] p2range = {15, 6, 14};     // Channels for horizontal profile
-    int[] p2x =     { 2, 6, 10};     // cm X values for horizontal profile
-    double[] prof2  = new double[p2range.length];  // Horizontal profile
-    double[] prof2max  = new double[prof2.length]; // Maximal horizontal profile
-
-    // Faded profiles
-    int fpn = 10;               // Number of faded pofiles
-    int[] fpi = new int[fpn];   // Faded pofiles indexes
-    int[] fph = new int[fpn];   // Faded pofile plot handles
-    double fpdt = 0.5;          // Faded pofile time inteval [s]
-
-    // Beam current calculations and plot
-    int bctin = 8;        // Input water temperature channel number
-    int bctout = 7;        // Output water temperature channel number
-    double voltage = 80.0;   // keV Particles energy
-    double duration = 2.0;     // s Beam duration
-    double flow = 1.0;      // [V] 1V  = 12.0Gpm (gallons per minute) Default cooling water flow signal  
-    // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)[degrees C]*Q/voltage[V]
-    double VoltsToGPM = 12.0;  // 1V  = 12.0Gpm conversion coeff 
-    double Q = 12.0*4.3*1000.0*0.06309; // Coeff to convert Volts to Watts/degreeC 
-    double bcmax = 0.0;    // Max beam current on the screen
-    double bcmax1 = 0.0;   // MaxMax beam current
-    int bcflowchan = 22;  // Channel number for flowmeter output
 
     // Acceleration electrode voltage and current
     int agvn = 23;
@@ -155,6 +124,38 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int tpn1;
     int tpn2;
     
+    
+    // Profile arrays
+    // Vertical profile
+    int[] p1range = {1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13};  // Channels for vertical profile
+    int[] p1x =     {0, 2, 3, 4, 5, 6, 7,  8,  9, 10, 12};  // X values for vertical profile
+    double[] prof1  = new double[p1range.length];           // Vertical profile
+    double[] prof1max  = new double[prof1.length];     // Maximal vertical profile
+    // Horizontal profile
+    int[] p2range = {15, 6, 14};     // Channels for horizontal profile
+    int[] p2x =     { 2, 6, 10};     // cm X values for horizontal profile
+    double[] prof2  = new double[p2range.length];  // Horizontal profile
+    double[] prof2max  = new double[prof2.length]; // Maximal horizontal profile
+
+    // Faded profiles
+    int fpn = 10;               // Number of faded pofiles
+    int[] fpi = new int[fpn];   // Faded pofiles indexes
+    int[] fph = new int[fpn];   // Faded pofile plot handles
+    double fpdt = 0.5;          // Faded pofile time inteval [s]
+
+    // Beam current calculations and plot
+    int bctin = 8;          // Input water temperature channel number
+    int bctout = 7;         // Output water temperature channel number
+    double voltage = 80.0;   // keV Particles energy
+    double duration = 2.0;     // s Beam duration
+    double flow = 1.0;      // [V] 1V  = 12.0Gpm (gallons per minute) Default cooling water flow signal  
+    // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)[degrees C]*Q/voltage[V]
+    double VoltsToGPM = 12.0;  // 1V  = 12.0Gpm conversion coeff 
+    double Q = 12.0*4.3*1000.0*0.06309; // Coeff to convert Volts to Watts/degreeC 
+    double bcmax = 0.0;    // Max beam current on the screen
+    double bcmax1 = 0.0;   // MaxMax beam current
+    int bcflowchan = 22;  // Channel number for flowmeter output
+
     String statusLine = "";
     
     // Marker window
@@ -319,12 +320,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jTable1.setValueAt(new Color(153, 0, 153), 0, 2);
         jTable1.setValueAt(new Color(153, 0, 153), 1, 2);
         jTable1.setValueAt(new Color(153, 0, 153), 2, 2);
-        jTable1.setValueAt(new Color(153, 0, 153), 3, 2);
+        //jTable1.setValueAt(new Color(153, 0, 153), 3, 2);
         //DefaultTableModel tableModel = (DefaultTableModel)jTable1.getModel();
         //tableModel.setRowCount(4);
         //addRow((Vector) tableModel.getDataVector().elementAt(0));
         
-        setUpColumnComboBoxEditor(jTable2, 0);
+        //setUpColumnComboBoxEditor(jTable2, 0);
         
         // Initialize profiles
         for (int i = 0; i < p1range.length; i++) {
@@ -412,7 +413,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
         jMenuItem1.setText("Add Line");
         jMenuItem1.setToolTipText("");
-        jMenuItem1.setActionCommand("Add Line");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItem1ActionPerformed(evt);
@@ -716,6 +716,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 jTable2.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
                 jTable2.getTableHeader().setResizingAllowed(false);
                 jTable2.getTableHeader().setReorderingAllowed(false);
+                setUpColumnComboBoxEditor(jTable2, 0);
                 jScrollPane4.setViewportView(jTable2);
 
                 jTable3.setModel(new javax.swing.table.DefaultTableModel(
@@ -1049,7 +1050,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
         DefaultTableModel tableModel = (DefaultTableModel)jTable1.getModel();
-        tableModel.addRow((Vector) tableModel.getDataVector().elementAt(0));
+        tableModel.setRowCount(tableModel.getRowCount()+1);
+        //Vector newRow = (Vector) tableModel.getDataVector().elementAt(0);
+        //tableModel.addRow((Vector) tableModel.getDataVector().elementAt(0));
     }//GEN-LAST:event_jMenuItem3ActionPerformed
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
@@ -1410,10 +1413,21 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         try {
             try {
                 rowCount = ini.get(prefix, "rowCount", int.class);
-                columnCount = ini.get(prefix, "columnCount", int.class);
             } catch (Exception e) {
                 rowCount = table.getRowCount();
+            }
+            try {
+                columnCount = ini.get(prefix, "columnCount", int.class);
+            } catch (Exception e) {
                 columnCount = table.getColumnCount();
+            }
+            if (table.getRowCount() < rowCount) {
+                DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
+                tableModel.setRowCount(rowCount);
+            }
+            if (table.getColumnCount() < columnCount) {
+                DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
+                tableModel.setColumnCount(columnCount);
             }
             for (int j = 0; j < table.getRowCount(); j++) {
                 for (int k = 0; k < table.getColumnCount(); k++) {

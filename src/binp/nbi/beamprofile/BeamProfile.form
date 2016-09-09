@@ -14,7 +14,6 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Add Line"/>
             <Property name="toolTipText" type="java.lang.String" value=""/>
-            <Property name="actionCommand" type="java.lang.String" value="Add Line"/>
           </Properties>
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem1ActionPerformed"/>
@@ -710,6 +709,9 @@
                       <TableHeader reorderingAllowed="false" resizingAllowed="false"/>
                     </Property>
                   </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_AddingCodePre" type="java.lang.String" value="        setUpColumnComboBoxEditor(jTable2, 0);&#xa;"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>

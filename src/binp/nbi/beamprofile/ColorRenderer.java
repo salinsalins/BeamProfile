@@ -60,6 +60,7 @@ public class ColorRenderer extends JLabel
                             JTable table, Object color,
                             boolean isSelected, boolean hasFocus,
                             int row, int column) {
+        if (color == null) color = Color.BLACK;
         Color newColor = (Color)color;
         setBackground(newColor);
         if (isBordered) {

@@ -55,6 +55,7 @@ import jssc.SerialPortException;
 import org.ini4j.Wini;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.DateAxis;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.DefaultXYDataset;
 import org.jfree.data.xy.XYSeries;
 
@@ -295,8 +296,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
                 {null, null, null, null, null, null}
             },
             new String [] {
@@ -313,14 +312,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             }
         });
         jTable1.setValueAt(new Color(153, 0, 153), 0, 2);
-        jTable1.setValueAt(new Color(153, 0, 153), 1, 2);
-        jTable1.setValueAt(new Color(153, 0, 153), 2, 2);
-        //jTable1.setValueAt(new Color(153, 0, 153), 3, 2);
-        //DefaultTableModel tableModel = (DefaultTableModel)jTable1.getModel();
-        //tableModel.setRowCount(4);
-        //addRow((Vector) tableModel.getDataVector().elementAt(0));
-        
-        //setUpColumnComboBoxEditor(jTable2, 0);
         
         // Initialize profiles
         for (int i = 0; i < p1range.length; i++) {
@@ -354,6 +345,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jPopupMenu2 = new javax.swing.JPopupMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
         jMenuItem4 = new javax.swing.JMenuItem();
+        jDialog1 = new javax.swing.JDialog();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel6 = new javax.swing.JPanel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -440,6 +432,20 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         });
         jPopupMenu2.add(jMenuItem4);
 
+        jDialog1.setTitle("Measurements stopped");
+        jDialog1.setModal(true);
+
+        org.jdesktop.layout.GroupLayout jDialog1Layout = new org.jdesktop.layout.GroupLayout(jDialog1.getContentPane());
+        jDialog1.getContentPane().setLayout(jDialog1Layout);
+        jDialog1Layout.setHorizontalGroup(
+            jDialog1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 400, Short.MAX_VALUE)
+        );
+        jDialog1Layout.setVerticalGroup(
+            jDialog1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+            .add(0, 300, Short.MAX_VALUE)
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setTitle("Calorimeter Beam Profile Plotter");
 
@@ -463,7 +469,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jLabel3)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 410, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 413, Short.MAX_VALUE)
                 .add(jToggleButton1)
                 .addContainerGap())
             .add(jScrollPane2)
@@ -752,7 +758,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPanel7Layout.createSequentialGroup()
                                 .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 298, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                .add(18, 18, 18)
                                 .add(jScrollPane5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 188, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                             .add(jPanel7Layout.createSequentialGroup()
                                 .add(jLabel20)
@@ -894,7 +900,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         .add(jLabel19)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jComboBox5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 118, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 211, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 214, Short.MAX_VALUE)
                         .add(jButton4)
                         .add(42, 42, 42))
                 );
@@ -1113,6 +1119,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     private javax.swing.JComboBox jComboBox3;
     private javax.swing.JComboBox jComboBox4;
     private javax.swing.JComboBox jComboBox5;
+    private javax.swing.JDialog jDialog1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel12;
@@ -1877,11 +1884,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         @Override
         public Void doInBackground() {
             LOGGER.fine("Background task started");
-            //logger.finest("Try");
             while(loopDoInBackground) {
                 try {
                     //logger.finest("LOOP");
-
                     // If Start was pressed
                     if (runMeasurements) {
                         Date c = new Date();
@@ -1957,7 +1962,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         for (int i = 1; i < temp.length; i++) {
                             if (temp[i] <= 0.0)
                                 temp[i] = data[nx-1][i];
-                            if (temp[i] > 8000.0)
+                         // If temperature readings > 8000 then use previous value
+                           if (temp[i] > 8000.0)
                                 temp[i] = data[nx-1][i];
                         } 
 
@@ -1968,39 +1974,61 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         // Fill last data point
                         data[nx-1] = temp;
 
-                        // Calculate minimum values
+                        // If first reading, fill arrays with defaults
                         if (data[0][0] <= 0.0 ) {
-                            // First reading, fill arrays with defaults
                             System.arraycopy(temp, 0, dmin, 0, dmin.length);
+                            System.arraycopy(temp, 0, dmax, 0, dmax.length);
                             for (int i = 0; i < data.length-1; i++) {
                                 data[i] = data[nx-1];
                             }
                         }
-                        else {
-                            // Calculate minimum
-                            for (int i = 1; i < temp.length; i++) {
-                                if (dmin[i] > temp[i]) {
-                                    dmin[0] = temp[0];
-                                    dmin[i] = temp[i];
-                                }
+                        
+                        // Calculate data minimum and maximum
+                        for (int i = 1; i < temp.length; i++) {
+                            if (dmin[i] > temp[i]) {
+                                dmin[0] = temp[0];
+                                dmin[i] = temp[i];
+                            }
+                            if (dmax[i] < temp[i]) {
+                                dmax[0] = temp[0];
+                                dmax[i] = temp[i];
                             }
                         }
 
-                        // Prepare traces data set
+                        // Prepare traces to plot
                         tracesDataset = new BeamProfileDataset(data);
+                        /*
                         // Signal traces
-                        for (int i: trn) { 
-                            //System.out.println("Add " + i);
-                            tracesDataset.addSeries(i);
+                        for (int i: trn) {
+                        //System.out.println("Add " + i);
+                        tracesDataset.addSeries(i);
                         }
                         // Trageting traces
-                        for (int i: tpn) { 
-                            tracesDataset.addSeries(i);
+                        for (int i: tpn) {
+                        tracesDataset.addSeries(i);
                         }
                         // Acceleration grid traces
                         for (int i: agn) {
-                            tracesDataset.addSeries(i);
+                        tracesDataset.addSeries(i);
                         }
+                        */                        
+                        JFreeChart chart = chart1.getChart();
+                        XYPlot plot = chart.getXYPlot();
+                        XYItemRenderer renderer = plot.getRenderer();
+                        boolean savedNotify = plot.isNotify();
+                        // Stop refreshing the plot
+                        plot.setNotify(false);
+                        for (int i=0, j=0; i<jTable1.getRowCount(); i++) { 
+                            try {
+                                if ((boolean) jTable1.getValueAt(i, 3)) {
+                                    tracesDataset.addSeries((int) jTable1.getValueAt(i, 0));
+                                    renderer.setSeriesPaint(j++, (Color) jTable1.getValueAt(i, 2));
+                                }
+                            } catch (Exception e) {
+                            }
+                        }
+                        plot.setNotify(savedNotify);
+                        
                         // Calculate profiles prof1 - vertical and prof2 - horizontal
                         for (int i =0; i < p1range.length; i++) {
                             prof1[i] = data[nx-1][p1range[i]] - dmin[p1range[i]];
@@ -2008,16 +2036,16 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         for (int i =0; i < p2range.length; i++) {
                             prof2[i] = data[nx-1][p2range[i]] - dmin[p2range[i]];
                         }
-                        // Calculate datasets for profiles
-                        // Vertical profile
+                        // Dataset for profiles
                         profileDataset = new DefaultXYDataset();
+                        // Add Vertical profile
                         double[][] plottedData = new double[2][p1range.length];
                         for (int j = 0; j < p1range.length; j++) {
                             plottedData[0][j] = p1x[j];
                             plottedData[1][j] = prof1[j];
                         }
                         profileDataset.addSeries("vertProf", plottedData);
-                        // Horizontal profile
+                        // Add Horizontal profile
                         plottedData = new double[2][p2range.length];
                         for (int j = 0; j < p2range.length; j++) {
                             plottedData[0][j] = p2x[j];
@@ -2126,7 +2154,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
 //<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m and other staff">
     /*
-                        // Determine integration window from targeting traces
+
+// Determine integration window from targeting traces
                         double maxdata = data[mi1][tpn[0]];
                         double mindata = data[mi1][tpn[0]];
                         int indexx = mi1;
@@ -2154,7 +2183,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             tpn2 = tpn1 + 2*tpw;
                         }
 
-                        // Calculate and plot equivalent current
+// Calculate and plot equivalent current
                         double dt;
                         double integralin = 0.0;
                         double integralout = 0.0;
@@ -2178,10 +2207,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         double beamCurrent = ((integralout - integralin) - (minout - minin)*integraldt)*
                                                 integralflow/integraldt*Q/voltage;  //mA
 
-
-
-
-                        // Determine beam durationi from targeting traces
+// Determine beam durationi from targeting traces
                         if (tpn1 > 1) && (tpn2 < nx) {
                             [v1, v2] = max(data(tpn1:tpn2, tpn));
                             [d1, v3] = max(v1);
@@ -2246,140 +2272,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         set(bch, "Ydata", current - min(current));
                         set(mh, "Xdata", i1:i2);
                         set(mh, "Ydata", current(i1:i2) - min(current));
-
-
-
-
-Using a Combo Box as an Editor
-
-Setting up a combo box as an editor is simple, as the following example shows. The bold line of code sets up the combo box as the editor for a specific column.
-
-TableColumn sportColumn = table.getColumnModel().getColumn(2);
-...
-JComboBox comboBox = new JComboBox();
-comboBox.addItem("Snowboarding");
-comboBox.addItem("Rowing");
-comboBox.addItem("Chasing toddlers");
-comboBox.addItem("Speed reading");
-comboBox.addItem("Teaching high school");
-comboBox.addItem("None");
-sportColumn.setCellEditor(new DefaultCellEditor(comboBox));
-
-/*
- * Copyright (c) 1995, 2008, Oracle and/or its affiliates. All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- *   - Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *
- *   - Redistributions in binary form must reproduce the above copyright
- *     notice, this list of conditions and the following disclaimer in the
- *     documentation and/or other materials provided with the distribution.
- *
- *   - Neither the name of Oracle or the names of its
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
- * IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- * EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- * PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- / 
-
-package components;
-
-/* 
- * ColorEditor.java (compiles with releases 1.3 and 1.4) is used by 
- * TableDialogEditDemo.java.
- /
-
-import javax.swing.AbstractCellEditor;
-import javax.swing.table.TableCellEditor;
-import javax.swing.JButton;
-import javax.swing.JColorChooser;
-import javax.swing.JDialog;
-import javax.swing.JTable;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-public class ColorEditor extends AbstractCellEditor
-                         implements TableCellEditor,
-			            ActionListener {
-    Color currentColor;
-    JButton button;
-    JColorChooser colorChooser;
-    JDialog dialog;
-    protected static final String EDIT = "edit";
-
-    public ColorEditor() {
-        //Set up the editor (from the table's point of view),
-        //which is a button.
-        //This button brings up the color chooser dialog,
-        //which is the editor from the user's point of view.
-        button = new JButton();
-        button.setActionCommand(EDIT);
-        button.addActionListener(this);
-        button.setBorderPainted(false);
-
-        //Set up the dialog that the button brings up.
-        colorChooser = new JColorChooser();
-        dialog = JColorChooser.createDialog(button,
-                                        "Pick a Color",
-                                        true,  //modal
-                                        colorChooser,
-                                        this,  //OK button handler
-                                        null); //no CANCEL button handler
-    }
-
-    /**
-     * Handles events from the editor button and from
-     * the dialog's OK button.
-     /
-    public void actionPerformed(ActionEvent e) {
-        if (EDIT.equals(e.getActionCommand())) {
-            //The user has clicked the cell, so
-            //bring up the dialog.
-            button.setBackground(currentColor);
-            colorChooser.setColor(currentColor);
-            dialog.setVisible(true);
-
-            //Make the renderer reappear.
-            fireEditingStopped();
-
-        } else { //User pressed dialog's "OK" button.
-            currentColor = colorChooser.getColor();
-        }
-    }
-
-    //Implement the one CellEditor method that AbstractCellEditor doesn't.
-    public Object getCellEditorValue() {
-        return currentColor;
-    }
-
-    //Implement the one method defined by TableCellEditor.
-    public Component getTableCellEditorComponent(JTable table,
-                                                 Object value,
-                                                 boolean isSelected,
-                                                 int row,
-                                                 int column) {
-        currentColor = (Color)value;
-        return button;
-    }
-}
-
-
 */
     // </editor-fold> 
 
@@ -2516,22 +2408,4 @@ public class ColorEditor extends AbstractCellEditor
             throw new FileNotFoundException("Reading from closed file");
         }
     } 
-
-//---------------------------------------------
-    class Trace {
-        int channel;
-        double[][] data;
-        Color color;
-
-        Trace(int ch, double[][] d) {
-            int nx = d.length;
-            data = new double[2][nx];
-            double t0 = d[0][0];
-            for (int i = 0; i < nx; i++) {
-                data[0][i] = (d[i][0] - t0)/1000.0;
-                data[1][i] = d[i][ch];
-            }
-            channel = ch;
-        }
-    }
 }

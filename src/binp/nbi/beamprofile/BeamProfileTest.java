@@ -45,7 +45,6 @@ public class BeamProfileTest {
             bpt.process();
         
         } catch (Exception ex) {
-            // TODO Auto-generated catch block
             ex.printStackTrace();
         }
     }

@@ -1530,9 +1530,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     if (ports[i].equalsIgnoreCase(p.getPortName())) {
                         // Create Adam for existent port
                         adams[i] = new Adam4118(p, addrs[i]);
-                        for(int j=0; j<8; j++){
-                            jTable1.setValueAt(i*8+j+1, i*8+j, 0);
-                        }
                         break;
                     }
                 }
@@ -1546,9 +1543,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 portList.add(serialPort);
                 // Create Adam for new port
                 adams[i] = new Adam4118(serialPort, addrs[i]);
-                for(int j=0; j<8; j++){
-                    jTable1.setValueAt(i*8+j+1, i*8+j, 0);
-                }
             }
             LOGGER.finest("ADAMs created");
         } catch (FileNotFoundException ex) {

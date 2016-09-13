@@ -6,6 +6,7 @@
 package binp.nbi.beamprofile;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import jssc.SerialPort;
 
@@ -14,6 +15,7 @@ import jssc.SerialPort;
  * @author Sanin
  */
 public class StreamComPort {
+    static List<StreamComPort> portList = new LinkedList<>();
     SerialPort  port;
     List<Command> commands;
     List<Response> responses;
@@ -47,11 +49,6 @@ public class StreamComPort {
             data = s.getBytes();
         }
 
-        Command(String format, int i) {
-            time = System.currentTimeMillis();
-            data = String.format(format, i).getBytes();
-        }
-        
         byte[] getData() {
             return data;
         }
@@ -83,26 +80,18 @@ public class StreamComPort {
     }
     
     class Response extends Command {
-        Command command;
-
+ 
         Response() {
-            time = System.currentTimeMillis();
-            data = null;
+            super();
         }
 
         Response(byte[] d) {
-            time = System.currentTimeMillis();
-            data = d;
+            super(d);
         }
 
         Response(String s) {
-            time = System.currentTimeMillis();
-            data = s.getBytes();
+            super(s);
         }
 
-        Response(String format, int i) {
-            time = System.currentTimeMillis();
-            data = String.format(format, i).getBytes();
-        }
     }
 }

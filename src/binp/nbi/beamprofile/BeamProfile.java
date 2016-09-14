@@ -1440,7 +1440,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     }
                 }
             }
-        } catch (Exception e) {
+        } catch (Exception ex) {
         }
     }
 

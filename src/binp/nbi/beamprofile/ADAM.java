@@ -21,13 +21,14 @@ public class ADAM {
     String name = "";
     String firmware = "";
     
-    long writeTime;
-    // Last command
+    // Write command
+    long writeStartTime;
+    long writeDuration;
     String command; //Last command
-    // Reading response buffer, times and statistics
-    //String response;
-    //byte[] readBuffer = new byte[256];
-    //int readBufferIndex = 0;
+
+    // Read response - times and statistics
+    long readStartTime;
+    long readDuration;
     StringBuilder response = new StringBuilder();
     long byteReadTime = 0L;
     double totalByteReadCount = 0.0;
@@ -35,17 +36,16 @@ public class ADAM {
     long firstByteReadTime = 0L;
     double firstByteReadCount = 0.0;
     double averageFirstByteReadTime = 0.0;
-    long readTime;
     int readRetries = 3;
-    // Timeouts
+    // Reading Timeouts
     boolean autoTimeout = true;
-    int timeout = 500;
+    int timeout = 500;  // current timeout
     int minTimeout = 250;
     int maxTimeout = 2000;
     int minByteReadTimeout = 2;
     double increaseTimeoutFactor = 2.0;
     double decreseTimeoutFactor = 0.5;
-
+    // Reading suspension
     long suspStartTime = 0;
     long suspDuration = 5000;
 
@@ -108,18 +108,18 @@ public class ADAM {
         boolean status = false;
         command = cmd.trim();
         LOGGER.log(Level.FINE, getInfo() + "sendCommand: {0}", command);
-        writeTime = -1;
+        writeDuration = -1;
 
-        long start = System.currentTimeMillis();
+        writeStartTime = System.currentTimeMillis();
         try {
-            // Clear com port buffer;
+            // Clear COM port buffer;
             port.readString();
             // Write command
             byte[] bytes = command.getBytes();
             status = port.writeBytes(bytes);
             if (!status) {
                 LOGGER.log(Level.SEVERE, getInfo() + "Error writing bytes");
-                writeTime = System.currentTimeMillis() - start;
+                writeDuration = System.currentTimeMillis() - writeStartTime;
                 return status;
             }
             if (bytes[bytes.length-1] != (byte)0x0D) 
@@ -132,7 +132,7 @@ public class ADAM {
         if (!status) {
             LOGGER.log(Level.SEVERE, getInfo() + "Error writing bytes");
         }
-        writeTime = System.currentTimeMillis() - start;
+        writeDuration = System.currentTimeMillis() - writeStartTime;
         return status;
     }
 
@@ -147,17 +147,18 @@ public class ADAM {
             
     public String readResponse(int timeout)  
             throws SerialPortException, SerialPortTimeoutException, ADAMException {
+        readStartTime = System.currentTimeMillis();
+        readDuration = -1;
         byte[] b;
-        long startTime = System.currentTimeMillis();
-        long currentTime = startTime;
+        long currentTime = readStartTime;
         long byteReadStartTime;
         int nextByteTimeout;
         if(response != null) 
             response.delete(0, response.length());
         else 
             response = new StringBuilder();
-        while ((currentTime  - startTime) <= timeout) {
-            nextByteTimeout = timeout - (int) (currentTime - startTime);
+        while ((currentTime  - readStartTime) <= timeout) {
+            nextByteTimeout = timeout - (int) (currentTime - readStartTime);
             if (nextByteTimeout < minByteReadTimeout) nextByteTimeout = minByteReadTimeout;
             byteReadStartTime = System.currentTimeMillis();
             b = port.readBytes(1, nextByteTimeout);
@@ -173,6 +174,7 @@ public class ADAM {
                         + byteReadTime)/totalByteReadCount;
             }
             if (b[0] == 13 ) {           // wait for CR = 0x0D = 13. 
+                readDuration = System.currentTimeMillis() - readStartTime;
                 return response.toString();
             }
             response.append(new String(b, 0, 1));
@@ -184,7 +186,8 @@ public class ADAM {
     public String readResponse() {
         // Read response form ADAM module
 
-        readTime = System.currentTimeMillis();
+        readDuration = -1;
+        readStartTime = System.currentTimeMillis();
         // If comport suspended return ""
         if (isSuspended()) {
             return "";
@@ -197,7 +200,7 @@ public class ADAM {
                 String rsp = ADAM.this.readResponse(timeout);
                 decreaseTimeout();
                 LOGGER.log(Level.FINE, getInfo() + "Response: {0}", response);
-                readTime = System.currentTimeMillis() - readTime;
+                readDuration = System.currentTimeMillis() - readStartTime;
                 return rsp;
             }
             catch (SerialPortTimeoutException | ADAMException ex) {

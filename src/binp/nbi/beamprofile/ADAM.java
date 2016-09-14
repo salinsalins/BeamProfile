@@ -150,16 +150,19 @@ public class ADAM {
         byte[] b;
         long startTime = System.currentTimeMillis();
         long currentTime = startTime;
-        if(response != null) response.delete(0, response.length());
-        //readBufferIndex = 0;
+        long byteReadStartTime;
+        int nextByteTimeout;
+        if(response != null) 
+            response.delete(0, response.length());
+        else 
+            response = new StringBuilder();
         while ((currentTime  - startTime) <= timeout) {
-            int nextByteTimeout = timeout - (int) (currentTime - startTime);
+            nextByteTimeout = timeout - (int) (currentTime - startTime);
             if (nextByteTimeout < minByteReadTimeout) nextByteTimeout = minByteReadTimeout;
-            long byteReadStartTime = System.currentTimeMillis();
+            byteReadStartTime = System.currentTimeMillis();
             b = port.readBytes(1, nextByteTimeout);
             currentTime = System.currentTimeMillis();
             if (response.length() <= 0) {
-            //if (readBufferIndex <= 0) {
                 firstByteReadTime = currentTime - byteReadStartTime;
                 averageFirstByteReadTime = (averageFirstByteReadTime*firstByteReadCount++ 
                         + firstByteReadTime)/firstByteReadCount;
@@ -171,20 +174,17 @@ public class ADAM {
             }
             if (b[0] == 13 ) {           // wait for CR = 0x0D = 13. 
                 return response.toString();
-                //return new String(readBuffer, 0, readBufferIndex);
             }
-            //if (readBufferIndex < readBuffer.length) readBuffer[readBufferIndex++] = b[0];
             response.append(new String(b, 0, 1));
-            //response = new String(readBuffer, 0, readBufferIndex);
             currentTime = System.currentTimeMillis();
         }
-        //response = new String(readBuffer, 0, readBufferIndex);
         throw new ADAMException(getInfo() + "Read response timeout " + timeout + " ms");
     }
 
     public String readResponse() {
         // Read response form ADAM module
-        if(response != null) response.delete(0, response.length());
+
+        readTime = System.currentTimeMillis();
         // If comport suspended return ""
         if (isSuspended()) {
             return "";
@@ -192,7 +192,6 @@ public class ADAM {
 
         // Perform n reties to read response
         int n = readRetries;
-        readTime = System.currentTimeMillis();
         while (n-- > 0) {
             try {
                 String rsp = ADAM.this.readResponse(timeout);

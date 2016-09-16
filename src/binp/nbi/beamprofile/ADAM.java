@@ -80,6 +80,7 @@ public class ADAM {
         addr = -1;
         name = "";
         firmware = "";
+        LOGGER.log(Level.FINEST, getInfo() + "delete");
     }
 
     public boolean reconnect() {
@@ -88,6 +89,7 @@ public class ADAM {
             if (!port.isOpened()) port.openPort();
             String newName = readModuleName();
             if (newName.equals(name)) {
+                LOGGER.log(Level.FINEST, getInfo() + "reconnected");
                 return true;
             } else {
                 LOGGER.log(Level.SEVERE, getInfo() + "Module name mismatch during reconnect");
@@ -199,7 +201,7 @@ public class ADAM {
             try {
                 String rsp = ADAM.this.readResponse(timeout);
                 decreaseTimeout();
-                LOGGER.log(Level.FINE, getInfo() + "Response: {0}", response);
+                LOGGER.log(Level.FINE, getInfo() + "Response: {0}", response.toString());
                 readDuration = System.currentTimeMillis() - readStartTime;
                 return rsp;
             }
@@ -218,7 +220,7 @@ public class ADAM {
         }
         LOGGER.log(Level.SEVERE, getInfo() + "No response {0} times", readRetries);
         suspStartTime = System.currentTimeMillis();
-        LOGGER.log(Level.SEVERE, getInfo() + "Suspend reading for {0} ms", suspDuration);
+        LOGGER.log(Level.INFO, getInfo() + "Reading is suspended for {0} ms", suspDuration);
         return "";
     }
     

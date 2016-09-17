@@ -190,14 +190,12 @@ public class ADAM {
 
     public String readResponse() {
         // Read response form ADAM module
-
         readDuration = -1;
         readStartTime = System.currentTimeMillis();
         // If comport suspended return ""
         if (isSuspended()) {
             return "";
         }
-
         // Perform n reties to read response
         int n = readRetries;
         while (n-- > 0) {
@@ -321,10 +319,10 @@ public class ADAM {
         try {
             if (!(str.startsWith(">") || str.startsWith("<"))) 
                 return data;
-            if (!str.contains("; ")) {
+            //if (!str.contains("; ")) {
                 str = str.replaceAll("\\+","; +");
                 str = str.replaceAll("-","; -");
-            }
+            //}
             String[] strarr = str.split("; ");
             if (strarr.length <= 1) return data;
             data = new double[strarr.length - 1];

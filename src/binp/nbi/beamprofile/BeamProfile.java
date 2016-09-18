@@ -1930,21 +1930,23 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         // Save line with data to output file if output writing is enabled
                         if (writeToFile && (outputWriter != null)) {
                             try {
-                                // Write Time in milliseconds - not time HH:MM:SS.SS
-                                String str = String.format("%d; ", (long) temp[0]);
-                                outputWriter.write(str, 0, str.length());
-                                // Data output format
-                                String fmt = "%+07.2f";
                                 // Separator is "; "
                                 String sep = "; ";
+                                // Write Time in milliseconds - not time HH:MM:SS.SS
+                                String str = String.format("%d", (long) temp[0]);
+                                //String str = String.format("%d; ", (long) temp[0]);
+                                //outputWriter.write(str, 0, str.length());
+                                outputWriter.write(str + sep);
                                 // Write data array
-                                for (int i = 1; i < temp.length-1; i++) {
-                                    str = String.format(fmt+sep, temp[i]);
-                                    outputWriter.write(str, 0, str.length());
+                                for (int i = 1; i < temp.length; i++) {
+                                    str = String.format("%+07.2f", temp[i]);
+                                    if (str.length() > 7) 
+                                        str = str.substring(0, 7);
+                                    if (i < temp.length-1)
+                                        outputWriter.write(str + sep);
+                                    else
+                                        outputWriter.write(str + "\n"); // last value with NL
                                 }
-                                // Write last value with NL instead of sepearator
-                                str = String.format(fmt+"\n", temp[temp.length-1]);
-                                outputWriter.write(str, 0, str.length());
                                 outputWriter.flush();
                             } catch (IOException ex) {
                                 LOGGER.log(Level.SEVERE, "Output write error");

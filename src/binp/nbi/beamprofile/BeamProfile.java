@@ -1172,14 +1172,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     @Override
     public void windowClosed(WindowEvent e) {
-        saveConfig();
+        //saveConfig();
         saveConfigToIni();
         System.exit(0);
     }
     @Override
     public void windowOpened(WindowEvent e) {
         restoreConfigFromIni();
-        restoreConfig();
+        //restoreConfig();
         setValuesFromComponens();
         task = new Task(this);
         task.execute();
@@ -1275,19 +1275,56 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             boolean b;
             String s;
             Wini ini = new Wini(new File(configFileName));
+            // Restore input file parameters
+            // File name
             s = ini.get("Input", "file");
             jTextField6.setText(s);
+            // readFromFile
             b =  ini.get("Input", "readFromFile", boolean.class);
             jCheckBox1.setSelected(b);
+            // Restore output file parameters
+            // File name
             s = ini.get("Output", "dir");
             jTextField7.setText(s);
+            // writeToFolder
+            b =  ini.get("Output", "writeToFolder", boolean.class);
+            jCheckBox2.setSelected(b);
+            ini.put("Output", "writeToFolder", b);
+            // splitOutput
+            b =  ini.get("Output", "splitOtput", boolean.class);
+            jCheckBox3.setSelected(b);
 
+            // Restore addresses and ports of ADAMs
+            i =  ini.get("ADAM_1", "address", int.class);
+            jSpinner7.setValue(i);
+            s = ini.get("ADAM_1", "port");
+            jComboBox1.setSelectedItem(s);
+            i =  ini.get("ADAM_2", "address", int.class);
+            jSpinner8.setValue(i);
+            s = ini.get("ADAM_2", "port");
+            jComboBox2.setSelectedItem(s);
+            i =  ini.get("ADAM_3", "address", int.class);
+            jSpinner9.setValue(i);
+            s = ini.get("ADAM_3", "port");
+            jComboBox3.setSelectedItem(s);
+            i =  ini.get("ADAM_4", "address", int.class);
+            jSpinner10.setValue(i);
+            s = ini.get("ADAM_4", "port");
+            jComboBox4.setSelectedItem(s);
+
+            // Restore log level
+            s = ini.get("Log", "level");
+            jComboBox5.setSelectedItem(s);
+            
+            // Restore Table1
             restoreTable(jTable1, ini, "Channel");
+            // Restore Table2
             restoreTable(jTable2, ini, "ADAM");
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, "Config write error");
             LOGGER.log(Level.INFO, "Exception info", ex);
         }
+        jComboBox5ActionPerformed(null);
         LOGGER.fine("Config restored");
     }
 

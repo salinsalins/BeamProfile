@@ -45,7 +45,7 @@ public class Adam4118 extends ADAM {
         try {
             return ADAM.doubleFromString(readString());
         } catch (Exception ex) {
-            LOGGER.log(Level.WARNING, "Adam4118 response conversion error");
+            LOGGER.log(Level.SEVERE, "Adam4118 response conversion error");
             LOGGER.log(Level.INFO, "Exception info", ex);
             return new double[8];
         }

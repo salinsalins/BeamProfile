@@ -16,6 +16,9 @@ import jssc.SerialPortTimeoutException;
 public class ADAM {
     static final Logger LOGGER = Logger.getLogger(ADAM.class.getPackage().getName());
 
+    static final int CHAN_MIN = 0;
+    static final int CHAN_MAX = 7;
+
     public SerialPort port;
     public int addr = -1;
     String name = "";
@@ -187,14 +190,12 @@ public class ADAM {
 
     public String readResponse() {
         // Read response form ADAM module
-
         readDuration = -1;
         readStartTime = System.currentTimeMillis();
         // If comport suspended return ""
         if (isSuspended()) {
             return "";
         }
-
         // Perform n reties to read response
         int n = readRetries;
         while (n-- > 0) {
@@ -276,7 +277,7 @@ public class ADAM {
 
     public double read(int chan) throws ADAMException {
         // Read One Channel chan. Command  #AAN
-        if ((chan < 0) || (chan > 8)) {
+        if ((chan < CHAN_MIN) || (chan > CHAN_MAX )) {
             String str = getInfo() + "Wrong channel number " + chan;
             LOGGER.log(Level.WARNING, str);
             throw new ADAMException(str);
@@ -311,16 +312,17 @@ public class ADAM {
     }
 
     public static double[] doubleFromString(String str) {
-        double[] data = new double[8];
+        double[] data = new double[CHAN_MAX - CHAN_MIN + 1];
         for (int i = 0; i < data.length; i++) {
             data[i] = -8888.8;
         }
         try {
             if (!(str.startsWith(">") || str.startsWith("<"))) 
                 return data;
-            //str = str.substring(1);
-            str = str.replaceAll("\\+","; +");
-            str = str.replaceAll("-","; -");
+            //if (!str.contains("; ")) {
+                str = str.replaceAll("\\+","; +");
+                str = str.replaceAll("-","; -");
+            //}
             String[] strarr = str.split("; ");
             if (strarr.length <= 1) return data;
             data = new double[strarr.length - 1];

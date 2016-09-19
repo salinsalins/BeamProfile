@@ -69,7 +69,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     static String progName = "Calorimeter Beam Profile";
     static String progNameShort = "Beam_Profile";
-    static String progVersion = "21";
+    static String progVersion = "30";
     String iniFileName = progNameShort + "_" + progVersion + ".ini";
     String configFileName = progNameShort + ".ini";
 
@@ -137,7 +137,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int[] p2x =     { 2, 6, 10};     // cm X values for horizontal profile
     double[] prof2  = new double[p2range.length];  // Horizontal profile
     double[] prof2max  = new double[prof2.length]; // Maximal horizontal profile
-
+    double maxTime;
+    double lastProfTime = 3.0*60.*1000.; // 3 min
+    
     // Faded profiles
     int fpn = 10;               // Number of faded pofiles
     int[] fpi = new int[fpn];   // Faded pofiles indexes
@@ -145,17 +147,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double fpdt = 0.5;          // Faded pofile time inteval [s]
 
     // Beam current calculations and plot
-    int bctin = 8;          // Input water temperature channel number
+    int bctin = 8;          //  Input water temperature channel number
     int bctout = 7;         // Output water temperature channel number
-    double voltage = 80.0;   // keV Particles energy
-    double duration = 2.0;     // s Beam duration
+    double voltage = 80.0;  // keV Particles energy
+    double duration = 2.0;  // s Beam duration
+    int bcflowchan = 22;    // Channel number for flowmeter output
     double flow = 1.0;      // [V] 1V  = 12.0Gpm (gallons per minute) Default cooling water flow signal  
     // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)[degrees C]*Q/voltage[V]
     double VoltsToGPM = 12.0;  // 1V  = 12.0Gpm conversion coeff 
     double Q = 12.0*4.3*1000.0*0.06309; // Coeff to convert Volts to Watts/degreeC 
     double bcmax = 0.0;    // Max beam current on the screen
     double bcmax1 = 0.0;   // MaxMax beam current
-    int bcflowchan = 22;  // Channel number for flowmeter output
 
     String statusLine = "";
     
@@ -469,7 +471,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel6Layout.createSequentialGroup()
                 .addContainerGap()
                 .add(jLabel3)
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 413, Short.MAX_VALUE)
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 414, Short.MAX_VALUE)
                 .add(jToggleButton1)
                 .addContainerGap())
             .add(jScrollPane2)
@@ -592,7 +594,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             .add(jCheckBox2)
                             .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                             .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 322, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                             .add(jButton3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
                     .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             );
@@ -600,17 +602,16 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                 .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel1Layout.createSequentialGroup()
                     .addContainerGap()
-                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jButton3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                            .add(jCheckBox2)
-                            .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
+                    .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
+                        .add(jCheckBox2)
+                        .add(jTextField7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .add(jButton3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .add(jPanel1Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                         .add(jCheckBox3)
                         .add(jCheckBox4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .add(jCheckBox5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 23, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(15, 15, 15))
+                    .add(3, 3, 3))
             );
 
             jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Input"));
@@ -642,10 +643,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                 jPanel2Layout.setHorizontalGroup(
                     jPanel2Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(jPanel2Layout.createSequentialGroup()
+                        .addContainerGap()
                         .add(jCheckBox1)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(jTextField6)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jTextField6, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 319, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                         .add(jButton2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 55, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addContainerGap())
                 );
@@ -757,60 +759,62 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         .addContainerGap()
                         .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                             .add(jPanel7Layout.createSequentialGroup()
-                                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 298, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                                .add(18, 18, 18)
-                                .add(jScrollPane5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 188, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(jPanel7Layout.createSequentialGroup()
-                                .add(jLabel20)
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jSpinner11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                            .add(jPanel7Layout.createSequentialGroup()
                                 .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jLabel16)
-                                    .add(jLabel13)
-                                    .add(jLabel10)
-                                    .add(jLabel9))
-                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
-                                        .add(jLabel17)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jComboBox4, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                     .add(jPanel7Layout.createSequentialGroup()
-                                        .add(jLabel14)
+                                        .add(jLabel20)
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jComboBox3, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                        .add(jSpinner11, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                                     .add(jPanel7Layout.createSequentialGroup()
-                                        .add(jLabel11)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jComboBox2, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                    .add(jPanel7Layout.createSequentialGroup()
-                                        .add(jLabel2)
-                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                                .add(18, 18, 18)
-                                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                    .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                                         .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                                            .add(jPanel7Layout.createSequentialGroup()
-                                                .add(jLabel8)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
-                                                .add(jLabel12)
-                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                                .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                                        .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
-                                            .add(jLabel15)
-                                            .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                            .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
-                                        .add(jLabel18)
+                                            .add(jLabel16)
+                                            .add(jLabel13)
+                                            .add(jLabel10)
+                                            .add(jLabel9))
                                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                        .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                                                .add(jLabel17)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jComboBox4, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                            .add(jPanel7Layout.createSequentialGroup()
+                                                .add(jLabel14)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jComboBox3, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                            .add(jPanel7Layout.createSequentialGroup()
+                                                .add(jLabel11)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jComboBox2, 0, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                            .add(jPanel7Layout.createSequentialGroup()
+                                                .add(jLabel2)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jComboBox1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 78, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                        .add(18, 18, 18)
+                                        .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                            .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
+                                                    .add(jPanel7Layout.createSequentialGroup()
+                                                        .add(jLabel8)
+                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                        .add(jSpinner7, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                                                    .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                                                        .add(jLabel12)
+                                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                        .add(jSpinner8, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                                .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                                                    .add(jLabel15)
+                                                    .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                    .add(jSpinner9, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                            .add(org.jdesktop.layout.GroupLayout.TRAILING, jPanel7Layout.createSequentialGroup()
+                                                .add(jLabel18)
+                                                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                                .add(jSpinner10, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 58, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                                        .add(jScrollPane4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 187, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
+                                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .add(jPanel7Layout.createSequentialGroup()
+                                .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
                                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                                .add(jScrollPane4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 187, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                        .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .add(jScrollPane5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 188, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))))
                 );
                 jPanel7Layout.setVerticalGroup(
                     jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -847,8 +851,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                     .add(jLabel16)))
                             .add(jScrollPane4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 94, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
                         .add(28, 28, 28)
-                        .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 61, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                        .add(jPanel2, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
                         .add(jPanel1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jPanel7Layout.createParallelGroup(org.jdesktop.layout.GroupLayout.TRAILING)
@@ -900,7 +904,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         .add(jLabel19)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(jComboBox5, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 118, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 214, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 215, Short.MAX_VALUE)
                         .add(jButton4)
                         .add(42, 42, 42))
                 );
@@ -1170,14 +1174,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     @Override
     public void windowClosed(WindowEvent e) {
-        saveConfig();
+        //saveConfig();
         saveConfigToIni();
         System.exit(0);
     }
     @Override
     public void windowOpened(WindowEvent e) {
         restoreConfigFromIni();
-        restoreConfig();
+        //restoreConfig();
         setValuesFromComponens();
         task = new Task(this);
         task.execute();
@@ -1273,19 +1277,56 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             boolean b;
             String s;
             Wini ini = new Wini(new File(configFileName));
+            // Restore input file parameters
+            // File name
             s = ini.get("Input", "file");
             jTextField6.setText(s);
+            // readFromFile
             b =  ini.get("Input", "readFromFile", boolean.class);
             jCheckBox1.setSelected(b);
+            // Restore output file parameters
+            // File name
             s = ini.get("Output", "dir");
             jTextField7.setText(s);
+            // writeToFolder
+            b =  ini.get("Output", "writeToFolder", boolean.class);
+            jCheckBox2.setSelected(b);
+            ini.put("Output", "writeToFolder", b);
+            // splitOutput
+            b =  ini.get("Output", "splitOtput", boolean.class);
+            jCheckBox3.setSelected(b);
 
+            // Restore addresses and ports of ADAMs
+            i =  ini.get("ADAM_1", "address", int.class);
+            jSpinner7.setValue(i);
+            s = ini.get("ADAM_1", "port");
+            jComboBox1.setSelectedItem(s);
+            i =  ini.get("ADAM_2", "address", int.class);
+            jSpinner8.setValue(i);
+            s = ini.get("ADAM_2", "port");
+            jComboBox2.setSelectedItem(s);
+            i =  ini.get("ADAM_3", "address", int.class);
+            jSpinner9.setValue(i);
+            s = ini.get("ADAM_3", "port");
+            jComboBox3.setSelectedItem(s);
+            i =  ini.get("ADAM_4", "address", int.class);
+            jSpinner10.setValue(i);
+            s = ini.get("ADAM_4", "port");
+            jComboBox4.setSelectedItem(s);
+
+            // Restore log level
+            s = ini.get("Log", "level");
+            jComboBox5.setSelectedItem(s);
+            
+            // Restore Table1
             restoreTable(jTable1, ini, "Channel");
+            // Restore Table2
             restoreTable(jTable2, ini, "ADAM");
         } catch (IOException ex) {
             LOGGER.log(Level.WARNING, "Config write error");
             LOGGER.log(Level.INFO, "Exception info", ex);
         }
+        jComboBox5ActionPerformed(null);
         LOGGER.fine("Config restored");
     }
 
@@ -1861,7 +1902,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         column.setCellRenderer(renderer);
     }
 
-//---------------------------------------------
+//****************************************************************************
     class Task extends SwingWorker<Void, Void> {
 
         BeamProfile bp;
@@ -1928,21 +1969,23 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         // Save line with data to output file if output writing is enabled
                         if (writeToFile && (outputWriter != null)) {
                             try {
-                                // Write Time in milliseconds - not time HH:MM:SS.SS
-                                String str = String.format("%d; ", (long) temp[0]);
-                                outputWriter.write(str, 0, str.length());
-                                // Data output format
-                                String fmt = "%+07.2f";
                                 // Separator is "; "
                                 String sep = "; ";
+                                // Write Time in milliseconds - not time HH:MM:SS.SS
+                                String str = String.format("%d", (long) temp[0]);
+                                //String str = String.format("%d; ", (long) temp[0]);
+                                //outputWriter.write(str, 0, str.length());
+                                outputWriter.write(str + sep);
                                 // Write data array
-                                for (int i = 1; i < temp.length-1; i++) {
-                                    str = String.format(fmt+sep, temp[i]);
-                                    outputWriter.write(str, 0, str.length());
+                                for (int i = 1; i < temp.length; i++) {
+                                    str = String.format("%+07.2f", temp[i]);
+                                    if (str.length() > 7) 
+                                        str = str.substring(0, 7);
+                                    if (i < temp.length-1)
+                                        outputWriter.write(str + sep);
+                                    else
+                                        outputWriter.write(str + "\n"); // last value with NL
                                 }
-                                // Write last value with NL instead of sepearator
-                                str = String.format(fmt+"\n", temp[temp.length-1]);
-                                outputWriter.write(str, 0, str.length());
                                 outputWriter.flush();
                             } catch (IOException ex) {
                                 LOGGER.log(Level.SEVERE, "Output write error");
@@ -1956,8 +1999,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         for (int i = 1; i < temp.length; i++) {
                             if (temp[i] <= 0.0)
                                 temp[i] = data[nx-1][i];
-                         // If temperature readings > 8000 then use previous value
-                           if (temp[i] > 8000.0)
+                            if (temp[i] < 0.0)
+                                temp[i] = 0.0;
+                            // If temperature readings > 8000 then use previous value
+                            if (temp[i] > 8000.0)
                                 temp[i] = data[nx-1][i];
                         } 
 
@@ -1979,33 +2024,19 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         
                         // Calculate data minimum and maximum
                         for (int i = 1; i < temp.length; i++) {
-                            if (dmin[i] > temp[i]) {
-                                dmin[0] = temp[0];
+                            if (temp[i] > 0.0 && dmin[i] > temp[i]) {
+                                // !! Only for temperature channels 1 - 16                                if (i < 17 ) dmin[0] = temp[0];
                                 dmin[i] = temp[i];
                             }
                             if (dmax[i] < temp[i]) {
-                                dmax[0] = temp[0];
+                                // !! Only for temperature channels 1 - 16                                if (i < 17 ) dmin[0] = temp[0];
+                                if (i < 17 ) dmax[0] = temp[0];
                                 dmax[i] = temp[i];
                             }
                         }
 
                         // Prepare traces to plot
                         tracesDataset = new BeamProfileDataset(data);
-                        /*
-                        // Signal traces
-                        for (int i: trn) {
-                        //System.out.println("Add " + i);
-                        tracesDataset.addSeries(i);
-                        }
-                        // Trageting traces
-                        for (int i: tpn) {
-                        tracesDataset.addSeries(i);
-                        }
-                        // Acceleration grid traces
-                        for (int i: agn) {
-                        tracesDataset.addSeries(i);
-                        }
-                        */                        
                         JFreeChart chart = chart1.getChart();
                         XYPlot plot = chart.getXYPlot();
                         XYItemRenderer renderer = plot.getRenderer();
@@ -2024,14 +2055,15 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         plot.setNotify(savedNotify);
                         
                         // Calculate profiles prof1 - vertical and prof2 - horizontal
+                        // Dataset for profiles
+                        profileDataset = new DefaultXYDataset();
+                        // 1. Current profile
                         for (int i =0; i < p1range.length; i++) {
                             prof1[i] = data[nx-1][p1range[i]] - dmin[p1range[i]];
                         }
                         for (int i =0; i < p2range.length; i++) {
                             prof2[i] = data[nx-1][p2range[i]] - dmin[p2range[i]];
                         }
-                        // Dataset for profiles
-                        profileDataset = new DefaultXYDataset();
                         // Add Vertical profile
                         double[][] plottedData = new double[2][p1range.length];
                         for (int j = 0; j < p1range.length; j++) {
@@ -2050,6 +2082,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         // Calculate maximal horizontal and vertical profiles
                         // Refresh maximal profiles
                         if (max(prof1max) < max(prof1)) {
+                            maxTime = temp[0];
                             System.arraycopy(prof1, 0, prof1max, 0, prof1max.length);
                             System.arraycopy(prof2, 0, prof2max, 0, prof2max.length);
                         }
@@ -2067,7 +2100,38 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             plottedData[1][j] = prof2max[j];
                         }
                         profileDataset.addSeries("maxHorizProf", plottedData);
+                        
+                        // Find max vertical profile for last 3 min
+                        double maxValue = data[nx-1][p1range[0]];
+                        int maxXIndex = nx-1;
+                        int maxYIndex = p1range[0];
+                        for (int i = nx-1; i >=0; i--) {
+                            if (data[nx-1][0]-data[i][0] >= lastProfTime)
+                                break;
+                            for (int j = 0; j < p1range.length; j++) {
+                                if (data[i][p1range[j]] > maxValue) {
+                                    maxValue = data[i][p1range[j]];
+                                    maxXIndex = i;
+                                    maxYIndex = p1range[j];
+                                }
+                            }
+                        }
+                        // Vertical profile
+                        plottedData = new double[2][p1range.length];
+                        for (int j = 0; j < p1range.length; j++) {
+                            plottedData[0][j] = p1x[j];
+                            plottedData[1][j] = data[maxXIndex][p1range[j]];
+                        }
+                        profileDataset.addSeries("lastMaxVertProf", plottedData);
+                        // Horizontal profile
+                        plottedData = new double[2][p2range.length];
+                        for (int j = 0; j < p2range.length; j++) {
+                            plottedData[0][j] = p2x[j];
+                            plottedData[1][j] = data[maxXIndex][p2range[j]];
+                        }
+                        profileDataset.addSeries("lastMaxHorizProf", plottedData);
 
+/*                        
                         // Faded profiles - refresh every fpdt seconds
                         if (Math.abs(c.getSeconds() - c1.getSeconds()) < fpdt) {
                             for(int i = 0; i < fpi.length; i++) {
@@ -2090,7 +2154,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             }
                             profileDataset.addSeries("Faded " + i, plottedData);
                         }
-
+*/
                         // Shift marker
                         mi = mi - 1;
                         if (mi < 0) {
@@ -2302,7 +2366,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
     }
 
-//---------------------------------------------
+//****************************************************************************
     class AdamReader {
         File file;
         BufferedReader reader = null;
@@ -2402,4 +2466,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             throw new FileNotFoundException("Reading from closed file");
         }
     } 
+
+//****************************************************************************
 }

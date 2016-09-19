@@ -2101,15 +2101,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         }
                         profileDataset.addSeries("maxHorizProf", plottedData);
                         
-                        // Find max profile for last 3 min
-                        int p1l = p1range.length;
+                        // Find max vertical profile for last 3 min
                         double maxValue = data[nx-1][p1range[0]];
                         int maxXIndex = nx-1;
                         int maxYIndex = p1range[0];
                         for (int i = nx-1; i >=0; i--) {
                             if (data[nx-1][0]-data[i][0] >= lastProfTime)
                                 break;
-                            for (int j = 0; j < p1l; j++) {
+                            for (int j = 0; j < p1range.length; j++) {
                                 if (data[i][p1range[j]] > maxValue) {
                                     maxValue = data[i][p1range[j]];
                                     maxXIndex = i;
@@ -2117,7 +2116,22 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 }
                             }
                         }
+                        // Vertical profile
+                        plottedData = new double[2][p1range.length];
+                        for (int j = 0; j < p1range.length; j++) {
+                            plottedData[0][j] = p1x[j];
+                            plottedData[1][j] = data[maxXIndex][p1range[j]];
+                        }
+                        profileDataset.addSeries("lastMaxVertProf", plottedData);
+                        // Horizontal profile
+                        plottedData = new double[2][p2range.length];
+                        for (int j = 0; j < p2range.length; j++) {
+                            plottedData[0][j] = p2x[j];
+                            plottedData[1][j] = data[maxXIndex][p2range[j]];
+                        }
+                        profileDataset.addSeries("lastMaxHorizProf", plottedData);
 
+/*                        
                         // Faded profiles - refresh every fpdt seconds
                         if (Math.abs(c.getSeconds() - c1.getSeconds()) < fpdt) {
                             for(int i = 0; i < fpi.length; i++) {
@@ -2140,7 +2154,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             }
                             profileDataset.addSeries("Faded " + i, plottedData);
                         }
-
+*/
                         // Shift marker
                         mi = mi - 1;
                         if (mi < 0) {

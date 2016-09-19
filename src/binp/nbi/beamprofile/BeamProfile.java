@@ -69,7 +69,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     static String progName = "Calorimeter Beam Profile";
     static String progNameShort = "Beam_Profile";
-    static String progVersion = "31";
+    static String progVersion = "32";
     String iniFileName = progNameShort + "_" + progVersion + ".ini";
     String configFileName = progNameShort + ".ini";
 
@@ -101,6 +101,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double[] dmin = new double[ny];         // minimal temperatures
     double[] dmax = new double[ny];         // maximal temperatures
 	
+/*
     // Traces to plot
     int[] trn = {6, 2, 10};     // Channel numbers of traces
     Color[] trc = {Color.RED, Color.GREEN, Color.BLUE};  // Colors of traces
@@ -110,8 +111,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int agcn = 24;
     int[] agn = {agvn, agcn};
     Color[] agc = {Color.RED, Color.GREEN};  // Colors of traces
-
-    // Targeting plots
+    
+// Targeting plots
     int tpt = 18;
     int tpb = 19;
     int tpl = 20;
@@ -120,6 +121,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int[] tpn = {tpt, tpb, tpl, tpr};   // Channel numbers for Targeting plots
     Color[] tpc = {Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA};  // Colors of traces
     int[] tph1 = new int[tpn.length];   // Handles of traces zoom
+*/
+
     int tpw = 30;                  // +- Integration window halfwidth
     int tpnm;
     int tpn1;
@@ -131,7 +134,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int[] p1range = {1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13};  // Channels for vertical profile
     int[] p1x =     {0, 2, 3, 4, 5, 6, 7,  8,  9, 10, 12};  // X values for vertical profile
     double[] prof1  = new double[p1range.length];           // Vertical profile
-    double[] prof1max  = new double[prof1.length];     // Maximal vertical profile
+    double[] prof1max  = new double[p1range.length];        // Maximal vertical profile
     // Horizontal profile
     int[] p2range = {15, 6, 14};     // Channels for horizontal profile
     int[] p2x =     { 2, 6, 10};     // cm X values for horizontal profile
@@ -140,12 +143,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double maxTime;
     double lastProfTime = 3.0*60.*1000.; // 3 min
     
+/*
     // Faded profiles
     int fpn = 10;               // Number of faded pofiles
     int[] fpi = new int[fpn];   // Faded pofiles indexes
     int[] fph = new int[fpn];   // Faded pofile plot handles
     double fpdt = 0.5;          // Faded pofile time inteval [s]
-
+*/
+    
     // Beam current calculations and plot
     int bctin = 8;          //  Input water temperature channel number
     int bctout = 7;         // Output water temperature channel number
@@ -231,7 +236,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         DateAxis axis = new DateAxis("Time", TimeZone.getTimeZone("GMT+7"));
         plot.setDomainAxis(axis);
         
-        // Add simple sinusoidal data 
+    /*
+        // Add simple sinusoidal data
         boolean savedNotify = plot.isNotify();
         // Stop refreshing the plot
         plot.setNotify(false);
@@ -240,20 +246,20 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         plot.setDataset(dataset);
         //XYSeriesCollection tracesDataset = (XYSeriesCollection) plot.getDataset();
         dataset.removeAllSeries();
-        for (int i = 0; i < trn.length; i++) { 
-            XYSeries series = new XYSeries("Signal " + i);
-            for (int j = 0; j < data.length; j++) {
-                double x = j;
-                //double x = (data[j][0] - data[0][0])/1000.0;
-                double y = Math.sin(Math.PI*j/500.0);
-                //double y = data[j][trn[i]];
-                series.add(x, y);
-            }
-            dataset.addSeries(series);
+        for (int i = 0; i < trn.length; i++) {
+        XYSeries series = new XYSeries("Signal " + i);
+        for (int j = 0; j < data.length; j++) {
+        double x = j;
+        //double x = (data[j][0] - data[0][0])/1000.0;
+        double y = Math.sin(Math.PI*j/500.0);
+        //double y = data[j][trn[i]];
+        series.add(x, y);
+        }
+        dataset.addSeries(series);
         }
         // Restore refreshing state
         plot.setNotify(savedNotify);
-
+    */
         chart2 = new ChartPanel(ChartFactory.createXYLineChart(
                 "Profiles", // chart title
                 "Distance, cm", // x axis label
@@ -271,6 +277,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         plot.setAxisOffset(RectangleInsets.ZERO_INSETS);
         plot.getRangeAxis().setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
         plot.getDomainAxis().setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
+    /*
         // Add simple sinusoidal data 
         savedNotify = plot.isNotify();
         // Stop refreshing the plot
@@ -288,7 +295,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
         // Restore refreshing state
         plot.setNotify(savedNotify);
-
+    */
         chartPanel = new JPanel();
         chartPanel.setLayout(new GridLayout(0, 1, 5, 5));
         chartPanel.add(chart1);
@@ -325,9 +332,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             prof2[i] = data[0][p2range[i]];
             prof2max[i] = 1.0;
         }
-        for (int i = 0; i < fpi.length; i++) {
-            fpi[i] = nx - 1;
-        }
+//        for (int i = 0; i < fpi.length; i++) {
+//            fpi[i] = nx - 1;
+//        }
 
         c0 = new Date();
         c1 = new Date();
@@ -1804,7 +1811,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         //Set up tool tips for the cells.
         DefaultTableCellRenderer renderer =
                 new DefaultTableCellRenderer();
-        renderer.setToolTipText("Click for combo box");
+        renderer.setToolTipText("Click for COM port list");
         column.setCellRenderer(renderer);
     }
 

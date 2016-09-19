@@ -2023,14 +2023,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         }
                         
                         // Calculate data minimum and maximum
-                        // !! Only among temperature channels 1 - 16
-                        for (int i = 1; i < 17; i++) {
+                        for (int i = 1; i < temp.length; i++) {
                             if (temp[i] > 0.0 && dmin[i] > temp[i]) {
-                                dmin[0] = temp[0];
+                                // !! Only for temperature channels 1 - 16                                if (i < 17 ) dmin[0] = temp[0];
                                 dmin[i] = temp[i];
                             }
                             if (dmax[i] < temp[i]) {
-                                dmax[0] = temp[0];
+                                // !! Only for temperature channels 1 - 16                                if (i < 17 ) dmin[0] = temp[0];
+                                if (i < 17 ) dmax[0] = temp[0];
                                 dmax[i] = temp[i];
                             }
                         }

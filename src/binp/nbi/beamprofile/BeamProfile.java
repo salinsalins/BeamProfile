@@ -149,13 +149,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     // Beam current calculations and plot
     int bctin = 8;          //  Input water temperature channel number
     int bctout = 7;         // Output water temperature channel number
-    double voltage = 80.0;  // keV Particles energy
-    double duration = 2.0;  // s Beam duration
+    double beamVoltage = 80.0;  // keV Particles energy
+    double beamDuration = 2.0;  // s Beam duration
     int bcflowchan = 22;    // Channel number for flowmeter output
-    double flow = 1.0;      // [V] 1V  = 12.0Gpm (gallons per minute) Default cooling water flow signal  
+    double flow = 1.0;      // [V] Default cooling water flow signal  
     // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)[degrees C]*Q/voltage[V]
-    double VoltsToGPM = 12.0;  // 1V  = 12.0Gpm conversion coeff 
-    double Q = 12.0*4.3*1000.0*0.06309; // Coeff to convert Volts to Watts/degreeC 
+    double voltsToGPM = 2.32;
+    double Q = voltsToGPM*63.09*4.2; // Coeff to convert Volts to Watts/degreeC 
     double bcmax = 0.0;    // Max beam current on the screen
     double bcmax1 = 0.0;   // MaxMax beam current
 
@@ -2025,14 +2025,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         plottedData = new double[2][p1range.length];
                         for (int j = 0; j < p1range.length; j++) {
                             plottedData[0][j] = p1x[j];
-                            plottedData[1][j] = data[maxXIndex][p1range[j]];
+                            plottedData[1][j] = data[maxXIndex][p1range[j]]- dmin[p1range[j]];
                         }
                         profileDataset.addSeries("lastMaxVertProf", plottedData);
                         // Horizontal profile
                         plottedData = new double[2][p2range.length];
                         for (int j = 0; j < p2range.length; j++) {
                             plottedData[0][j] = p2x[j];
-                            plottedData[1][j] = data[maxXIndex][p2range[j]];
+                            plottedData[1][j] = data[maxXIndex][p2range[j]]- dmin[p2range[j]];
                         }
                         profileDataset.addSeries("lastMaxHorizProf", plottedData);
 
@@ -2082,7 +2082,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                         // Calculate and plot equivalent current
                         // Intgeration window limits [tpn1, tpn2]
-                        tpn2 = nx - 1;
+                        tpn2 = nx-1;
                         tpn1 = tpn2 - 2*tpw;
                         double dt;
                         double integralin = 0.0;
@@ -2105,12 +2105,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             integralflow += data[i][bcflowchan]*dt; 
                         }
                         double flow = integralflow/integraldt;
-                        double deltaTout = integralout/integraldt - minout;
-                        double deltaTin = integralin/integraldt - minout;
+                        double deltaTout = integralout - minout*integraldt;
+                        double deltaTin = integralin - minin*integraldt;
+                        //System.out.println("Integral In " + integralin + " min " + minin);
                         //System.out.println("Flow " + flow + " dt " + integraldt);
-                        double beamCurrent = (deltaTout - deltaTin)*flow*Q/voltage;  //mA
-                        statusLine = String.format("Flow: %7.3f V; DeltaTout: %7.3f C; DeltaTin: %7.3f C; Current: %7.3f mA;", 
-                                flow, deltaTout, deltaTin, beamCurrent);
+                        double beamCurrent = (deltaTout - deltaTin)*flow*Q/beamVoltage/1000.0/beamDuration;  //mA
+                        statusLine = String.format("Flow: %7.3f V; Out: %7.3f C; In: %7.3f C; %7.3f s; %7.3f mA;", 
+                                flow, deltaTout, deltaTin, integraldt/1000.0, beamCurrent);
                         //System.out.println("In " + (integralin - minin*integraldt));
                         //System.out.println("Out " + (integralout - minout*integraldt));
                         //System.out.println("Beam current " + beamCurrent);

@@ -151,6 +151,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int bctout = 7;         // Output water temperature channel number
     double beamVoltage = 80.0;  // keV Particles energy
     double beamDuration = 2.0;  // s Beam duration
+    double integrationTime = 60000.0;
     int bcflowchan = 22;    // Channel number for flowmeter output
     double flow = 1.0;      // [V] Default cooling water flow signal  
     // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)[degrees C]*Q/voltage[V]
@@ -2091,7 +2092,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         double integralflow = 0.0;
                         double minout = data[tpn1][bctout];
                         double minin = data[tpn1][bctin];
-                        for (int i = tpn1; i < tpn2; i++) {
+                        for (int i = nx-2; i > 0; i--) {
+                            if ((data[nx-1][0] - data[i][0]) > integrationTime)
+                                break;
                             dt = data[i+1][0] - data[i][0];
                             if (minout > data[i][bctout]) {
                                 minout = data[i][bctout];
@@ -2248,9 +2251,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                     }
                 }
                 catch (Exception ex) {
-                    stopMeasuremets();
                     LOGGER.log(Level.SEVERE, "Exception during doInBackground");
                     LOGGER.log(Level.INFO, "Exception info", ex);
+                    stopMeasuremets();
                 }
             }
             return null;

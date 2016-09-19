@@ -171,7 +171,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     AdamReader adamReader;
     Adam4118[] adams;
-    int[] addrs = {6, 7, 8, 9};
+    int[] addrs = {8, 2, 4, 5};
     String[] ports = new String[addrs.length];
     List<SerialPort> portList = null;
 

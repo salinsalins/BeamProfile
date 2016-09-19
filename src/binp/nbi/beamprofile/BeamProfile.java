@@ -69,7 +69,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     static String progName = "Calorimeter Beam Profile";
     static String progNameShort = "Beam_Profile";
-    static String progVersion = "21";
+    static String progVersion = "30";
     String iniFileName = progNameShort + "_" + progVersion + ".ini";
     String configFileName = progNameShort + ".ini";
 
@@ -137,7 +137,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int[] p2x =     { 2, 6, 10};     // cm X values for horizontal profile
     double[] prof2  = new double[p2range.length];  // Horizontal profile
     double[] prof2max  = new double[prof2.length]; // Maximal horizontal profile
-
+    double maxTime;
+    double lastProfTime = 3.0*60.*1000.; // 3 min
+    
     // Faded profiles
     int fpn = 10;               // Number of faded pofiles
     int[] fpi = new int[fpn];   // Faded pofiles indexes
@@ -145,17 +147,17 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double fpdt = 0.5;          // Faded pofile time inteval [s]
 
     // Beam current calculations and plot
-    int bctin = 8;          // Input water temperature channel number
+    int bctin = 8;          //  Input water temperature channel number
     int bctout = 7;         // Output water temperature channel number
-    double voltage = 80.0;   // keV Particles energy
-    double duration = 2.0;     // s Beam duration
+    double voltage = 80.0;  // keV Particles energy
+    double duration = 2.0;  // s Beam duration
+    int bcflowchan = 22;    // Channel number for flowmeter output
     double flow = 1.0;      // [V] 1V  = 12.0Gpm (gallons per minute) Default cooling water flow signal  
     // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)[degrees C]*Q/voltage[V]
     double VoltsToGPM = 12.0;  // 1V  = 12.0Gpm conversion coeff 
     double Q = 12.0*4.3*1000.0*0.06309; // Coeff to convert Volts to Watts/degreeC 
     double bcmax = 0.0;    // Max beam current on the screen
     double bcmax1 = 0.0;   // MaxMax beam current
-    int bcflowchan = 22;  // Channel number for flowmeter output
 
     String statusLine = "";
     
@@ -1997,8 +1999,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         for (int i = 1; i < temp.length; i++) {
                             if (temp[i] <= 0.0)
                                 temp[i] = data[nx-1][i];
-                         // If temperature readings > 8000 then use previous value
-                           if (temp[i] > 8000.0)
+                            if (temp[i] < 0.0)
+                                temp[i] = 0.0;
+                            // If temperature readings > 8000 then use previous value
+                            if (temp[i] > 8000.0)
                                 temp[i] = data[nx-1][i];
                         } 
 
@@ -2019,8 +2023,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         }
                         
                         // Calculate data minimum and maximum
-                        for (int i = 1; i < temp.length; i++) {
-                            if (dmin[i] > temp[i]) {
+                        // !! Only among temperature channels 1 - 16
+                        for (int i = 1; i < 17; i++) {
+                            if (temp[i] > 0.0 && dmin[i] > temp[i]) {
                                 dmin[0] = temp[0];
                                 dmin[i] = temp[i];
                             }
@@ -2032,21 +2037,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                         // Prepare traces to plot
                         tracesDataset = new BeamProfileDataset(data);
-                        /*
-                        // Signal traces
-                        for (int i: trn) {
-                        //System.out.println("Add " + i);
-                        tracesDataset.addSeries(i);
-                        }
-                        // Trageting traces
-                        for (int i: tpn) {
-                        tracesDataset.addSeries(i);
-                        }
-                        // Acceleration grid traces
-                        for (int i: agn) {
-                        tracesDataset.addSeries(i);
-                        }
-                        */                        
                         JFreeChart chart = chart1.getChart();
                         XYPlot plot = chart.getXYPlot();
                         XYItemRenderer renderer = plot.getRenderer();
@@ -2065,14 +2055,15 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         plot.setNotify(savedNotify);
                         
                         // Calculate profiles prof1 - vertical and prof2 - horizontal
+                        // Dataset for profiles
+                        profileDataset = new DefaultXYDataset();
+                        // 1. Current profile
                         for (int i =0; i < p1range.length; i++) {
                             prof1[i] = data[nx-1][p1range[i]] - dmin[p1range[i]];
                         }
                         for (int i =0; i < p2range.length; i++) {
                             prof2[i] = data[nx-1][p2range[i]] - dmin[p2range[i]];
                         }
-                        // Dataset for profiles
-                        profileDataset = new DefaultXYDataset();
                         // Add Vertical profile
                         double[][] plottedData = new double[2][p1range.length];
                         for (int j = 0; j < p1range.length; j++) {
@@ -2091,6 +2082,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         // Calculate maximal horizontal and vertical profiles
                         // Refresh maximal profiles
                         if (max(prof1max) < max(prof1)) {
+                            maxTime = temp[0];
                             System.arraycopy(prof1, 0, prof1max, 0, prof1max.length);
                             System.arraycopy(prof2, 0, prof2max, 0, prof2max.length);
                         }
@@ -2108,6 +2100,23 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             plottedData[1][j] = prof2max[j];
                         }
                         profileDataset.addSeries("maxHorizProf", plottedData);
+                        
+                        // Find max profile for last 3 min
+                        int p1l = p1range.length;
+                        double maxValue = data[nx-1][p1range[0]];
+                        int maxXIndex = nx-1;
+                        int maxYIndex = p1range[0];
+                        for (int i = nx-1; i >=0; i--) {
+                            if (data[nx-1][0]-data[i][0] >= lastProfTime)
+                                break;
+                            for (int j = 0; j < p1l; j++) {
+                                if (data[i][p1range[j]] > maxValue) {
+                                    maxValue = data[i][p1range[j]];
+                                    maxXIndex = i;
+                                    maxYIndex = p1range[j];
+                                }
+                            }
+                        }
 
                         // Faded profiles - refresh every fpdt seconds
                         if (Math.abs(c.getSeconds() - c1.getSeconds()) < fpdt) {

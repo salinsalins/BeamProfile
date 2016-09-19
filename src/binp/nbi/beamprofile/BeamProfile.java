@@ -69,7 +69,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     static String progName = "Calorimeter Beam Profile";
     static String progNameShort = "Beam_Profile";
-    static String progVersion = "30";
+    static String progVersion = "31";
     String iniFileName = progNameShort + "_" + progVersion + ".ini";
     String configFileName = progNameShort + ".ini";
 
@@ -1174,14 +1174,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     @Override
     public void windowClosed(WindowEvent e) {
-        //saveConfig();
         saveConfigToIni();
         System.exit(0);
     }
     @Override
     public void windowOpened(WindowEvent e) {
         restoreConfigFromIni();
-        //restoreConfig();
         setValuesFromComponens();
         task = new Task(this);
         task.execute();
@@ -1219,57 +1217,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         }
     }                                           
 
-    private void restoreConfig() {
-        try {
-            int i;
-            boolean b;
-            String s;
-            ObjectInputStream objIStrm = new ObjectInputStream(new FileInputStream(iniFileName));
-            // Restore input file parameters
-            // File name
-            s = (String) objIStrm.readObject();
-            jTextField6.setText(s);
-            // readFromFile
-            b = (boolean) objIStrm.readObject();
-            jCheckBox1.setSelected(b);
-            // Restore output file parameters
-            // File name
-            s = (String) objIStrm.readObject();
-            jTextField7.setText(s);
-            // writeToFolder
-            b = (boolean) objIStrm.readObject();
-            jCheckBox2.setSelected(b);
-            // splitOutput
-            b = (boolean) objIStrm.readObject();
-            jCheckBox3.setSelected(b);
-            // Restore log level
-            i = (int) objIStrm.readObject();
-            jComboBox5.setSelectedIndex(i);
-            // Restore addresses of ADAMs
-            i = (int) objIStrm.readObject();
-            jSpinner7.setValue(i);
-            i = (int) objIStrm.readObject();
-            jSpinner8.setValue(i);
-            i = (int) objIStrm.readObject();
-            jSpinner9.setValue(i);
-            i = (int) objIStrm.readObject();
-            jSpinner10.setValue(i);
-            // Restore COM ports
-            s = (String) objIStrm.readObject();
-            jComboBox1.setSelectedItem(s);
-            s = (String) objIStrm.readObject();
-            jComboBox2.setSelectedItem(s);
-            s = (String) objIStrm.readObject();
-            jComboBox3.setSelectedItem(s);
-            s = (String) objIStrm.readObject();
-            jComboBox4.setSelectedItem(s);
-        } catch (IOException | ClassNotFoundException ex) {
-            LOGGER.log(Level.WARNING, "Config file read error");
-            LOGGER.log(Level.INFO, "Exception info", ex);
-        }
-        LOGGER.fine("Config restored");
-    }
-    
     private void restoreConfigFromIni() {
         // Restore config from *.ini file
         try {
@@ -1342,54 +1289,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         jCheckBox1ActionPerformed(null);
         jTextField6ActionPerformed(null);
         jToggleButton1ActionPerformed(null);
-    }
-
-    private void saveConfig() {
-        try (ObjectOutputStream objOStrm = new ObjectOutputStream(new FileOutputStream(iniFileName))) {
-            // Save input file parameters
-            // File name
-            String s = jTextField6.getText();
-            objOStrm.writeObject(s);
-            // readFromFile
-            boolean b = jCheckBox1.isSelected();
-            objOStrm.writeObject(b);
-            // Save output file parameters
-            // File name
-            s = jTextField7.getText();
-            objOStrm.writeObject(s);
-            // writeToFolder
-            b = jCheckBox2.isSelected();
-            objOStrm.writeObject(b);
-            // splitOutput
-            b = jCheckBox3.isSelected();
-            objOStrm.writeObject(b);
-            // Save log level
-            int i = jComboBox5.getSelectedIndex();
-            objOStrm.writeObject(i);
-            // Save addresses of ADAMs
-            i = (int) jSpinner7.getValue();
-            objOStrm.writeObject(i);
-            i = (int) jSpinner8.getValue();
-            objOStrm.writeObject(i);
-            i = (int) jSpinner9.getValue();
-            objOStrm.writeObject(i);
-            i = (int) jSpinner10.getValue();
-            objOStrm.writeObject(i);
-            // Save COM ports
-            s = (String) jComboBox1.getSelectedItem();
-            objOStrm.writeObject(s);
-            s = (String) jComboBox2.getSelectedItem();
-            objOStrm.writeObject(s);
-            s = (String) jComboBox3.getSelectedItem();
-            objOStrm.writeObject(s);
-            s = (String) jComboBox4.getSelectedItem();
-            objOStrm.writeObject(s);
-            //objOStrm.writeObject(jTable2);
-        } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "Config write error");
-            LOGGER.log(Level.INFO, "Exception info", ex);
-        }
-        LOGGER.fine("Config saved");
     }
 
     private void saveConfigToIni() {

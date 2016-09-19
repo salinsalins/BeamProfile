@@ -1295,6 +1295,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             // splitOutput
             b =  ini.get("Output", "splitOtput", boolean.class);
             jCheckBox3.setSelected(b);
+            // createSubfolders
+            b =  ini.get("Output", "createSubfolders", boolean.class);
+            jCheckBox4.setSelected(b);
 
             // Restore addresses and ports of ADAMs
             i =  ini.get("ADAM_1", "address", int.class);
@@ -1413,6 +1416,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             // splitOutput
             b = jCheckBox3.isSelected();
             ini.put("Output", "splitOtput", b);
+            // createSubfolders
+            b = jCheckBox4.isSelected();
+            ini.put("Output", "createSubfolders", b);
 
             // Save addresses and ports of ADAMs
             i = (int) jSpinner7.getValue();

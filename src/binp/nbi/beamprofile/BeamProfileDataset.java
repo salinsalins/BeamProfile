@@ -31,11 +31,6 @@ import org.jfree.util.PublicCloneable;
 public class BeamProfileDataset extends AbstractXYDataset
         implements XYDataset, PublicCloneable {
     
-    /**
-     * Storage for the series in the dataset.  We use a list because the
-     * order of the series is significant.  This list must be kept in sync
-     * with the seriesKeys list.
-     */
     private List<Integer> seriesList;
     
     // Data array

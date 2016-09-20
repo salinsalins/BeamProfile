@@ -2067,7 +2067,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             }
                             profileDataset.addSeries("Faded " + i, plottedData);
                         }
-*/
                         // Shift marker
                         mi = mi - 1;
                         if (mi < 0) {
@@ -2087,34 +2086,33 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         }
                         mi1 = Math.max(mi - mw, 0);
                         mi2 = Math.min(mi + mw, nx-1);
+*/
 
                         // Calculate and plot equivalent current
-                        // Intgeration window limits [tpn1, tpn2]
-                        tpn2 = nx-1;
-                        tpn1 = tpn2 - 2*tpw;
+                        // Intgeration window - last integrationTime ms
                         double dt;
                         double integralin = 0.0;
                         double integralout = 0.0;
                         double integraldt = 0.0;
                         double integralflow = 0.0;
-                        double minout = data[tpn1][bctout];
-                        double minin = data[tpn1][bctin];
+                        double minout = data[nx-1][bctout];
+                        double minin = data[nx-1][bctin];
                         for (int i = nx-2; i > 0; i--) {
                             if ((data[nx-1][0] - data[i][0]) > integrationTime)
                                 break;
-                            dt = data[i+1][0] - data[i][0];
                             if (minout > data[i][bctout]) {
                                 minout = data[i][bctout];
                             }
                             if (minin > data[i][bctin]) {
                                 minin = data[i][bctin];
                             }
+                            dt = data[i+1][0] - data[i][0];
                             integraldt += dt; 
                             integralout += data[i][bctout]*dt; 
                             integralin += data[i][bctin]*dt; 
                             integralflow += data[i][bcflowchan]*dt; 
                         }
-                        double flow = integralflow/integraldt;
+                        double flow = integralflow/integraldt; // Average flow
                         double deltaTout = integralout - minout*integraldt;
                         double deltaTin = integralin - minin*integraldt;
                         //System.out.println("Integral In " + integralin + " min " + minin);

@@ -203,12 +203,12 @@ public class BeamTraceDataset extends AbstractXYDataset
      *     arrays of equal length, the first containing the x-values and the
      *     second containing the y-values).
      */
-    public void addSeries(Integer seriesKey) {
+    public void addSeries(Series seriesKey) {
         if (seriesKey == null) {
             throw new IllegalArgumentException(
                     "The 'seriesKey' cannot be null.");
         }
-        int seriesIndex = indexOf(seriesKey);
+        int seriesIndex = -1;//indexOf(seriesKey);
         if (seriesIndex == -1) {  // add a new series
             this.seriesList.add(seriesKey);
         }
@@ -254,20 +254,17 @@ public class BeamTraceDataset extends AbstractXYDataset
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof BeamProfileDataset)) {
+        if (!(obj instanceof BeamTraceDataset)) {
             return false;
         }
-        BeamProfileDataset that = (BeamProfileDataset) obj;
+        BeamTraceDataset that = (BeamTraceDataset) obj;
         if (this.seriesList.size() != that.seriesList.size()) {
             return false;
         }
-        if (this.data != that.data) {
-            return false;
-        }
         for (int i = 0; i < this.seriesList.size(); i++) {
-            int d1 = this.seriesList.get(i);
-            int d2 = that.seriesList.get(i);
-            if (d1 != d2) {
+            Series s1 = this.seriesList.get(i);
+            Series s2 = that.seriesList.get(i);
+            if (s1 != s2) {
                 return false;
             }
         }
@@ -281,8 +278,8 @@ public class BeamTraceDataset extends AbstractXYDataset
      */
     @Override
     public int hashCode() {
-        int result;
-        result = Arrays.hashCode(data);
+        int result = 1;
+        //result = Arrays.hashCode(data);
         result = 29 * result + this.seriesList.hashCode();
         return result;
     }
@@ -298,12 +295,11 @@ public class BeamTraceDataset extends AbstractXYDataset
      */
     @Override
     public Object clone() throws CloneNotSupportedException {
-        BeamProfileDataset clone = (BeamProfileDataset) super.clone();
+        BeamTraceDataset clone = (BeamTraceDataset) super.clone();
         clone.seriesList = new ArrayList(this.seriesList.size());
         for (int i = 0; i < this.seriesList.size(); i++) {
             clone.seriesList.add(this.seriesList.get(i));
         }
-        clone.data = data;
         return clone;
     }
     
@@ -315,7 +311,6 @@ public class BeamTraceDataset extends AbstractXYDataset
             x = _x;
             y = _y;
         }
-        
     }
 
 }

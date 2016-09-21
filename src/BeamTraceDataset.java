@@ -1,49 +1,28 @@
- /*
- * ---------------------
- * Based on DefaultXYDataset.java
- * from jFreeChart library
- * ---------------------
- * (C) Copyright 2016 by All.
- *
- * Author:  Andrey Sanin;
- *
- * Changes
- * -------
- * 29-Aug-2016 : Creation;
- *
- */
-package binp.nbi.beamprofile;
 
-import org.jfree.data.xy.AbstractXYDataset;
-import org.jfree.data.xy.XYDataset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.jfree.data.DomainOrder;
 import org.jfree.data.general.DatasetChangeEvent;
+import org.jfree.data.xy.AbstractXYDataset;
+import org.jfree.data.xy.XYDataset;
 import org.jfree.util.PublicCloneable;
 
 /**
  *
- * @author Sanin
+ * @author sanin
  */
-
-public class BeamProfileDataset extends AbstractXYDataset
+public class BeamTraceDataset extends AbstractXYDataset
         implements XYDataset, PublicCloneable {
     
-    private List<Integer> seriesList;
-    
-    // Data array
-    double[][] data;
+    private List<Series> seriesList;
 
     /**
-     * Creates a new <code>BeamProfileDataset</code> instance, initially
-     * containing no data.
-     * @param d - data array
+     * Creates a new <code>BeamTraceDataset</code> instance,
+     * initially containing no data.
      */
-    public BeamProfileDataset(double[][] d) {
-        data = d;
-        this.seriesList = new java.util.ArrayList();
+    public BeamTraceDataset() {
+        this.seriesList = new java.util.ArrayList<>();
     }
 
     /**
@@ -59,33 +38,24 @@ public class BeamProfileDataset extends AbstractXYDataset
     /**
      * Returns the key for a series.
      *
-     * @param series  the series index (in the range <code>0</code> to
+     * @param index the series index (in the range <code>0</code> to
      *     <code>getSeriesCount() - 1</code>).
      *
      * @return The key for the series.
      *
-     * @throws IllegalArgumentException if <code>series</code> is not in the
+     * @throws IndexOutOfBoundsException if <code>series</code> is not in the
      *     specified range.
      */
     @Override
-    public Comparable getSeriesKey(int series) {
-        if ((series < 0) || (series >= getSeriesCount())) {
-            throw new IllegalArgumentException("Series index out of bounds");
+    public Comparable getSeriesKey(int index) {
+        if ((index < 0) || (index >= getSeriesCount())) {
+            throw new IndexOutOfBoundsException("Series index out of bounds");
         }
-        return (Comparable) this.seriesList.get(series);
+        return index;
     }
 
-    /**
-     * Returns the index of the series with the specified key, or -1 if there
-     * is no such series in the dataset.
-     *
-     * @param seriesKey  the series key (<code>null</code> permitted).
-     *
-     * @return The index, or -1.
-     */
-    @Override
-    public int indexOf(Comparable seriesKey) {
-        return this.seriesList.indexOf(seriesKey);
+    int indexOf(Series series) {
+        return this.seriesList.indexOf(series);
     }
 
     /**
@@ -103,7 +73,7 @@ public class BeamProfileDataset extends AbstractXYDataset
     /**
      * Returns the number of items in the specified series.
      *
-     * @param series  the series index (in the range <code>0</code> to
+     * @param series the series index (in the range <code>0</code> to
      *     <code>getSeriesCount() - 1</code>).
      *
      * @return The item count.
@@ -116,7 +86,7 @@ public class BeamProfileDataset extends AbstractXYDataset
         if ((series < 0) || (series >= getSeriesCount())) {
             throw new IllegalArgumentException("Series index out of bounds");
         }
-        return data.length;
+        return seriesList.get(series).x.length;
     }
 
     /**
@@ -138,7 +108,7 @@ public class BeamProfileDataset extends AbstractXYDataset
      */
     @Override
     public double getXValue(int series, int item) {
-        return data[item][0];
+        return seriesList.get(series).x[item];
     }
 
     /**
@@ -182,8 +152,7 @@ public class BeamProfileDataset extends AbstractXYDataset
      */
     @Override
     public double getYValue(int series, int item) {
-        int index = seriesList.get(series);
-        return data[item][index];
+        return seriesList.get(series).y[item];
     }
 
     /**
@@ -209,28 +178,14 @@ public class BeamProfileDataset extends AbstractXYDataset
     }
 
     /**
-     * Adds a series or if a series with the same key already exists replaces
-     * the data for that series, then sends a {@link DatasetChangeEvent} to
+     * Adds a series, then sends a {@link DatasetChangeEvent} to
      * all registered listeners.
      *
-     * @param seriesKey  the series key (<code>null</code> not permitted).
-     * @param data  the data (must be an array with length 2, containing two
-     *     arrays of equal length, the first containing the x-values and the
-     *     second containing the y-values).
+     * @param x
+     * @param y
      */
-    public void addSeries(Integer seriesKey) {
-        if (seriesKey == null) {
-            throw new IllegalArgumentException(
-                    "The 'seriesKey' cannot be null.");
-        }
-        int seriesIndex = indexOf(seriesKey);
-        if (seriesIndex == -1) {  // add a new series
-            this.seriesList.add(seriesKey);
-        }
-        else {  // replace an existing series
-            this.seriesList.remove(seriesIndex);
-            this.seriesList.add(seriesIndex, seriesKey);
-        }
+    public void addSeries(double[] x, double[] y) {
+        this.seriesList.add(new Series(x, y));
         notifyListeners(new DatasetChangeEvent(this, this));
     }
 
@@ -238,51 +193,30 @@ public class BeamProfileDataset extends AbstractXYDataset
      * Removes a series from the dataset, then sends a
      * {@link DatasetChangeEvent} to all registered listeners.
      *
-     * @param seriesKey  the series key (<code>null</code> not permitted).
+     * @param index  the series index (<code>null</code> not permitted).
      *
      */
-    public void removeSeries(Integer seriesKey) {
-        int seriesIndex = indexOf(seriesKey);
-        if (seriesIndex >= 0) {
-           this.seriesList.remove(seriesIndex);
-            notifyListeners(new DatasetChangeEvent(this, this));
-        }
+    public void removeSeries(int index) {
+        this.seriesList.remove(index);
+        notifyListeners(new DatasetChangeEvent(this, this));
     }
 
-    /**
-     * Tests this <code>DefaultXYDataset</code> instance for equality with an
-     * arbitrary object.  This method returns <code>true</code> if and only if:
-     * <ul>
-     * <li><code>obj</code> is not <code>null</code>;</li>
-     * <li><code>obj</code> is an instance of
-     *         <code>DefaultXYDataset</code>;</li>
-     * <li>both datasets have the same number of series, each containing
-     *         exactly the same values.</li>
-     * </ul>
-     *
-     * @param obj  the object (<code>null</code> permitted).
-     *
-     * @return A boolean.
-     */
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof BeamProfileDataset)) {
+        if (!(obj instanceof BeamTraceDataset)) {
             return false;
         }
-        BeamProfileDataset that = (BeamProfileDataset) obj;
+        BeamTraceDataset that = (BeamTraceDataset) obj;
         if (this.seriesList.size() != that.seriesList.size()) {
             return false;
         }
-        if (this.data != that.data) {
-            return false;
-        }
         for (int i = 0; i < this.seriesList.size(); i++) {
-            int d1 = this.seriesList.get(i);
-            int d2 = that.seriesList.get(i);
-            if (d1 != d2) {
+            Series s1 = this.seriesList.get(i);
+            Series s2 = that.seriesList.get(i);
+            if (s1 != s2) {
                 return false;
             }
         }
@@ -292,14 +226,11 @@ public class BeamProfileDataset extends AbstractXYDataset
     /**
      * Returns a hash code for this instance.
      *
-     * @return A hash code.
+     * @return A hash code int.
      */
     @Override
     public int hashCode() {
-        int result;
-        result = Arrays.hashCode(data);
-        result = 29 * result + this.seriesList.hashCode();
-        return result;
+        return 29 + this.seriesList.hashCode();
     }
 
     /**
@@ -313,13 +244,46 @@ public class BeamProfileDataset extends AbstractXYDataset
      */
     @Override
     public Object clone() throws CloneNotSupportedException {
-        BeamProfileDataset clone = (BeamProfileDataset) super.clone();
+        super.clone();
+        BeamTraceDataset clone = new BeamTraceDataset();
         clone.seriesList = new ArrayList(this.seriesList.size());
         for (int i = 0; i < this.seriesList.size(); i++) {
             clone.seriesList.add(this.seriesList.get(i));
         }
-        clone.data = data;
         return clone;
+    }
+    
+    private class Series {
+        double[] x;
+        double[] y;
+        
+        Series(double[] _x, double[] _y) throws IllegalArgumentException {
+            if (x == null || y == null)
+                throw new IllegalArgumentException("X and Y cannot be null");
+            if (_x.length != _y.length)
+                throw new IllegalArgumentException("X and Y size mismatch");
+            x = _x;
+            y = _y;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 5;
+            hash = 67 * hash + Arrays.hashCode(this.x);
+            hash = 67 * hash + Arrays.hashCode(this.y);
+            return hash;
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof Series)) {
+                return false;
+            }
+            if (obj == this) {
+            return true;
+            }
+            return false;
+        }
     }
 
 }

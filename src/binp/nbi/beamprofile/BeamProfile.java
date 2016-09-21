@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2016, Andrey Sanin. All rights reserved.
  *
+ * 4.0 - 2016.09.21 Remove unused code
  */
 
 package binp.nbi.beamprofile;
@@ -69,8 +70,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     static String progName = "Calorimeter Beam Profile";
     static String progNameShort = "Beam_Profile";
-    static String progVersion = "32";
-    String iniFileName = progNameShort + "_" + progVersion + ".ini";
+    static String progVersion = "40"; 
     String configFileName = progNameShort + ".ini";
 
     // Input file
@@ -101,34 +101,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double[] dmin = new double[ny];         // minimal temperatures
     double[] dmax = new double[ny];         // maximal temperatures
 	
-/*
-    // Traces to plot
-    int[] trn = {6, 2, 10};     // Channel numbers of traces
-    Color[] trc = {Color.RED, Color.GREEN, Color.BLUE};  // Colors of traces
-
-    // Acceleration electrode voltage and current
-    int agvn = 23;
-    int agcn = 24;
-    int[] agn = {agvn, agcn};
-    Color[] agc = {Color.RED, Color.GREEN};  // Colors of traces
-    
-// Targeting plots
-    int tpt = 18;
-    int tpb = 19;
-    int tpl = 20;
-    int tpr = 21;
-    // Targeting traces
-    int[] tpn = {tpt, tpb, tpl, tpr};   // Channel numbers for Targeting plots
-    Color[] tpc = {Color.RED, Color.GREEN, Color.BLUE, Color.MAGENTA};  // Colors of traces
-    int[] tph1 = new int[tpn.length];   // Handles of traces zoom
-*/
-
-    int tpw = 30;                  // +- Integration window halfwidth
-    int tpnm;
-    int tpn1;
-    int tpn2;
-    
-    
     // Profile arrays
     // Vertical profile
     int[] p1range = {1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13};  // Channels for vertical profile
@@ -143,25 +115,20 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double maxTime;
     double lastProfTime = 3.0*60.*1000.; // 3 min
     
-/*
-    // Faded profiles
-    int fpn = 10;               // Number of faded pofiles
-    int[] fpi = new int[fpn];   // Faded pofiles indexes
-    int[] fph = new int[fpn];   // Faded pofile plot handles
-    double fpdt = 0.5;          // Faded pofile time inteval [s]
-*/
-    
     // Beam current calculations and plot
     int bctin = 8;          //  Input water temperature channel number
     int bctout = 7;         // Output water temperature channel number
     double beamVoltage = 80.0;  // keV Particles energy
     double beamDuration = 2.0;  // s Beam duration
-    double integrationTime = 60000.0;
+    double integrationTime = 2.0*60.0*1000.0; // 2 min
     int bcflowchan = 22;    // Channel number for flowmeter output
     double flow = 1.0;      // [V] Default cooling water flow signal  
     // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)[degrees C]*Q/voltage[V]
-    double GPMToVolt = 2.32;
-    double Q = GPMToVolt*63.09*4.2; // Coeff to convert Volts to Watts/degreeC 
+    double voltsToGPM = 2.32;
+    double Q = voltsToGPM*63.09*4.2; // Coeff to convert Volts to Watts/degreeC 
+    double beamCurrent = 0.0;       // Beam current
+    double beamCurrentMax = 0.0;    // Max beam current on the screen
+    double beamCurrentMaxAll = 0.0; // MaxMax beam current frpm program start
     double bcmax = 0.0;    // Max beam current on the screen
     double bcmax1 = 0.0;   // MaxMax beam current
 
@@ -1555,6 +1522,25 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             disableOutputWrite();
         }
     }
+    
+    public void setTracesColor() {
+        // Set colors for traces
+        JFreeChart chart = chart1.getChart();
+        XYPlot plot = chart.getXYPlot();
+        XYItemRenderer renderer = plot.getRenderer();
+        boolean savedNotify = plot.isNotify();
+        // Stop refreshing the plot
+        plot.setNotify(false);
+        for (int i=0, j=0; i<jTable1.getRowCount(); i++) { 
+            try {
+                if ((boolean) jTable1.getValueAt(i, 3)) {
+                    renderer.setSeriesPaint(j++, (Color) jTable1.getValueAt(i, 2));
+                }
+            } catch (Exception e) {
+            }
+        }
+        plot.setNotify(savedNotify);
+    }
 
     public double max(double[] array) {
         double result = array[0];
@@ -1938,11 +1924,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         // Calculate data minimum and maximum
                         for (int i = 1; i < temp.length; i++) {
                             if (temp[i] > 0.0 && dmin[i] > temp[i]) {
-                                // !! Only for temperature channels 1 - 16                                if (i < 17 ) dmin[0] = temp[0];
+                                // !! Only for temperature channels 1 - 16
+                                if (i < 17 ) dmin[0] = temp[0];
                                 dmin[i] = temp[i];
                             }
                             if (dmax[i] < temp[i]) {
-                                // !! Only for temperature channels 1 - 16                                if (i < 17 ) dmin[0] = temp[0];
+                                // !! Only for temperature channels 1 - 16
                                 if (i < 17 ) dmax[0] = temp[0];
                                 dmax[i] = temp[i];
                             }
@@ -1950,6 +1937,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                         // Prepare traces to plot
                         tracesDataset = new BeamProfileDataset(data);
+                        // Add series to dataset and set colors for traces
                         JFreeChart chart = chart1.getChart();
                         XYPlot plot = chart.getXYPlot();
                         XYItemRenderer renderer = plot.getRenderer();
@@ -2029,7 +2017,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 }
                             }
                         }
-                        // Vertical profile
+                        // Vertical profile max 3 min
                         plottedData = new double[2][p1range.length];
                         for (int j = 0; j < p1range.length; j++) {
                             plottedData[0][j] = p1x[j];
@@ -2043,50 +2031,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             plottedData[1][j] = data[maxXIndex][p2range[j]]- dmin[p2range[j]];
                         }
                         profileDataset.addSeries("lastMaxHorizProf", plottedData);
-
-/*                        
-                        // Faded profiles - refresh every fpdt seconds
-                        if (Math.abs(c.getSeconds() - c1.getSeconds()) < fpdt) {
-                            for(int i = 0; i < fpi.length; i++) {
-                                if (fpi[i] > 0) fpi[i] = fpi[i] - 1;
-                            }
-                        }
-                        else {
-                            for(int i = 0; i < fpi.length-1; i++) {
-                                fpi[i] = fpi[i+1];
-                            }
-                            fpi[fpi.length - 1] = nx - 1;
-                            c1 = c;
-                        }
-                        for (int i: fpi) {
-                            //System.out.println(i);
-                            plottedData = new double[2][p1range.length];
-                            for (int j = 0; j < p1range.length; j++) {
-                                plottedData[0][j] = p1x[j];
-                                plottedData[1][j] = data[i][p1range[j]] - dmin[p1range[j]];
-                            }
-                            profileDataset.addSeries("Faded " + i, plottedData);
-                        }
-                        // Shift marker
-                        mi = mi - 1;
-                        if (mi < 0) {
-                            int nx = data.length;
-                            int ny = data[0].length;
-                            double maxdata = data[0][1];
-                            int index = 0;
-                            for (int j = 1; j < ny; j++) {
-                                for (int i = 0; i < nx; i++) {
-                                    if (data[i][j] > maxdata) {
-                                        index = i;
-                                        maxdata = data[i][j];
-                                    }
-                                }
-                            }
-                            mi = index;
-                        }
-                        mi1 = Math.max(mi - mw, 0);
-                        mi2 = Math.min(mi + mw, nx-1);
-*/
 
                         // Calculate and plot equivalent current
                         // Intgeration window - last integrationTime ms
@@ -2117,141 +2061,20 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         double deltaTin = integralin - minin*integraldt;
                         //System.out.println("Integral In " + integralin + " min " + minin);
                         //System.out.println("Flow " + flow + " dt " + integraldt);
-                        double beamCurrent = (deltaTout - deltaTin)*flow*Q/beamVoltage/1000.0/beamDuration;  //mA
-                        statusLine = String.format("Flow: %7.3f V; Out: %7.3f C; In: %7.3f C; %7.3f s; %7.3f mA;", 
-                                flow, deltaTout, deltaTin, integraldt/1000.0, beamCurrent);
+                        beamCurrent = (deltaTout - deltaTin)*flow*Q/beamVoltage/1000.0/beamDuration;  //mA
+                        beamCurrentMax = beamCurrent > beamCurrentMax ? beamCurrent : beamCurrentMax;
+                        beamCurrentMaxAll = beamCurrent > beamCurrentMaxAll ? beamCurrent : beamCurrentMaxAll;
+                        statusLine = String.format("Flow: %4.2f V = %4.2f GPM; Current: %5.1f mA; Max: %5.1f mA; MaxAll: %5.1f mA", 
+                                flow, flow*voltsToGPM, beamCurrent, beamCurrentMax, beamCurrentMaxAll);
                         //System.out.println("In " + (integralin - minin*integraldt));
                         //System.out.println("Out " + (integralout - minout*integraldt));
                         //System.out.println("Beam current " + beamCurrent);
-
-//<editor-fold defaultstate="collapsed" desc=" Copied from BeamProfile.m and other staff">
-    /*
-
-// Determine integration window from targeting traces
-                        double maxdata = data[mi1][tpn[0]];
-                        double mindata = data[mi1][tpn[0]];
-                        int indexx = mi1;
-                        int indexy = tpn[0];
-                        for (int j = 0; j < tpn.length; j++) {
-                            for (int i = mi1; i < mi2; i++) {
-                                if (data[i][tpn[j]] > maxdata) {
-                                    indexx = i;
-                                    indexy = tpn[j];
-                                    maxdata = data[i][tpn[j]];
-                                }
-                                if (data[i][tpn[j]] < mindata) {
-                                    mindata = data[i][tpn[j]];
-                                }
-                            }
-                        }
-                        tpnm = indexx;
-                        tpn2 = tpnm + tpw;
-                        if (tpn2 > (nx-1)) {
-                            tpn2 = nx-1;
-                        }
-                        tpn1 = tpn2 - 2*tpw;
-                        if (tpn1 < 0) {
-                            tpn1 = 0;
-                            tpn2 = tpn1 + 2*tpw;
-                        }
-
-// Calculate and plot equivalent current
-                        double dt;
-                        double integralin = 0.0;
-                        double integralout = 0.0;
-                        double integraldt = 0.0;
-                        double integralflow = 0.0;
-                        double minout = data[tpn1 + 1][bctout];
-                        double minin = data[tpn1 + 1][bctin];
-                        for (int i = tpn1 + 1; i < tpn2; i++) {
-                            dt = data[i-1][0] - data[i][0];
-                            if (minout > data[i][bctout]) {
-                                minout = data[i][bctout];
-                            }
-                            if (minin > data[i][bctin]) {
-                                minin = data[i][bctin];
-                            }
-                            integraldt += dt; 
-                            integralout += data[i][bctout]*dt; 
-                            integralin += data[i][bctin]*dt; 
-                            integralflow += data[i][bcflowchan]*dt; 
-                        }
-                        double beamCurrent = ((integralout - integralin) - (minout - minin)*integraldt)*
-                                                integralflow/integraldt*Q/voltage;  //mA
-
-// Determine beam durationi from targeting traces
-                        if (tpn1 > 1) && (tpn2 < nx) {
-                            [v1, v2] = max(data(tpn1:tpn2, tpn));
-                            [d1, v3] = max(v1);
-                            d2 = min(data(tpn1:tpn2, tpn(v3)));
-                            d3 = d2+(d1-d2)*0.5;
-                            d4 = find(data(tpn1:tpn2, tpn(v3)) > d3) + tpn1;
-                            if numel(d4) > 1 {
-                                cdt = etime(datevec(data(d4(}), 1)), datevec(data(d4(1), 1)));
-                                if ~isMax(hCbDuration) {
-                                    // Replase with calculated value 
-                                    set(hEdDuration, "String", sprintf("//4.2f", cdt));
-                                    duration = cdt;
-                                }
-                            }
-                        }
-
-                        // Calculate and plot equivalent current
-                        // Calculate Delta T
-                        deltat = data(:, bctout)-data(:, bctin)-dmin(bctout)+dmin(bctin);  // C
-                        deltat = smooth(deltat,30);
-                        // Calculate measured flow
-                        cflow = data(:, bcflowchan);
-                        cflow(cflow <= 0.001) = 0.001;
-                        cflow = smooth(cflow,30);
-                        cflow = cflow*bcv2flow;
-                        if isMax(hCbFlow) {
-                            cflow(:) = flow;
-                        }
-                        else {
-                            set(hEdFlow, "String", sprintf("//5.2f", cflow(})));
-                        }
-                        current = deltat.*cflow*Q/voltage;  //mA
-
-                        // Calculate current by intergal 
-                        [bcmax, ind] = max(current);
-                        bcw = mw;   // Intergation window is 2*bcw+1 points
-                        ind = mi;
-                        i2 = ind + bcw;
-                        if (i2 > nx) {
-                            i2 = nx;
-                            i1 = nx -2*bcw-1;
-                        }
-                        else {
-                            i1 = ind - bcw;
-                            if (i1 < 1) {
-                                i1 = 1;
-                                i2 = 2*bcw+1;
-                            }
-                        }
-                        if ((i1 > 1) && (i2 < nx)) {
-                            ctotal = sum(current(i1:i2));
-                            cdt = etime(datevec(data(i2, 1)), datevec(data(i1, 1)));
-                            ctotal = ctotal - (current(i1)+current(i2))/2*(2*bcw);
-                            cdt1 = cdt/(2*bcw);
-                            cbd = duration;   // sec Beam duration
-                            cti = ctotal*cdt1/cbd;
-                            set(hTxtCurrent, "String", sprintf("Current //5.1f mA", cti));
-                        }
-
-                        set(bcmaxh, "String", sprintf("//5.1f mA", bcmax));
-                        set(bcch, "String", sprintf("//5.1f mA", current(})));
-                        set(bch, "Ydata", current - min(current));
-                        set(mh, "Xdata", i1:i2);
-                        set(mh, "Ydata", current(i1:i2) - min(current));
-*/
-    // </editor-fold> 
 
                         // Refresh plots
                         process(new ArrayList<Void>());
                     }
                     else {
-                        // Refresh Figure
+                        // Refresh plots
                         //process(new ArrayList<Void>());
                     }
                 }

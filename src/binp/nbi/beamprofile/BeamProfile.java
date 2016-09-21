@@ -160,8 +160,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int bcflowchan = 22;    // Channel number for flowmeter output
     double flow = 1.0;      // [V] Default cooling water flow signal  
     // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)[degrees C]*Q/voltage[V]
-    double voltsToGPM = 2.32;
-    double Q = voltsToGPM*63.09*4.2; // Coeff to convert Volts to Watts/degreeC 
+    double GPMToVolt = 2.32;
+    double Q = GPMToVolt*63.09*4.2; // Coeff to convert Volts to Watts/degreeC 
     double bcmax = 0.0;    // Max beam current on the screen
     double bcmax1 = 0.0;   // MaxMax beam current
 

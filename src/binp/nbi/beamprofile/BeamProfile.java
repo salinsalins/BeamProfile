@@ -1988,18 +1988,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             System.arraycopy(prof2, 0, prof2max, 0, prof2max.length);
                         }
                         // Vertical profile
-                        plottedData = new double[2][prof1max.length];
-                        for (int j = 0; j < prof1max.length; j++) {
-                            plottedData[0][j] = p1x[j];
-                            plottedData[1][j] = prof1max[j];
-                        }
+                        plottedData = new double[][] {p1x, prof1max};
                         profileDataset.addSeries("maxVertProf", plottedData);
                         // Horizontal profile
-                        plottedData = new double[2][p2range.length];
-                        for (int j = 0; j < p2range.length; j++) {
-                            plottedData[0][j] = p2x[j];
-                            plottedData[1][j] = prof2max[j];
-                        }
+                        plottedData = new double[][] {p2x, prof2max};
                         profileDataset.addSeries("maxHorizProf", plottedData);
                         
                         // Find max vertical profile for last 3 min
@@ -2025,11 +2017,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         }
                         profileDataset.addSeries("lastMaxVertProf", plottedData);
                         // Horizontal profile
-                        plottedData = new double[2][p2range.length];
-                        for (int j = 0; j < p2range.length; j++) {
-                            plottedData[0][j] = p2x[j];
-                            plottedData[1][j] = data[maxXIndex][p2range[j]]- dmin[p2range[j]];
-                        }
+                        plottedData = new double[][] {p2x, getProfile(p2range, maxXIndex)};
                         profileDataset.addSeries("lastMaxHorizProf", plottedData);
 
                         // Calculate and plot equivalent current

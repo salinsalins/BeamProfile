@@ -103,13 +103,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 	
     // Profile arrays
     // Vertical profile
-    int[] p1range = {1, 2, 3, 4, 5, 6, 9, 10, 11, 12, 13};  // Channels for vertical profile
-    int[] p1x =     {0, 2, 3, 4, 5, 6, 7,  8,  9, 10, 12};  // X values for vertical profile
+    int[] p1range = { 1,  2,  3,  4,  5,  6,  9,  10,  11,  12,  13};  // Channels for vertical profile
+    double[] p1x =  {0., 2., 3., 4., 5., 6., 7.,  8.,  9., 10., 12.};  // X values for vertical profile
     double[] prof1  = new double[p1range.length];           // Vertical profile
     double[] prof1max  = new double[p1range.length];        // Maximal vertical profile
     // Horizontal profile
-    int[] p2range = {15, 6, 14};     // Channels for horizontal profile
-    int[] p2x =     { 2, 6, 10};     // cm X values for horizontal profile
+    int[] p2range =    { 15,  6,  14};     // Channels for horizontal profile
+    double[] p2x =     { 2., 6., 10.};     // cm X values for horizontal profile
     double[] prof2  = new double[p2range.length];  // Horizontal profile
     double[] prof2max  = new double[prof2.length]; // Maximal horizontal profile
     double maxTime;
@@ -1542,6 +1542,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         plot.setNotify(savedNotify);
     }
 
+    public double[] getProfile(int[] range, int index) {
+        double[] result = new double[range.length];
+        for (int i = 0; i < range.length; i++) {
+            result[i] = data[index][range[i]]- dmin[range[i]];
+        }
+        return result;
+    }
+
     public double max(double[] array) {
         double result = array[0];
         for (double d: array)
@@ -1966,18 +1974,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             prof2[i] = data[nx-1][p2range[i]] - dmin[p2range[i]];
                         }
                         // Add Vertical profile
-                        double[][] plottedData = new double[2][p1range.length];
-                        for (int j = 0; j < p1range.length; j++) {
-                            plottedData[0][j] = p1x[j];
-                            plottedData[1][j] = prof1[j];
-                        }
+                        //double[][] plottedData = new double[2][p1range.length];
+                        //double[][] plottedData = new double[2][];
+                        double[][] plottedData = {p1x, prof1};
                         profileDataset.addSeries("vertProf", plottedData);
                         // Add Horizontal profile
-                        plottedData = new double[2][p2range.length];
-                        for (int j = 0; j < p2range.length; j++) {
-                            plottedData[0][j] = p2x[j];
-                            plottedData[1][j] = prof2[j];
-                        }
+                        plottedData = new double[2][];
+                        plottedData[0] = p2x;
+                        plottedData[1] = prof2;
                         profileDataset.addSeries("horizProf", plottedData);
                         
                         // Calculate maximal horizontal and vertical profiles

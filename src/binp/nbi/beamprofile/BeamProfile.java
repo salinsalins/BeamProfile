@@ -1555,6 +1555,25 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             disableOutputWrite();
         }
     }
+    
+    public void setTracesColor() {
+        // Set colors for traces
+        JFreeChart chart = chart1.getChart();
+        XYPlot plot = chart.getXYPlot();
+        XYItemRenderer renderer = plot.getRenderer();
+        boolean savedNotify = plot.isNotify();
+        // Stop refreshing the plot
+        plot.setNotify(false);
+        for (int i=0, j=0; i<jTable1.getRowCount(); i++) { 
+            try {
+                if ((boolean) jTable1.getValueAt(i, 3)) {
+                    renderer.setSeriesPaint(j++, (Color) jTable1.getValueAt(i, 2));
+                }
+            } catch (Exception e) {
+            }
+        }
+        plot.setNotify(savedNotify);
+    }
 
     public double max(double[] array) {
         double result = array[0];
@@ -1951,6 +1970,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                         // Prepare traces to plot
                         tracesDataset = new BeamProfileDataset(data);
+                        
+                        // Add series to dataset and set colors for traces
                         JFreeChart chart = chart1.getChart();
                         XYPlot plot = chart.getXYPlot();
                         XYItemRenderer renderer = plot.getRenderer();

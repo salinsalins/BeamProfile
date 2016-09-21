@@ -126,8 +126,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)[degrees C]*Q/voltage[V]
     double voltsToGPM = 2.32;
     double Q = voltsToGPM*63.09*4.2; // Coeff to convert Volts to Watts/degreeC 
+    double beamCurrent = 0.0;       // Beam current
     double beamCurrentMax = 0.0;    // Max beam current on the screen
-    double beamCurrentMaxAll = 0.0;   // MaxMax beam current frpm program start
+    double beamCurrentMaxAll = 0.0; // MaxMax beam current frpm program start
 
     String statusLine = "";
     
@@ -2058,9 +2059,11 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         double deltaTin = integralin - minin*integraldt;
                         //System.out.println("Integral In " + integralin + " min " + minin);
                         //System.out.println("Flow " + flow + " dt " + integraldt);
-                        double beamCurrent = (deltaTout - deltaTin)*flow*Q/beamVoltage/1000.0/beamDuration;  //mA
-                        statusLine = String.format("Flow: %7.3f V; Out: %7.3f C; In: %7.3f C; %7.3f s; %7.3f mA;", 
-                                flow, deltaTout, deltaTin, integraldt/1000.0, beamCurrent);
+                        beamCurrent = (deltaTout - deltaTin)*flow*Q/beamVoltage/1000.0/beamDuration;  //mA
+                        beamCurrentMax = beamCurrent > beamCurrentMax ? beamCurrent : beamCurrentMax;
+                        beamCurrentMaxAll = beamCurrent > beamCurrentMaxAll ? beamCurrent : beamCurrentMaxAll;
+                        statusLine = String.format("Flow: %4.2f V = %4.2f GPM; Current: %5.1f mA; Max: %5.1f mA; MaxAll: %5.1f mA", 
+                                flow, flow*voltsToGPM, beamCurrent, beamCurrentMax, beamCurrentMaxAll);
                         //System.out.println("In " + (integralin - minin*integraldt));
                         //System.out.println("Out " + (integralout - minout*integraldt));
                         //System.out.println("Beam current " + beamCurrent);

@@ -1974,14 +1974,10 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             prof2[i] = data[nx-1][p2range[i]] - dmin[p2range[i]];
                         }
                         // Add Vertical profile
-                        //double[][] plottedData = new double[2][p1range.length];
-                        //double[][] plottedData = new double[2][];
                         double[][] plottedData = {p1x, prof1};
                         profileDataset.addSeries("vertProf", plottedData);
                         // Add Horizontal profile
-                        plottedData = new double[2][];
-                        plottedData[0] = p2x;
-                        plottedData[1] = prof2;
+                        plottedData = new double[][] {p2x, prof2};
                         profileDataset.addSeries("horizProf", plottedData);
                         
                         // Calculate maximal horizontal and vertical profiles

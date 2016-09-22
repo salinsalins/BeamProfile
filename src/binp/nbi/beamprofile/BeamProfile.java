@@ -1809,15 +1809,14 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
                         // Read data from ADAMs
                         Date cr = new Date();
-
-                        double[] t0 = adams[0].readData();
-                        double[] t1 = adams[1].readData();
-                        double[] t2 = adams[2].readData();
-
                         double[] temp = new double[data[0].length];
                         temp[0] = cr.getTime();
+
+                        double[] t0 = adams[0].readData();
                         System.arraycopy(t0, 0, temp,  1, t0.length);
+                        double[] t1 = adams[1].readData();
                         System.arraycopy(t1, 0, temp,  9, t1.length);
+                        double[] t2 = adams[2].readData();
                         System.arraycopy(t2, 0, temp, 17, t2.length);
 
                         // Save line with data to output file if output writing is enabled
@@ -1827,8 +1826,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                                 String sep = "; ";
                                 // Write Time in milliseconds - not time HH:MM:SS.SS
                                 String str = String.format("%d", (long) temp[0]);
-                                //String str = String.format("%d; ", (long) temp[0]);
-                                //outputWriter.write(str, 0, str.length());
                                 outputWriter.write(str + sep);
                                 // Write data array
                                 for (int i = 1; i < temp.length; i++) {
@@ -1914,16 +1911,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         // Dataset for profiles
                         profileDataset = new DefaultXYDataset();
                         // 1. Current profile
-                        for (int i =0; i < p1range.length; i++) {
-                            p1[i] = data[nx-1][p1range[i]] - dmin[p1range[i]];
-                        }
-                        for (int i =0; i < p2range.length; i++) {
-                            p2[i] = data[nx-1][p2range[i]] - dmin[p2range[i]];
-                        }
                         // Add Vertical profile
+                        p1 = getProfile(p1range, nx-1);
                         double[][] plottedData = {p1x, p1};
                         profileDataset.addSeries("vertProf", plottedData);
                         // Add Horizontal profile
+                        p2 = getProfile(p2range, nx-1);
                         plottedData = new double[][] {p2x, p2};
                         profileDataset.addSeries("horizProf", plottedData);
                         
@@ -1957,11 +1950,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                             }
                         }
                         // Vertical profile max 3 min
-                        plottedData = new double[2][p1range.length];
-                        for (int j = 0; j < p1range.length; j++) {
-                            plottedData[0][j] = p1x[j];
-                            plottedData[1][j] = data[maxXIndex][p1range[j]]- dmin[p1range[j]];
-                        }
+                        plottedData = new double[][] {p1x, getProfile(p1range, maxXIndex)};
                         profileDataset.addSeries("lastMaxVertProf", plottedData);
                         // Horizontal profile
                         plottedData = new double[][] {p2x, getProfile(p2range, maxXIndex)};

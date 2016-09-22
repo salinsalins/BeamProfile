@@ -70,7 +70,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
 
     static String progName = "Calorimeter Beam Profile";
     static String progNameShort = "Beam_Profile";
-    static String progVersion = "40"; 
+    static String progVersion = "41"; 
     String configFileName = progNameShort + ".ini";
 
     // Input file
@@ -98,8 +98,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int ny = 4*8+1;   // number of registered temperatures + time
     // Preallocate arrays
     double[][] data = new double[nx][ny];   // traces
-    double[] dmin = new double[ny];         // minimal temperatures
-    double[] dmax = new double[ny];         // maximal temperatures
+    boolean[] temperatureMask = new boolean[ny]; // mask for temperature channels
+    double[] dmin = new double[ny];         // minimal data values
+    double[] dmax = new double[ny];         // maximal data values
 	
     // Profile arrays
     // Vertical profile
@@ -189,48 +190,16 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         JFreeChart chart = chart1.getChart();
         chart.getTitle().setFont(new Font("SansSerif", Font.PLAIN, 12));
         XYPlot plot = chart.getXYPlot();
-        //Color backgroundColor = new Color(28, 100, 140);
-        //plot.setBackgroundPaint(backgroundColor);
         plot.setAxisOffset(RectangleInsets.ZERO_INSETS);
         plot.getRangeAxis().setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
         plot.getDomainAxis().setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
-        //plot.setDomainGridlinePaint(Color.white); // x grid lines color
-        //plot.setRangeGridlinePaint(Color.white);  // y grid lines color
-        // Set trace colors
-        //setLineColor(Color.red, Color.blue, Color.green, Color.gray);
-        // Disable tooltips
-        //plot.getRenderer().setBaseToolTipGenerator(null);
         DateAxis axis = new DateAxis("Time", TimeZone.getTimeZone("GMT+7"));
         plot.setDomainAxis(axis);
         
-    /*
-        // Add simple sinusoidal data
-        boolean savedNotify = plot.isNotify();
-        // Stop refreshing the plot
-        plot.setNotify(false);
-        //SyncronizedXYSeriesCollection tracesDataset = new SyncronizedXYSeriesCollection();
-        XYSeriesCollection dataset = new XYSeriesCollection();
-        plot.setDataset(dataset);
-        //XYSeriesCollection tracesDataset = (XYSeriesCollection) plot.getDataset();
-        dataset.removeAllSeries();
-        for (int i = 0; i < trn.length; i++) {
-        XYSeries series = new XYSeries("Signal " + i);
-        for (int j = 0; j < data.length; j++) {
-        double x = j;
-        //double x = (data[j][0] - data[0][0])/1000.0;
-        double y = Math.sin(Math.PI*j/500.0);
-        //double y = data[j][trn[i]];
-        series.add(x, y);
-        }
-        dataset.addSeries(series);
-        }
-        // Restore refreshing state
-        plot.setNotify(savedNotify);
-    */
         chart2 = new ChartPanel(ChartFactory.createXYLineChart(
                 "Profiles", // chart title
                 "Distance, cm", // x axis label
-                "Profile", // y axis label
+                "Profile, degC", // y axis label
                 new XYSeriesCollection(), // data
                 PlotOrientation.VERTICAL,
                 false, // include legend
@@ -244,25 +213,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         plot.setAxisOffset(RectangleInsets.ZERO_INSETS);
         plot.getRangeAxis().setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
         plot.getDomainAxis().setLabelFont(new Font("SansSerif", Font.PLAIN, 12));
-    /*
-        // Add simple sinusoidal data 
-        savedNotify = plot.isNotify();
-        // Stop refreshing the plot
-        plot.setNotify(false);
-        plot.setDataset(dataset);
-        dataset.removeAllSeries();
-        for (int i = 0; i < trn.length; i++) { 
-            XYSeries series = new XYSeries("Signal " + i);
-            for (int j = 0; j < data.length; j++) {
-                double x = j;
-                double y = Math.sin(Math.PI*j/500.0);
-                series.add(x, y);
-            }
-            dataset.addSeries(series);
-        }
-        // Restore refreshing state
-        plot.setNotify(savedNotify);
-    */
         chartPanel = new JPanel();
         chartPanel.setLayout(new GridLayout(0, 1, 5, 5));
         chartPanel.add(chart1);
@@ -299,9 +249,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             prof2[i] = data[0][p2range[i]];
             prof2max[i] = 1.0;
         }
-//        for (int i = 0; i < fpi.length; i++) {
-//            fpi[i] = nx - 1;
-//        }
 
         c0 = new Date();
         c1 = new Date();

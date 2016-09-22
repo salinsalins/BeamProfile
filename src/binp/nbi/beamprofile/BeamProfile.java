@@ -98,7 +98,6 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     int ny = 4*8+1;   // number of registered temperatures + time
     // Preallocate arrays
     double[][] data = new double[nx][ny];   // traces
-    boolean[] temperatureMask = new boolean[ny]; // mask for temperature channels
     double[] dmin = new double[ny];         // minimal data values
     double[] dmax = new double[ny];         // maximal data values
 	
@@ -106,13 +105,13 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     // Vertical profile
     int[] p1range = { 1,  2,  3,  4,  5,  6,  9,  10,  11,  12,  13};  // Channels for vertical profile
     double[] p1x =  {0., 2., 3., 4., 5., 6., 7.,  8.,  9., 10., 12.};  // X values for vertical profile
-    double[] prof1  = new double[p1range.length];           // Vertical profile
-    double[] prof1max  = new double[p1range.length];        // Maximal vertical profile
+    double[] p1  = new double[p1range.length];           // Vertical profile
+    double[] p1max  = new double[p1range.length];        // Maximal vertical profile
     // Horizontal profile
     int[] p2range =    { 15,  6,  14};     // Channels for horizontal profile
     double[] p2x =     { 2., 6., 10.};     // cm X values for horizontal profile
-    double[] prof2  = new double[p2range.length];  // Horizontal profile
-    double[] prof2max  = new double[prof2.length]; // Maximal horizontal profile
+    double[] p2  = new double[p2range.length];  // Horizontal profile
+    double[] p2max  = new double[p2.length]; // Maximal horizontal profile
     double maxTime;
     double lastProfTime = 3.0*60.*1000.; // 3 min
     
@@ -123,9 +122,9 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double beamDuration = 2.0;  // s Beam duration
     double integrationTime = 2.0*60.0*1000.0; // 2 min
     int bcflowchan = 22;    // Channel number for flowmeter output
-    double flow = 1.0;      // [V] Default cooling water flow signal  
-    // Current[mA] =	folwSignal[V]*(OutputTemperature-InputTemperature)[degrees C]*Q/voltage[V]
+    double flow = 1.0;      // [V] cooling water flow signal  
     double voltsToGPM = 2.32;
+    double GPMToGrammsPerSecond = 63.09;
     double Q = voltsToGPM*63.09*4.2; // Coeff to convert Volts to Watts/degreeC 
     double beamCurrent = 0.0;       // Beam current
     double beamCurrentMax = 0.0;    // Max beam current on the screen
@@ -243,12 +242,12 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
         
         // Initialize profiles
         for (int i = 0; i < p1range.length; i++) {
-            prof1[i] = data[0][p1range[i]];
-            prof1max[i] = 1.0;
+            p1[i] = data[0][p1range[i]];
+            p1max[i] = 1.0;
         }
         for (int i = 0; i < p2range.length; i++) {
-            prof2[i] = data[0][p2range[i]];
-            prof2max[i] = 1.0;
+            p2[i] = data[0][p2range[i]];
+            p2max[i] = 1.0;
         }
 
         c0 = new Date();
@@ -1672,7 +1671,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             set(hObj, 'String', 'Start');
         else
             set(hObj, 'String', 'Stop');
-            prof1max(:) = 1;
+            p1max(:) = 1;
         end
     end
 
@@ -1911,35 +1910,35 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
                         }
                         plot.setNotify(savedNotify);
                         
-                        // Calculate profiles prof1 - vertical and prof2 - horizontal
+                        // Calculate profiles p1 - vertical and p2 - horizontal
                         // Dataset for profiles
                         profileDataset = new DefaultXYDataset();
                         // 1. Current profile
                         for (int i =0; i < p1range.length; i++) {
-                            prof1[i] = data[nx-1][p1range[i]] - dmin[p1range[i]];
+                            p1[i] = data[nx-1][p1range[i]] - dmin[p1range[i]];
                         }
                         for (int i =0; i < p2range.length; i++) {
-                            prof2[i] = data[nx-1][p2range[i]] - dmin[p2range[i]];
+                            p2[i] = data[nx-1][p2range[i]] - dmin[p2range[i]];
                         }
                         // Add Vertical profile
-                        double[][] plottedData = {p1x, prof1};
+                        double[][] plottedData = {p1x, p1};
                         profileDataset.addSeries("vertProf", plottedData);
                         // Add Horizontal profile
-                        plottedData = new double[][] {p2x, prof2};
+                        plottedData = new double[][] {p2x, p2};
                         profileDataset.addSeries("horizProf", plottedData);
                         
                         // Calculate maximal horizontal and vertical profiles
                         // Refresh maximal profiles
-                        if (max(prof1max) < max(prof1)) {
+                        if (max(p1max) < max(p1)) {
                             maxTime = temp[0];
-                            System.arraycopy(prof1, 0, prof1max, 0, prof1max.length);
-                            System.arraycopy(prof2, 0, prof2max, 0, prof2max.length);
+                            System.arraycopy(p1, 0, p1max, 0, p1max.length);
+                            System.arraycopy(p2, 0, p2max, 0, p2max.length);
                         }
                         // Vertical profile
-                        plottedData = new double[][] {p1x, prof1max};
+                        plottedData = new double[][] {p1x, p1max};
                         profileDataset.addSeries("maxVertProf", plottedData);
                         // Horizontal profile
-                        plottedData = new double[][] {p2x, prof2max};
+                        plottedData = new double[][] {p2x, p2max};
                         profileDataset.addSeries("maxHorizProf", plottedData);
                         
                         // Find max vertical profile for last 3 min

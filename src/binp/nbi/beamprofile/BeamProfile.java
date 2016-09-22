@@ -228,7 +228,8 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             new String [] {
                 "Channel", "Name", "Color", "Plot", "Ymin", "Ymax"
             }
-        ) {
+        ) 
+        {
             Class[] types = new Class [] {
                 java.lang.Integer.class, java.lang.String.class, Color.class, java.lang.Boolean.class, java.lang.Double.class, java.lang.Double.class
             };

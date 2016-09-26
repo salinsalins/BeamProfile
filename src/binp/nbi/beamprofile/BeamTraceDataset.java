@@ -1,3 +1,5 @@
+package binp.nbi.beamprofile;
+
 
 import java.util.ArrayList;
 import java.util.Arrays;

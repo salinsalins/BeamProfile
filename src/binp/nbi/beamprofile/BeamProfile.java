@@ -128,7 +128,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
     double Q = voltsToGPM*63.09*4.2; // Coeff to convert Volts to Watts/degreeC 
     double beamCurrent = 0.0;       // Beam current
     double beamCurrentMax = 0.0;    // Max beam current on the screen
-    double beamCurrentMaxAll = 0.0; // MaxMax beam current frpm program start
+    double beamCurrentMaxAll = 0.0; // Max beam current frpm program start
     double bcmax = 0.0;    // Max beam current on the screen
     double bcmax1 = 0.0;   // MaxMax beam current
 

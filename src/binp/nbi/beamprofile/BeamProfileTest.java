@@ -5,6 +5,7 @@
  */
 package binp.nbi.beamprofile;
 
+import java.io.File;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,6 +17,7 @@ import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
 import jssc.SerialPortList;
 import jssc.SerialPortTimeoutException;
+import org.ini4j.Wini;
 
 /**
  *
@@ -52,6 +54,25 @@ public class BeamProfileTest {
     void process() throws SerialPortException, SerialPortTimeoutException {
             System.out.println("-- Start --");
         try {            
+            Wini ini = new Wini(new File("Beam_Profile.ini"));
+            int i;
+            boolean b;
+            String s;
+
+            s = ini.get("Input", "file");
+            System.out.println("Input - file = " + s);
+            b =  ini.get("Input", "readFromFile", boolean.class);
+            System.out.println("Input - readFromFile = " + b);
+            i =  ini.get("ADAM_1", "address", int.class);
+            System.out.println("ADAM_1 - address = " + i);
+
+            s = ini.get("Input", "nonexists");
+            System.out.println("Input - nonexists = " + s);
+            i =  ini.get("Input", "nonexists", int.class);
+            System.out.println("Input - nonexists (as int) = " + i);
+            b =  ini.get("Input", "file", boolean.class);
+            System.out.println("Input - file (as boolean) = " + b);
+/*            
             String[] ports = SerialPortList.getPortNames();
             String portName = "COM12";
             boolean exists = false;
@@ -93,7 +114,7 @@ public class BeamProfileTest {
                                                       SerialPort.MASK_DSR |
                                                       SerialPort.MASK_RLSD);
 */            
-            
+/*            
             // Clear input buffer
             serialPort.readString();
             // write command ReadAllChannels for ADAM at addr 08
@@ -130,7 +151,7 @@ public class BeamProfileTest {
             System.out.println("byte count " + adam.totalByteReadCount);
             System.out.println("avg first byte " + adam.averageFirstByteReadTime);
             System.out.println("avg byte " + adam.averageByteReadTime);
-            
+*/            
         }
         catch(Exception ex) {
             ex.printStackTrace();

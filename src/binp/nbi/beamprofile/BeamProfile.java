@@ -1195,7 +1195,7 @@ public class BeamProfile extends javax.swing.JFrame implements WindowListener {
             // Restore Table2
             restoreTable(jTable2, ini, "ADAM");
         } catch (IOException ex) {
-            LOGGER.log(Level.WARNING, "Config write error");
+            LOGGER.log(Level.WARNING, "Config read error");
             LOGGER.log(Level.INFO, "Exception info", ex);
         }
         jComboBox5ActionPerformed(null);

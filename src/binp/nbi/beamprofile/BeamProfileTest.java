@@ -6,16 +6,10 @@
 package binp.nbi.beamprofile;
 
 import java.io.File;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
 import jssc.SerialPort;
-import static jssc.SerialPort.FLOWCONTROL_NONE;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 import jssc.SerialPortException;
-import jssc.SerialPortList;
 import jssc.SerialPortTimeoutException;
 import org.ini4j.Wini;
 
@@ -52,7 +46,10 @@ public class BeamProfileTest {
     }
 
     void process() throws SerialPortException, SerialPortTimeoutException {
-            System.out.println("-- Start --");
+        System.out.println("-- Start --");
+        String sss = "";
+        System.out.println(sss.isEmpty());
+        System.out.println(sss.length());
         try {            
             Wini ini = new Wini(new File("Beam_Profile.ini"));
             int i;
